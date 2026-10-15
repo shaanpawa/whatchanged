@@ -1,0 +1,35 @@
+[project]
+name = "whatchanged"
+version = "0.1.0"
+description = "What changed in the room? Two phone videos in, a 3D change report out."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "mapanything @ git+https://github.com/facebookresearch/map-anything.git@3d10cf7a3016fc0f9bb13a071ee66c47b10be0d9",
+    "torch>=2.6",
+    "torchvision",
+    "numpy",
+    "scipy",
+    "opencv-python-headless",
+    "pillow",
+    "pyyaml",
+    "transformers>=4.50",
+]
+
+[project.optional-dependencies]
+gemini = ["google-genai>=1.0"]
+dev = ["pytest"]
+
+[project.scripts]
+whatchanged = "whatchanged.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/whatchanged"]

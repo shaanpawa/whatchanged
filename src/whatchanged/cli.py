@@ -1,0 +1,153 @@
+"""whatchanged: two phone videos in, a 3D change report out.
+
+  whatchanged run BEFORE.mp4 AFTER.mp4 --out out/room     full pipeline
+  whatchanged check BEFORE.mp4 AFTER.mp4                  footage warnings, no 3D
+  whatchanged report out/room                             rebuild everything after 3D from the cache
+  whatchanged demo                                        the bundled example, no model download
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+import time
+from dataclasses import asdict
+from pathlib import Path
+
+import numpy as np
+
+from . import changes as ch
+from .frames import check_pair, extract_keyframes, load_manifest, save_manifest
+
+T0 = time.time()
+
+
+def log(msg: str) -> None:
+    print(f"[{time.time() - T0:6.1f}s] {msg}", flush=True)
+
+
+def _detect_and_report(out: Path, labels: str, cfg: ch.Config) -> dict:
+    from . import floormap, lookahead, report, semantics
+    from .geometry import write_ply
+    from .recon import Session
+
+    A = Session.load("A", out / "cache" / "A.npz")
+    B = Session.load("B", out / "cache" / "B.npz")
+    diag = json.loads((out / "cache" / "diag.json").read_text())
+    res = ch.detect(A, B, cfg, log)
+    found = semantics.describe(res, A, B, out, labels, log)
+    regions = [r for r in res["regions_A"] if r["reason"] == "hidden"] + res["regions_A"][:3]
+    seen_ids = set()
+    regions = [r for r in regions if not (id(r) in seen_ids or seen_ids.add(id(r)))]
+    log("Robot map: before / after / updated")
+    floor = floormap.build(A, B, found, out / "maps")
+    g = np.load(out / "maps" / "grids.npz")
+    plans = lookahead.plan(A, B, res["regions_A"], g["free_both"], g["origin"], float(g["res"]), out, log=log)
+    diag["noise_floor"] = {"A_to_B_sigma": round(res["VA"]["sigma"], 4), "B_to_A_sigma": round(res["VB"]["sigma"], 4)}
+    diag["config"] = asdict(cfg)
+    for name, S in (("A", A), ("B", B)):
+        p, c = S.points(conf_pct=30, stride=2)
+        write_ply(out / f"scene_{name}.ply", p, c)
+    summary = {
+        "changes": found,
+        "cant_tell": [{"reason": r["reason"], "centre_m": np.round(r["centre"], 2).tolist(),
+                       "min_m": np.round(r["min"], 2).tolist(), "max_m": np.round(r["max"], 2).tolist(), "voxels": r["n"]}
+                      for r in regions],
+        "floor_map": floor, "look_next": plans, "diagnostics": diag,
+    }
+    (out / "changes.json").write_text(json.dumps(summary, indent=1))
+    path = report.write(out, A, B, found, regions, floor, diag, plans)
+    log(f"Report: {path}")
+    for c in found:
+        print(f"  {c['id']} {c['type']:8s} {c['sentence']}")
+    return summary
+
+
+def cmd_run(a) -> None:
+    from .recon import reconstruct
+
+    out = Path(a.out)
+    (out / "cache").mkdir(parents=True, exist_ok=True)
+    for w in check_pair(a.before, a.after):
+        log(f"warning: {w}")
+    if a.force or not (out / "cache" / "A.npz").exists():
+        log(f"Frames: {a.frames} sharp keyframes per video")
+        fa = extract_keyframes(a.before, out / "frames", "A", n=a.frames)
+        fb = extract_keyframes(a.after, out / "frames", "B", n=a.frames)
+        save_manifest(fa + fb, out / "frames.json")
+        A, B, diag = reconstruct(fa, fb, device=a.device, log=log)
+        A.save(out / "cache" / "A.npz")
+        B.save(out / "cache" / "B.npz")
+        diag["inputs"] = {"before": str(a.before), "after": str(a.after)}
+        (out / "cache" / "diag.json").write_text(json.dumps(diag, indent=1))
+    else:
+        log("3D: using cached reconstruction (pass --force to redo)")
+    _detect_and_report(out, a.labels, _cfg(a))
+
+
+def cmd_report(a) -> None:
+    _detect_and_report(Path(a.out), a.labels, _cfg(a))
+
+
+def cmd_check(a) -> None:
+    ws = check_pair(a.before, a.after)
+    print("\n".join(f"warning: {w}" for w in ws) or "Footage looks fine.")
+
+
+def cmd_demo(a) -> None:
+    root = Path(__file__).resolve().parents[2] / "examples" / "bedroom"
+    if not (root / "cache" / "A.npz").exists():
+        sys.exit(f"Example cache not found at {root}. Run `whatchanged run` on your own videos instead.")
+    _detect_and_report(root, "auto", ch.Config())
+
+
+def _cfg(a) -> ch.Config:
+    cfg = ch.Config()
+    for k in ("voxel", "min_views", "free_share", "k_sigma"):
+        v = getattr(a, k, None)
+        if v is not None:
+            setattr(cfg, k, v)
+    return cfg
+
+
+def main(argv=None) -> None:
+    p = argparse.ArgumentParser(prog="whatchanged", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    def tuning(sp):
+        sp.add_argument("--labels", default="auto", choices=["auto", "gemini", "siglip", "none"])
+        sp.add_argument("--voxel", type=float)
+        sp.add_argument("--min-views", dest="min_views", type=int)
+        sp.add_argument("--free-share", dest="free_share", type=float)
+        sp.add_argument("--k-sigma", dest="k_sigma", type=float)
+
+    r = sub.add_parser("run", help="full pipeline on two videos")
+    r.add_argument("before")
+    r.add_argument("after")
+    r.add_argument("--out", default="out/run")
+    r.add_argument("--frames", type=int, default=24, help="keyframes per video")
+    r.add_argument("--device", default="auto", help="auto, cpu, cuda or mps")
+    r.add_argument("--force", action="store_true")
+    tuning(r)
+    r.set_defaults(fn=cmd_run)
+
+    c = sub.add_parser("check", help="footage warnings only")
+    c.add_argument("before")
+    c.add_argument("after")
+    c.set_defaults(fn=cmd_check)
+
+    rp = sub.add_parser("report", help="rebuild detection, labels, maps and report from a cached run")
+    rp.add_argument("out")
+    tuning(rp)
+    rp.set_defaults(fn=cmd_report)
+
+    d = sub.add_parser("demo", help="run the bundled example from its cache")
+    d.set_defaults(fn=cmd_demo)
+
+    a = p.parse_args(argv)
+    a.fn(a)
+
+
+if __name__ == "__main__":
+    main()

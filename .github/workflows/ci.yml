@@ -1,0 +1,75 @@
+name: ci
+
+# Every push: the brief's traps on a synthetic room, then the real example rebuilt from its
+# cached 3D reconstruction, scored against the hand-written answer key, and published.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  traps:
+    name: Traps on a synthetic room
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+      - name: Viewpoint, removal, addition, occlusion and move tests
+        env:
+          PYTHONPATH: src
+        run: uv run --no-project --python 3.12 --with numpy --with scipy --with pyyaml --with pillow --with pytest python -m pytest -q tests
+
+  replay:
+    name: Rebuild and score the real example
+    runs-on: ubuntu-24.04
+    needs: traps
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+      - name: Light install (replaying needs no 3D model and no API key)
+        run: |
+          uv venv --python 3.12
+          uv pip install numpy scipy pillow pyyaml opencv-python-headless "rerun-sdk==0.24.1"
+          uv pip install -e . --no-deps
+      - name: Rebuild changes, labels, maps, look-next and report from the cache
+        run: .venv/bin/whatchanged demo
+      - name: Score against the answer key
+        run: |
+          .venv/bin/whatchanged score examples/bedroom examples/bedroom/ground_truth.yaml \
+            --title "Bedroom: before vs after" --min-recall 0.75 --max-false 1 | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ -d examples/bedroom-repeat ]; then
+            .venv/bin/whatchanged report examples/bedroom-repeat
+            .venv/bin/whatchanged score examples/bedroom-repeat examples/bedroom-repeat/ground_truth.yaml \
+              --title "Bedroom: untouched repeat (must report nothing)" --max-false 0 | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Assemble the site
+        run: |
+          mkdir -p site
+          cp -r docs/site/. site/ 2>/dev/null || true
+          for d in examples/*/; do
+            n=$(basename "$d"); mkdir -p "site/$n"
+            cp "$d/report.html" "$d/scene.rrd" "$d/changes.json" "site/$n/" 2>/dev/null || true
+            cp -r "$d/maps" "site/$n/" 2>/dev/null || true
+          done
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+  deploy:
+    name: Publish to GitHub Pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: replay
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

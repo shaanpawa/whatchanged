@@ -1,0 +1,72 @@
+name: run on your own videos
+
+# Fork the repo, open Actions > "run on your own videos" > Run workflow, and paste two direct
+# links to phone videos. The full pipeline runs on a free CPU runner (no GPU, no API key) and
+# the report is attached to the run. A GEMINI_API_KEY repository secret, if set, improves labels.
+on:
+  workflow_dispatch:
+    inputs:
+      before_url:
+        description: Direct download link to the BEFORE video (mp4 or mov)
+        required: true
+      after_url:
+        description: Direct download link to the AFTER video
+        required: true
+      frames:
+        description: Keyframes per video (more = slower, finer)
+        default: "16"
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      BEFORE_URL: ${{ inputs.before_url }}
+      AFTER_URL: ${{ inputs.after_url }}
+      FRAMES: ${{ inputs.frames }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+      - name: Add swap (the 3D model peaks around 13 GB on 16 GB runners)
+        run: |
+          sudo fallocate -l 8G /swapfile && sudo chmod 600 /swapfile
+          sudo mkswap /swapfile && sudo swapon /swapfile
+      - name: Install with CPU-only PyTorch
+        run: |
+          uv venv --python 3.12
+          uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          uv pip install -e ".[gemini]"
+      - name: Cache the 4.9 GB MapAnything weights
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/huggingface
+          key: hf-map-anything-apache-v1
+      - name: Download the two videos
+        run: |
+          curl -L --fail --max-filesize 1500000000 -o before.mp4 "$BEFORE_URL"
+          curl -L --fail --max-filesize 1500000000 -o after.mp4 "$AFTER_URL"
+          .venv/bin/whatchanged check before.mp4 after.mp4
+      - name: Run the pipeline
+        run: .venv/bin/whatchanged run before.mp4 after.mp4 --out out/yours --frames "$FRAMES"
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## What changed"
+            python3 -c "import json;d=json.load(open('out/yours/changes.json'));print('\n'.join('- **'+c['type']+'** '+c['sentence'] for c in d['changes']) or 'No changes found.')"
+            echo; echo "Download the **report** artifact below and open report.html."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: whatchanged-output
+          path: |
+            out/yours/report.html
+            out/yours/changes.json
+            out/yours/scene.rrd
+            out/yours/maps
+            out/yours/viewpoints.json

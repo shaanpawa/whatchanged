@@ -182,7 +182,8 @@ def pick_labeller(requested: str = "auto") -> str:
 
 
 def label(images: list[Image.Image], kind: str, labeller: str, cache: Cache, extra: str = "") -> dict:
-    key = cache.key(*images, extra=f"{labeller}|{kind}|{GEMINI_MODEL if labeller == 'gemini' else SIGLIP_MODEL}")
+    # Keyed on the images and the question only, so a cached Gemini answer replays without a key.
+    key = cache.key(*images, extra=f"{kind}|{extra}")
     if key in cache.data:
         return cache.data[key]
     if labeller == "gemini":

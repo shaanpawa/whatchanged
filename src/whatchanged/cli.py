@@ -58,6 +58,12 @@ def _detect_and_report(out: Path, labels: str, cfg: ch.Config) -> dict:
     }
     (out / "changes.json").write_text(json.dumps(summary, indent=1))
     path = report.write(out, A, B, found, regions, floor, diag, plans)
+    try:
+        from . import rrd
+        rrd.write(out / "scene.rrd", A, B, found, plans)
+        log(f"Rerun recording: {out / 'scene.rrd'}")
+    except Exception as e:  # the report matters more than the extra recording
+        log(f"warning: Rerun export skipped ({e})")
     log(f"Report: {path}")
     for c in found:
         print(f"  {c['id']} {c['type']:8s} {c['sentence']}")
@@ -102,6 +108,20 @@ def cmd_demo(a) -> None:
     _detect_and_report(root, "auto", ch.Config())
 
 
+def cmd_score(a) -> None:
+    from .score import markdown, score
+
+    s = score(Path(a.out) / "changes.json", Path(a.key))
+    md = markdown(s, a.title or Path(a.out).resolve().name)
+    (Path(a.out) / "scorecard.json").write_text(json.dumps(s, indent=1))
+    (Path(a.out) / "scorecard.md").write_text(md)
+    print(md)
+    if a.min_recall is not None and s["recall"] < a.min_recall:
+        sys.exit(f"recall {s['recall']} below {a.min_recall}")
+    if a.max_false is not None and s["false_alarms"] > a.max_false:
+        sys.exit(f"{s['false_alarms']} false alarms, more than {a.max_false}")
+
+
 def _cfg(a) -> ch.Config:
     cfg = ch.Config()
     for k in ("voxel", "min_views", "free_share", "k_sigma"):
@@ -141,6 +161,14 @@ def main(argv=None) -> None:
     rp.add_argument("out")
     tuning(rp)
     rp.set_defaults(fn=cmd_report)
+
+    s = sub.add_parser("score", help="compare a run with a hand-written answer key")
+    s.add_argument("out")
+    s.add_argument("key", help="ground_truth.yaml")
+    s.add_argument("--title")
+    s.add_argument("--min-recall", dest="min_recall", type=float, help="fail below this recall (for CI)")
+    s.add_argument("--max-false", dest="max_false", type=int, help="fail above this many false alarms (for CI)")
+    s.set_defaults(fn=cmd_score)
 
     d = sub.add_parser("demo", help="run the bundled example from its cache")
     d.set_defaults(fn=cmd_demo)

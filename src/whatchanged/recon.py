@@ -56,13 +56,16 @@ class Session:
     def save(self, path: str | Path) -> None:
         np.savez_compressed(path, images=self.images, depth=self.depth.astype(np.float16),
                             conf=self.conf.astype(np.float16), mask=self.mask, K=self.K,
-                            poses=self.poses, times=self.times, paths=np.array(self.paths))
+                            poses=self.poses, times=self.times,
+                            paths=np.array([f"frames/{Path(p).name}" for p in self.paths]))
 
     @classmethod
     def load(cls, name: str, path: str | Path) -> "Session":
         z = np.load(path)
+        run_dir = Path(path).resolve().parent.parent          # <run>/cache/A.npz
+        paths = [p if Path(p).exists() else str(run_dir / "frames" / Path(p).name) for p in z["paths"]]
         return cls(name, z["images"], z["depth"].astype(np.float32), z["conf"].astype(np.float32),
-                   z["mask"], z["K"], z["poses"], z["times"], list(z["paths"]))
+                   z["mask"], z["K"], z["poses"], z["times"], paths)
 
 
 def pick_device(requested: str = "auto") -> str:

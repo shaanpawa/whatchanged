@@ -153,6 +153,12 @@ def reconstruct(frames_a: list, frames_b: list, device: str = "auto",
     sessions = {k: Session(k, v["images"], v["depth"], v["conf"], v["mask"], v["K"], v["poses"], times[k],
                            pa if k == "A" else pb) for k, v in out.items()}
 
+    level_and_align(sessions["A"], sessions["B"], diag, log)
+    return sessions["A"], sessions["B"], diag
+
+def level_and_align(A: Session, B: Session, diag: dict, log=print) -> None:
+    """Put the floor at z = 0 (+z up), then align B onto A on unchanged structure. In place."""
+    sessions = {"A": A, "B": B}
     # Level the world: floor plane -> z = 0, +z up.
     pts = np.concatenate([sessions[k].points(conf_pct=50, stride=4)[0] for k in "AB"])
     poses = np.concatenate([sessions[k].poses for k in "AB"])
@@ -182,4 +188,3 @@ def reconstruct(frames_a: list, frames_b: list, device: str = "auto",
     log(f"3D: B aligned onto A by {icp['yaw_deg']:+.2f} deg and {np.linalg.norm(icp['shift_m']) * 100:.1f} cm; "
         f"static surfaces agree to {diag['alignment_B_to_A_m']['p50'] * 100:.1f} cm (median), "
         f"cameras at {diag['camera_height_m']['median']:.2f} m")
-    return sessions["A"], sessions["B"], diag

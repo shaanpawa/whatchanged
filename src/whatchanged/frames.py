@@ -44,7 +44,11 @@ def video_info(path: str | Path) -> dict:
         stream = json.loads(out.stdout)["streams"][0]
         info["color_transfer"] = stream.get("color_transfer", "unknown")
         info["hdr"] = stream.get("color_transfer") in ("arib-std-b67", "smpte2084")
-        info["variable_frame_rate"] = stream.get("avg_frame_rate") != stream.get("r_frame_rate")
+        def _rate(x):
+            a, _, b = (x or "0/1").partition("/")
+            return float(a) / float(b or 1) if float(b or 1) else 0.0
+        ra, rr = _rate(stream.get("avg_frame_rate")), _rate(stream.get("r_frame_rate"))
+        info["variable_frame_rate"] = bool(rr and abs(ra - rr) / rr > 0.01)
         rot = [sd.get("rotation") for sd in stream.get("side_data_list", []) if "rotation" in sd]
         info["rotation"] = rot[0] if rot else 0
     except (FileNotFoundError, subprocess.SubprocessError, KeyError, IndexError, json.JSONDecodeError):

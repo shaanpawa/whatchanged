@@ -129,7 +129,8 @@ def _votes(X: Session, Y: Session, cfg: Config, log=print) -> dict:
         m = keep & (allz >= lo) & (allz <= hi)
         e = alle[m] - med
         sig.append(float(1.4826 * np.median(np.abs(e))) if m.sum() > 50 else np.nan)
-    sig = np.maximum.accumulate(np.nan_to_num(np.array(sig), nan=np.nanmax(sig) if np.isfinite(sig).any() else 0.03))
+    sig = np.array(sig)
+    sig = np.where(np.isfinite(sig), sig, np.nanmedian(sig) if np.isfinite(sig).any() else 0.03)
     sigma = float(np.median(sig))
 
     def sigma_at(z):

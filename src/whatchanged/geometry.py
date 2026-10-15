@@ -37,9 +37,12 @@ def transform_poses(s: float, R: np.ndarray, t: np.ndarray, poses: np.ndarray) -
 
 def fit_floor(points: np.ndarray, up_hint: np.ndarray, cam_centres: np.ndarray,
               iters: int = 400, thresh: float = 0.02, seed: int = 0) -> tuple[np.ndarray, float]:
-    """RANSAC the largest plane roughly perpendicular to up_hint that lies below the cameras.
+    """The floor: the LOWEST substantial horizontal layer below the cameras.
 
-    Returns (unit normal pointing up, offset d) with plane n·x + d = 0.
+    RANSAC finds the dominant horizontal direction (often the bed or a desk top, which can
+    outnumber the floor), then a height histogram along that direction picks the lowest layer
+    holding at least a quarter as many points as the busiest one. Returns (unit up normal, d)
+    with plane n·x + d = 0.
     """
     rng = np.random.default_rng(seed)
     up_hint = up_hint / np.linalg.norm(up_hint)
@@ -57,18 +60,32 @@ def fit_floor(points: np.ndarray, up_hint: np.ndarray, cam_centres: np.ndarray,
         if n @ up_hint < np.cos(np.radians(30)):
             continue
         d = -n @ p[0]
-        if np.median(cam_centres @ n + d) < 0.3:   # cameras must be well above the floor
+        if np.median(cam_centres @ n + d) < 0.3:
             continue
         count = int((np.abs(pts @ n + d) < thresh).sum())
         if count > best_count:
             best, best_count = (n, d), count
     if best is None:
         raise RuntimeError("could not find a floor plane; film more of the floor")
-    n, d = best
-    inl = pts[np.abs(pts @ n + d) < thresh]
+    n, _ = best
+    # Refine the direction on that dominant layer, then search heights along it.
+    h = pts @ n
+    cam_h = np.median(cam_centres @ n)
+    lo, hi = np.percentile(h, 0.5), cam_h - 0.3
+    bins = np.arange(lo, max(hi, lo + 0.1), 0.02)
+    hist, edges = np.histogram(h, bins=bins)
+    if len(hist) == 0:
+        raise RuntimeError("could not find a floor plane; film more of the floor")
+    peaks = [i for i in range(len(hist)) if hist[i] >= 0.25 * hist.max()
+             and hist[i] >= hist[max(i - 1, 0)] and hist[i] >= hist[min(i + 1, len(hist) - 1)]]
+    i = peaks[0] if peaks else int(np.argmax(hist))
+    level = (edges[i] + edges[i + 1]) / 2
+    inl = pts[np.abs(h - level) < thresh * 1.5]
     c = inl.mean(0)
     _, vecs = np.linalg.eigh(np.cov((inl - c).T))   # smallest-eigenvalue axis = plane normal
     n2 = vecs[:, 0] if vecs[:, 0] @ n > 0 else -vecs[:, 0]
+    if n2 @ n < np.cos(np.radians(10)):              # a tilted layer is not the floor; keep the RANSAC direction
+        n2 = n
     return n2, float(-n2 @ c)
 
 

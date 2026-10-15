@@ -135,6 +135,20 @@ def cmd_demo(a) -> None:
     _detect_and_report(root, "auto", _cfg(a))
 
 
+def cmd_relevel(a) -> None:
+    """Redo the floor levelling and B-to-A alignment on a cached run (no 3D model needed)."""
+    from .recon import Session, level_and_align
+    out = Path(a.out)
+    A = Session.load("A", out / "cache" / "A.npz")
+    B = Session.load("B", out / "cache" / "B.npz")
+    diag = json.loads((out / "cache" / "diag.json").read_text())
+    level_and_align(A, B, diag, log)
+    A.save(out / "cache" / "A.npz")
+    B.save(out / "cache" / "B.npz")
+    (out / "cache" / "diag.json").write_text(json.dumps(diag, indent=1))
+    (out / "objects.json").unlink(missing_ok=True)
+
+
 def cmd_score(a) -> None:
     from .score import markdown, score
 
@@ -250,6 +264,10 @@ def main(argv=None) -> None:
     s.add_argument("--min-recall", dest="min_recall", type=float, help="fail below this recall (for CI)")
     s.add_argument("--max-false", dest="max_false", type=int, help="fail above this many false alarms (for CI)")
     s.set_defaults(fn=cmd_score)
+
+    rl = sub.add_parser("relevel", help="redo floor levelling and alignment on a cached run")
+    rl.add_argument("out")
+    rl.set_defaults(fn=cmd_relevel)
 
     cb = sub.add_parser("calibrate", help="set thresholds from an untouched pair (must report nothing)")
     cb.add_argument("out", help="a run of the untouched pair, e.g. out/room-repeat")

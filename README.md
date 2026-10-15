@@ -35,6 +35,42 @@ video links, and download the report from the finished run.
 | `whatchanged report DIR` | Re-run everything after the 3D step from the cache (seconds) |
 | `whatchanged score DIR ground_truth.yaml` | Compare with a hand-written answer key |
 
+## The room in 3D (photoreal)
+
+```bash
+brew install colmap                      # camera poses (CPU is fine)
+uv sync --extra room                     # msplat: Gaussian-splat training on the Mac GPU (Metal)
+uv run whatchanged room room.mov --out out/room3d
+python -m http.server -d out/room3d      # then open http://localhost:8000
+```
+
+One video in, a walkable photoreal copy of the room out, in a few minutes on an M-series Mac:
+
+1. **Frames.** The sharpest frame in every quarter second; windows that are all motion blur are
+   left out rather than teaching the model blur.
+2. **Poses.** COLMAP: SIFT features, matches between neighbours in time plus a strided net of
+   all-pairs that closes the loop when the walk returns to the door, then the global mapper.
+3. **Splat.** [msplat](https://github.com/rayanht/msplat) trains a 3D Gaussian splat on the GPU.
+   Faint splats, giant blobs and floaters outside the filmed space are dropped, and the result is
+   written as a compressed `.spz` (about 10× smaller than PLY).
+4. **Level and scale.** Up is the direction every camera's sideways axis is perpendicular to (a
+   handheld phone has almost no roll), the floor is the lowest substantial layer under the cameras,
+   and the scale comes from MapAnything's metric depth when a detection run is given
+   (`--detections out/room`), otherwise from the filming height (`--camera-height`).
+5. **Viewer.** `index.html` uses [Spark](https://sparkjs.dev) on three.js: *Fly* (drag + WASD),
+   *Orbit*, and *Tour*, which replays the walk along the video's own camera path at the phone's
+   field of view.
+
+Two videos (`whatchanged room before.mov after.mov`) are posed together in **one** COLMAP model,
+so both splats share a frame, and each video gets its own splat: training one splat on both would
+turn every moved object into a ghost. With `--detections` the viewer also draws the labelled object
+boxes and the changes (red removed, green added, blue moved with a ghost and an arrow), each with
+its sentence.
+
+The splats are for looking at the room. Change detection runs on the measured geometry below, not
+on the splats: a splat is only as good as the views it was trained on, and what changed is
+exactly where the two videos' views differ.
+
 ## What you get
 
 | File | For |

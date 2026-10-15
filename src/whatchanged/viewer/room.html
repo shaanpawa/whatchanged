@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Room in 3D</title>
+<style>
+  :root { --bg: #0b0b0c; --panel: rgba(18, 18, 20, 0.78); --line: rgba(255, 255, 255, 0.12); --text: #ececec; --dim: #9a9a9f; --accent: #f2c14e; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; overflow: hidden; }
+  canvas { display: block; width: 100vw; height: 100vh; touch-action: none; }
+  .panel { position: fixed; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  #title { top: 16px; left: 16px; padding: 10px 14px; max-width: min(420px, calc(100vw - 64px)); }
+  #title h1 { margin: 0 0 2px; font-size: 15px; font-weight: 600; }
+  #title p { margin: 0; color: var(--dim); }
+  #bar { bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; padding: 6px; flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 32px); }
+  #bar .sep { width: 1px; background: var(--line); margin: 2px 4px; }
+  button { appearance: none; border: 0; border-radius: 7px; padding: 7px 12px; background: transparent; color: var(--text); font: inherit; cursor: pointer; }
+  button:hover { background: rgba(255, 255, 255, 0.08); }
+  button[aria-pressed="true"] { background: var(--text); color: #111; }
+  #help { top: 16px; right: 16px; padding: 10px 14px; color: var(--dim); max-width: 260px; }
+  #help b { color: var(--text); font-weight: 500; }
+  #progress { position: fixed; left: 0; bottom: 0; height: 2px; background: var(--accent); width: 0; transition: width 0.2s; }
+  #loading { position: fixed; inset: 0; display: grid; place-items: center; color: var(--dim); pointer-events: none; }
+  #changes { top: 96px; left: 16px; padding: 8px 10px; max-width: min(360px, calc(100vw - 64px)); max-height: 50vh; overflow: auto; display: none; }
+  #changes div { padding: 4px 2px; }
+  #changes i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; }
+  .tag { position: fixed; transform: translate(-50%, -100%); padding: 2px 6px; border-radius: 4px; font-size: 11px; white-space: nowrap; pointer-events: none; background: rgba(0, 0, 0, 0.55); color: #fff; }
+  .tag.change { font-weight: 600; font-size: 12px; }
+  @media (max-width: 640px) { #help { display: none; } #title { top: 12px; left: 12px; } }
+</style>
+</head>
+<body>
+<div id="loading">Loading the room…</div>
+<div id="title" class="panel"><h1 id="name">Room in 3D</h1><p id="sub"></p></div>
+<div id="help" class="panel">
+  <div><b>Fly</b> drag to look, <b>W A S D</b> to move, <b>R F</b> up/down, <b>Shift</b> faster</div>
+  <div><b>Orbit</b> drag to turn, scroll to zoom, right-drag to pan</div>
+  <div><b>Tour</b> replays the walk from the video</div>
+</div>
+<div id="changes" class="panel"></div>
+<div id="tags"></div>
+<div id="bar" class="panel"></div>
+<div id="progress"></div>
+
+<script>const SCENE = /*SCENE*/null;</script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
+  "@sparkjsdev/spark": "https://cdn.jsdelivr.net/npm/@sparkjsdev/spark@2.3.1/dist/spark.module.js"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { SparkRenderer, SplatMesh, SparkControls } from "@sparkjsdev/spark";
+
+const data = SCENE ?? await (await fetch("scene.json")).json();
+const names = Object.keys(data.splats);
+const LABEL = { A: "Before", B: "After", room: "Room" };
+
+const renderer = new THREE.WebGLRenderer({ antialias: false });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+document.body.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b0b0c);
+const camera = new THREE.PerspectiveCamera(data.meta.fov_y_deg ?? 60, innerWidth / innerHeight, 0.02, 200);
+scene.add(new SparkRenderer({ renderer }));
+
+// Splats stay in COLMAP's frame; one shared similarity puts every one of them Y-up, floor at 0.
+const toViewer = new THREE.Matrix4().fromArray(data.matrix);
+const room = new THREE.Group();
+room.matrixAutoUpdate = false;
+room.matrix.copy(toViewer);
+scene.add(room);
+const meshes = {};
+let loaded = 0;
+for (const n of names) {
+  const m = new SplatMesh({ url: data.splats[n] });
+  m.visible = n === names[names.length - 1];
+  meshes[n] = m;
+  room.add(m);
+  m.initialized.then(() => { if (++loaded === names.length) document.getElementById("loading").remove(); });
+}
+
+// Camera path from the video, as position + quaternion per kept frame.
+const paths = {};
+for (const n of names) {
+  paths[n] = data.cameras[n].map((c) => {
+    const r = c.rotation;
+    const m = new THREE.Matrix4().set(r[0][0], r[0][1], r[0][2], 0, r[1][0], r[1][1], r[1][2], 0, r[2][0], r[2][1], r[2][2], 0, 0, 0, 0, 1);
+    return { p: new THREE.Vector3(...c.position), q: new THREE.Quaternion().setFromRotationMatrix(m), t: c.t };
+  });
+}
+
+let current = names[names.length - 1];
+// Open a little way into the walk: the first frames are usually the doorway, filmed past its edge.
+const home = () => paths[current][Math.round(0.15 * (paths[current].length - 1))];
+camera.position.copy(home().p);
+camera.quaternion.copy(home().q);
+
+// Controls
+const fly = new SparkControls({ canvas: renderer.domElement });
+fly.fpsMovement.moveSpeed = 1.2;
+const orbit = new OrbitControls(camera, renderer.domElement);
+orbit.enableDamping = true;
+orbit.enabled = false;
+orbit.maxDistance = 4;               // splats from eye-level video fall apart far outside the walk
+orbit.minPolarAngle = 0.5;
+orbit.maxPolarAngle = 1.9;
+const centre = new THREE.Vector3();
+paths[current].forEach((c) => centre.add(c.p));
+centre.divideScalar(paths[current].length);
+centre.y *= 0.6;  // look at furniture height, not eye height
+
+let mode = "fly";
+let tour = null;
+function setMode(m) {
+  mode = m;
+  fly.fpsMovement.enable = fly.pointerControls.enable = m === "fly";
+  orbit.enabled = m === "orbit";
+  if (m === "orbit") { orbit.target.copy(centre); orbit.update(); }
+  if (m === "tour") startTour(); else tour = null;
+  document.querySelectorAll("[data-mode]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.mode === m));
+}
+
+// Tour: Catmull-Rom through the camera centres, slerp between lightly smoothed orientations.
+function startTour() {
+  const path = paths[current];
+  const curve = new THREE.CatmullRomCurve3(path.map((c) => c.p), false, "centripetal");
+  const qs = path.map((c, i) => {
+    const q = c.q.clone();
+    const a = path[Math.max(0, i - 1)].q, b = path[Math.min(path.length - 1, i + 1)].q;
+    return q.slerp(a.clone().slerp(b, 0.5), 0.4);
+  });
+  const t0 = path[0].t ?? 0, t1 = path[path.length - 1].t ?? path.length / 4;
+  tour = { curve, qs, n: path.length, dur: Math.max(8, t1 - t0) * 1.15, start: performance.now() };
+}
+function stepTour(now) {
+  const u = Math.min(1, (now - tour.start) / 1000 / tour.dur);
+  const s = u * (tour.n - 1), i = Math.min(tour.n - 2, Math.floor(s));
+  camera.position.copy(tour.curve.getPoint(u));
+  camera.quaternion.copy(tour.qs[i]).slerp(tour.qs[i + 1], s - i);
+  document.getElementById("progress").style.width = `${u * 100}%`;
+  if (u >= 1) setMode("fly");
+}
+
+function show(n) {
+  current = n;
+  for (const k of names) { meshes[k].visible = k === n; boxGroups[k].visible = showBoxes && k === n; }
+  document.querySelectorAll("[data-splat]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.splat === n));
+  if (mode === "tour") startTour();
+}
+
+// Boxes from the detection run: faint labelled objects, coloured changes (already in viewer coordinates).
+const COLOUR = { removed: 0xff5a5a, added: 0x4cd97b, moved: 0x5aa9ff };
+const boxGroups = {};
+const tags = [];
+function wire(b, colour, { dashed = false, opacity = 1 } = {}) {
+  const geo = new THREE.EdgesGeometry(new THREE.BoxGeometry(...b.size));
+  const mat = dashed
+    ? new THREE.LineDashedMaterial({ color: colour, dashSize: 0.06, gapSize: 0.05, transparent: true, opacity, depthTest: false })
+    : new THREE.LineBasicMaterial({ color: colour, transparent: true, opacity, depthTest: false });
+  const line = new THREE.LineSegments(geo, mat);
+  if (dashed) line.computeLineDistances();
+  line.position.fromArray(b.centre);
+  line.rotation.y = THREE.MathUtils.degToRad(b.yaw_deg);
+  line.renderOrder = 10;
+  return line;
+}
+function tag(text, b, cls, group) {
+  const el = Object.assign(document.createElement("div"), { className: `tag ${cls}`, textContent: text });
+  document.getElementById("tags").append(el);
+  tags.push({ el, group, at: new THREE.Vector3(b.centre[0], b.centre[1] + b.size[1] / 2, b.centre[2]) });
+}
+for (const n of names) {
+  const g = new THREE.Group();
+  for (const o of data.objects?.[n] ?? []) { g.add(wire(o, 0xffffff, { opacity: 0.28 })); tag(o.label, o, "", g); }
+  const after = n !== names[0] || names.length === 1;  // the first of a pair is "before"
+  for (const c of data.changes ?? []) {
+    const col = COLOUR[c.type];
+    if (c.type === "moved") {
+      g.add(wire(c.before, col, { dashed: after }));
+      g.add(wire(c.after, col, { dashed: !after }));
+      const from = new THREE.Vector3(...c.before.centre), to = new THREE.Vector3(...c.after.centre);
+      const dir = to.clone().sub(from);
+      const arrow = new THREE.ArrowHelper(dir.clone().normalize(), from, dir.length(), col, 0.12, 0.07);
+      arrow.traverse((o) => { if (o.material) { o.material.depthTest = false; o.renderOrder = 11; } });
+      g.add(arrow);
+      tag(`${c.id} ${c.label} (moved)`, after ? c.after : c.before, "change", g);
+    } else {
+      const solid = (c.type === "removed") !== after;  // removed: solid before, ghost after; added: the reverse
+      g.add(wire(c, col, { dashed: !solid }));
+      tag(`${c.id} ${c.label} (${c.type})`, c, "change", g);
+    }
+  }
+  g.visible = false;
+  scene.add(g);
+  boxGroups[n] = g;
+}
+const hasBoxes = names.some((n) => boxGroups[n].children.length);
+let showBoxes = hasBoxes;
+if (data.changes?.length) {
+  const list = document.getElementById("changes");
+  list.style.display = "block";
+  for (const c of data.changes) {
+    const row = document.createElement("div");
+    row.innerHTML = `<i style="background:#${COLOUR[c.type].toString(16).padStart(6, "0")}"></i>`;
+    row.append(`${c.id}  ${c.sentence}`);
+    list.append(row);
+  }
+}
+const v3 = new THREE.Vector3();
+function placeTags() {
+  for (const t of tags) {
+    const on = showBoxes && t.group.visible;
+    v3.copy(t.at).project(camera);
+    const inView = on && v3.z < 1 && Math.abs(v3.x) < 1.1 && Math.abs(v3.y) < 1.1;
+    t.el.style.display = inView ? "block" : "none";
+    if (inView) { t.el.style.left = `${(v3.x + 1) / 2 * innerWidth}px`; t.el.style.top = `${(1 - v3.y) / 2 * innerHeight - 4}px`; }
+  }
+}
+
+// UI
+const bar = document.getElementById("bar");
+const button = (label, attrs, onclick) => {
+  const b = document.createElement("button");
+  b.textContent = label;
+  Object.entries(attrs).forEach(([k, v]) => b.setAttribute(k, v));
+  b.onclick = onclick;
+  bar.append(b);
+};
+for (const m of ["fly", "orbit", "tour"]) button(m[0].toUpperCase() + m.slice(1), { "data-mode": m }, () => setMode(m));
+if (names.length > 1) {
+  bar.append(Object.assign(document.createElement("div"), { className: "sep" }));
+  names.forEach((n, i) => button(`${LABEL[n] ?? n}  ${i + 1}`, { "data-splat": n }, () => show(n)));
+}
+if (hasBoxes) button("Boxes", { "data-boxes": "", "aria-pressed": showBoxes }, (e) => {
+  showBoxes = !showBoxes;
+  e.currentTarget.setAttribute("aria-pressed", showBoxes);
+  show(current);
+});
+button("Reset view", {}, () => { setMode("fly"); camera.position.copy(home().p); camera.quaternion.copy(home().q); });
+addEventListener("keydown", (e) => {
+  const i = Number(e.key) - 1;
+  if (names[i]) show(names[i]);
+  if (e.key === "t") setMode(mode === "tour" ? "fly" : "tour");
+  if (e.key === "o") setMode(mode === "orbit" ? "fly" : "orbit");
+});
+
+const m = data.meta;
+document.getElementById("name").textContent = names.length > 1 ? "Before and after, in 3D" : "The room, in 3D";
+const splats = names.map((n) => m[`tidy_${n}`]?.after).filter(Boolean).reduce((a, b) => a + b, 0);
+document.getElementById("sub").textContent =
+  `${splats.toLocaleString()} Gaussian splats trained on ${names.map((n) => m.registered[n]).join(" + ")} frames of phone video. ` +
+  `For viewing only: changes are detected on the measured geometry.`;
+
+setMode("fly");
+show(current);
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+renderer.setAnimationLoop((now) => {
+  if (mode === "fly") fly.update(camera);
+  else if (mode === "orbit") orbit.update();
+  else if (tour) stepTour(now);
+  renderer.render(scene, camera);
+  placeTags();
+});
+window.viewer = { camera, meshes, setMode, show, data };
+</script>
+</body>
+</html>

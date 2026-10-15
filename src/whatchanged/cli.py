@@ -4,6 +4,7 @@
   whatchanged check BEFORE.mp4 AFTER.mp4                  footage warnings, no 3D
   whatchanged report out/room                             rebuild everything after 3D from the cache
   whatchanged demo                                        the bundled example, no model download
+  whatchanged room ROOM.MOV --out out/room3d              photoreal 3D room (Gaussian splat) + web viewer
 """
 
 from __future__ import annotations
@@ -149,6 +150,12 @@ def cmd_relevel(a) -> None:
     (out / "objects.json").unlink(missing_ok=True)
 
 
+def cmd_room(a) -> None:
+    from .room3d import build
+    build(a.videos, Path(a.out), fps=a.fps, max_side=a.max_side, iterations=a.iters, sh_degree=a.sh,
+          camera_height=a.camera_height, detections=a.detections, force=a.force, log=log)
+
+
 def cmd_score(a) -> None:
     from .score import markdown, score
 
@@ -273,6 +280,18 @@ def main(argv=None) -> None:
     cb.add_argument("out", help="a run of the untouched pair, e.g. out/room-repeat")
     cb.add_argument("--write", default="config.frozen.json")
     cb.set_defaults(fn=cmd_calibrate)
+
+    rm = sub.add_parser("room", help="photoreal 3D room (Gaussian splat) from one or more videos, with a web viewer")
+    rm.add_argument("videos", nargs="+", help="one video, or BEFORE and AFTER (posed together, one splat each)")
+    rm.add_argument("--out", default="out/room3d")
+    rm.add_argument("--fps", type=float, default=4.0, help="frames kept per second of video")
+    rm.add_argument("--max-side", dest="max_side", type=int, default=1600, help="longest image side in pixels")
+    rm.add_argument("--iters", type=int, default=30000, help="splat training steps (30000: about 12 min on an M4 Pro)")
+    rm.add_argument("--sh", type=int, default=3, help="spherical-harmonic degree kept in the .spz (0-3)")
+    rm.add_argument("--camera-height", dest="camera_height", type=float, default=1.4, help="median filming height in metres (sets the scale)")
+    rm.add_argument("--detections", help="a `whatchanged run` folder on the same videos: metric scale, plus its object and change boxes")
+    rm.add_argument("--force", action="store_true", help="redo frames, poses and training")
+    rm.set_defaults(fn=cmd_room)
 
     d = sub.add_parser("demo", help="run the bundled example from its cache")
     d.set_defaults(fn=cmd_demo)

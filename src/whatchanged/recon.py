@@ -14,7 +14,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .geometry import fit_floor, levelling_transform, transform_poses, umeyama
+from .geometry import fit_floor, levelling_transform, transform_poses
 
 MODEL_ID = "facebook/map-anything-apache"
 
@@ -129,14 +129,23 @@ def reconstruct(frames_a: list, frames_b: list, device: str = "auto",
         for name, paths in (("A", pa), ("B", pb)):
             log(f"3D: {name}-only pass for depth ({len(paths)} views)")
             sess = _infer(paths, device)
-            s, R, t = umeyama(sess["poses"][:, :3, 3], out[name]["poses"][:, :3, 3])
-            moved = s * sess["poses"][:, :3, 3] @ R.T + t
-            resid = np.linalg.norm(moved - out[name]["poses"][:, :3, 3], axis=1)
-            diag[f"session_{name}_to_joint"] = {"scale": round(s, 4), "camera_residual_m_median": round(float(np.median(resid)), 4)}
-            # Keep joint poses (shared frame); take this session's depth, rescaled into the joint frame.
-            leak = np.median(np.abs(sess["depth"] * s - out[name]["depth"])[out[name]["mask"]])
-            diag[f"joint_vs_session_depth_{name}_m_median"] = round(float(leak), 4)
-            out[name]["depth"] = sess["depth"] * s
+            # Bring each frame's depth to the joint pass's scale with a robust per-frame ratio over
+            # pixels both passes trust. (Fitting scale to a handful of camera centres is fragile.)
+            ratios = []
+            for i in range(len(paths)):
+                m = out[name]["mask"][i] & sess["mask"][i] & (sess["depth"][i] > 0.05) & (out[name]["depth"][i] > 0.05)
+                ratios.append(float(np.median(out[name]["depth"][i][m] / sess["depth"][i][m])) if m.sum() > 500 else np.nan)
+            ratios = np.array(ratios)
+            fill = np.nanmedian(ratios)
+            ratios = np.where(np.isfinite(ratios), ratios, fill)
+            spread = float((np.percentile(ratios, 90) - np.percentile(ratios, 10)) / fill)
+            scaled = sess["depth"] * ratios[:, None, None]
+            leak = np.median(np.abs(scaled - out[name]["depth"])[out[name]["mask"] & sess["mask"]])
+            diag[f"session_{name}_depth"] = {"scale_median": round(float(fill), 4), "scale_spread_p10_p90": round(spread, 4),
+                                             "joint_vs_session_m_median": round(float(leak), 4)}
+            if spread > 0.06:
+                log(f"warning: {name}-only depth scale varies {spread:.0%} across frames; geometry may be unreliable")
+            out[name]["depth"] = scaled.astype(np.float32)
             out[name]["conf"] = sess["conf"]
             out[name]["mask"] = sess["mask"] & out[name]["mask"]
 
@@ -144,7 +153,7 @@ def reconstruct(frames_a: list, frames_b: list, device: str = "auto",
     sessions = {k: Session(k, v["images"], v["depth"], v["conf"], v["mask"], v["K"], v["poses"], times[k],
                            pa if k == "A" else pb) for k, v in out.items()}
 
-    # Level the world: floor plane → z = 0, +z up.
+    # Level the world: floor plane -> z = 0, +z up.
     pts = np.concatenate([sessions[k].points(conf_pct=50, stride=4)[0] for k in "AB"])
     poses = np.concatenate([sessions[k].poses for k in "AB"])
     up_hint = -poses[:, :3, 1].mean(0)          # OpenCV: image-up is camera -Y
@@ -154,17 +163,23 @@ def reconstruct(frames_a: list, frames_b: list, device: str = "auto",
     for k in "AB":
         sessions[k].poses = transform_poses(1.0, R, t, sessions[k].poses)
     heights = np.concatenate([sessions[k].poses[:, 2, 3] for k in "AB"])
-    diag["camera_height_m_median"] = round(float(np.median(heights)), 3)
+    diag["camera_height_m"] = {"median": round(float(np.median(heights)), 3),
+                               "p10": round(float(np.percentile(heights, 10)), 3),
+                               "p90": round(float(np.percentile(heights, 90)), 3)}
+    if np.percentile(heights, 90) - np.percentile(heights, 10) > 1.0 or not 0.5 < np.median(heights) < 2.2:
+        log("warning: camera heights look implausible for a handheld walk; the floor fit may be wrong")
 
-    # How well do static surfaces of A and B agree? (Changed objects inflate p90, not p50.)
-    from scipy.spatial import cKDTree
-    pa_, _ = sessions["A"].points(conf_pct=50, stride=4)
-    pb_, _ = sessions["B"].points(conf_pct=50, stride=4)
-    rng = np.random.default_rng(0)
-    sb = pb_[rng.choice(len(pb_), min(50_000, len(pb_)), replace=False)]
-    dist, _ = cKDTree(pa_).query(sb, k=1)
-    diag["alignment_B_to_A_m"] = {"p50": round(float(np.percentile(dist, 50)), 4),
-                                  "p90": round(float(np.percentile(dist, 90)), 4)}
-    log(f"3D: static alignment p50 {diag['alignment_B_to_A_m']['p50'] * 100:.1f} cm, "
-        f"cameras at {diag['camera_height_m_median']:.2f} m")
+    # Align B onto A on structure that did not change (4-DoF robust ICP), then measure agreement.
+    from .align import icp_4dof, nn_stats, subsample
+    pa_ = subsample(sessions["A"].points(conf_pct=50, stride=4)[0])
+    pb_ = subsample(sessions["B"].points(conf_pct=50, stride=4)[0])
+    diag["alignment_before_icp_m"] = nn_stats(pa_, pb_)
+    T, icp = icp_4dof(pb_, pa_)
+    sessions["B"].poses = T[None] @ sessions["B"].poses
+    diag["icp_B_to_A"] = icp
+    pb_ = pb_ @ T[:3, :3].T + T[:3, 3]
+    diag["alignment_B_to_A_m"] = nn_stats(pa_, pb_)
+    log(f"3D: B aligned onto A by {icp['yaw_deg']:+.2f} deg and {np.linalg.norm(icp['shift_m']) * 100:.1f} cm; "
+        f"static surfaces agree to {diag['alignment_B_to_A_m']['p50'] * 100:.1f} cm (median), "
+        f"cameras at {diag['camera_height_m']['median']:.2f} m")
     return sessions["A"], sessions["B"], diag

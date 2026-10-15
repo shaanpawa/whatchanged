@@ -337,8 +337,8 @@ def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str 
     crops = out_dir / "crops"
     changes = []
     removed, added = result["removed"], result["added"]
-    paired_r = {i for i, _, _ in result["moves"]}
-    paired_a = {j for _, j, _ in result["moves"]}
+    paired_r = {m[0] for m in result["moves"]}
+    paired_a = {m[1] for m in result["moves"]}
 
     def facts(b: Blob) -> dict:
         return {"centre_m": [round(float(x), 3) for x in b.centre], "size_m": [round(float(x), 3) for x in b.size],
@@ -380,14 +380,13 @@ def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str 
              "times": {"A": float(A.times[j]) if j >= 0 else None, "B": float(B.times[k]) if k >= 0 else None},
              "crops": {"before": _save(before, crops / f"c{n:02d}_before.jpg"), "after": _save(after, crops / f"c{n:02d}_after.jpg")}}
         changes.append(c)
-    for i, j_, cost in result["moves"]:
+    for i, j_, cost, fit in result["moves"]:
         r, a = removed[i], added[j_]
         n += 1
         before, _, j, _ = pair_views(r, A, B)
         after, _, k, _ = pair_views(a, B, A)
         ans = label([before, after], "moved", labeller, cache,
                     extra=" Image 1 shows the object at its old place, image 2 at its new place.")
-        turn = float(np.degrees(((a.yaw - r.yaw + np.pi / 2) % np.pi) - np.pi / 2))
         nb, onb, nearb = _boxes_context(r.voxels, r.bottom, boxes.get("A"))
         na, ona, neara = _boxes_context(a.voxels, a.bottom, boxes.get("B"))
         c = {"id": f"c{n:02d}", "type": "moved", **facts(a), "label": _pick(ans, nb or na, labeller), "colour": ans.get("colour", ""),
@@ -396,8 +395,8 @@ def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str 
              "before": facts(r), "after": facts(a),
              "move": {"distance_m": round(float(np.linalg.norm(a.centre[:2] - r.centre[:2])), 2),
                       "height_change_m": round(float(a.bottom - r.bottom), 2),
-                      "turn_deg": None if max(r.size[0] / max(r.size[1], 1e-3), a.size[0] / max(a.size[1], 1e-3)) < 1.3 else round(turn, 0),
-                      "match_cost": round(cost, 2)},
+                      "turn_deg": round(fit["turn_deg"]) if fit["turn_determined"] else None,
+                      "shape_fit": fit["fitness"], "shape_rmse_m": fit["rmse_m"], "match_cost": round(cost, 2)},
              "evidence": {"free_views": min(r.views, a.views), "free_share": round(min(r.score, a.score), 2),
                           "noise_margin": round(min(r.margin, a.margin), 1)},
              "frames": {"A": A.paths[j] if j >= 0 else None, "B": B.paths[k] if k >= 0 else None},

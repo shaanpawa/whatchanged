@@ -42,7 +42,9 @@ class Config:
     max_blob_extent: float = 2.5   # metres; bigger means misalignment, not an object
     conf_pct: float = 30.0         # drop the least confident pixels
     edge_px: int = 5               # neighbourhood that must all be "further" for a free vote
-    match_max_cost: float = 0.55   # removed/added pairing threshold for "moved"
+    max_range: float = 3.5         # metres; depth further from the camera is too uncertain to vote
+    noise_bins: int = 6            # distance bands for the noise floor
+    min_fit: float = 0.5           # share of a moved object's shape that must match after the turn and shift
     min_move: float = 0.15         # metres
 
 
@@ -116,25 +118,42 @@ def _votes(X: Session, Y: Session, cfg: Config, log=print) -> dict:
         emin = (dmin[j, vv, uu] - z[idx]) / z[idx]
         per_cam.append((idx, e, emin, z[idx]))
         samples.append(e[np.abs(e) < 0.25])
-    s = np.concatenate(samples) if samples else np.zeros(1)
-    med = float(np.median(s))
-    sigma = float(1.4826 * np.median(np.abs(s - med)))
+    # Noise floor per distance band: depth disagreement over (mostly unchanged) co-visible space.
+    allz = np.concatenate([z for _, _, _, z in per_cam]) if per_cam else np.ones(1)
+    alle = np.concatenate([e for _, e, _, _ in per_cam]) if per_cam else np.zeros(1)
+    keep = (np.abs(alle) < 0.5) & (allz <= cfg.max_range)
+    med = float(np.median(alle[keep])) if keep.any() else 0.0
+    edges = np.quantile(allz[keep], np.linspace(0, 1, cfg.noise_bins + 1)) if keep.sum() > 100 else np.array([0, 99.0])
+    sig = []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        m = keep & (allz >= lo) & (allz <= hi)
+        e = alle[m] - med
+        sig.append(float(1.4826 * np.median(np.abs(e))) if m.sum() > 50 else np.nan)
+    sig = np.maximum.accumulate(np.nan_to_num(np.array(sig), nan=np.nanmax(sig) if np.isfinite(sig).any() else 0.03))
+    sigma = float(np.median(sig))
 
-    # Pass 2: vote with tolerance tau(z) = max(tau_min, k * sigma * z).
+    def sigma_at(z):
+        return sig[np.clip(np.searchsorted(edges[1:-1], z), 0, len(sig) - 1)]
+
+    # Pass 2: vote with tolerance tau(z) = max(tau_min, k * sigma(z) * z), only within max_range.
     for idx, e, emin, z in per_cam:
-        e, emin = e - med, emin - med
-        tau = np.maximum(cfg.tau_min / z, cfg.k_sigma * sigma)
+        near = z <= cfg.max_range
+        idx, e, emin, z = idx[near], e[near] - med, emin[near] - med, z[near]
+        tau = np.maximum(cfg.tau_min / z, cfg.k_sigma * sigma_at(z))
         f = emin > tau
         o = e < -tau
         sn = ~f & ~o
         np.add.at(free, idx[f], 1)
         np.add.at(seen, idx[sn], 1)
         np.add.at(occ, idx[o], 1)
-        np.add.at(excess, idx[f], (e[f] - tau[f]) / tau[f])
-    log(f"  noise floor: depth disagreement spread {sigma * 100:.1f}% of distance "
-        f"(bias {med * 100:+.1f}%), tolerance {cfg.k_sigma:.0f}x")
+        np.add.at(excess, idx[f], (emin[f] - tau[f]) / tau[f])
+    budget = [{"range_m": [round(float(lo), 2), round(float(hi), 2)], "sigma_pct": round(float(sg) * 100, 2),
+               "min_detectable_cm": round(float(max(cfg.tau_min, cfg.k_sigma * sg * hi)) * 100, 1)}
+              for lo, hi, sg in zip(edges[:-1], edges[1:], sig)]
+    log(f"  noise floor: {sig.min() * 100:.1f}-{sig.max() * 100:.1f}% of distance by range (bias {med * 100:+.1f}%), "
+        f"tolerance {cfg.k_sigma:g}x, votes within {cfg.max_range:g} m")
     return {"centres": C, "colors": vox["colors"], "free": free, "seen": seen, "occ": occ, "support": support,
-            "excess": excess, "sigma": sigma, "bias": med}
+            "excess": excess, "sigma": sigma, "bias": med, "error_budget": budget}
 
 
 def _components(mask_pts: np.ndarray, voxel: float) -> list[np.ndarray]:
@@ -205,20 +224,94 @@ def _hist(colors: np.ndarray) -> np.ndarray:
     return h / max(h.sum(), 1)
 
 
-def match_moves(removed: list[Blob], added: list[Blob], cfg: Config) -> list[tuple[int, int, float]]:
-    """Pair removals with additions that look like the same object (size + colour)."""
+def _rot(theta: float) -> np.ndarray:
+    c, s_ = np.cos(theta), np.sin(theta)
+    return np.array([[c, -s_, 0], [s_, c, 0], [0, 0, 1]])
+
+
+def _kabsch_xy(p: np.ndarray, q: np.ndarray) -> tuple[float, np.ndarray]:
+    """Best turn about z and shift taking points p onto q (least squares, closed form)."""
+    mp, mq = p.mean(0), q.mean(0)
+    P, Q = p[:, :2] - mp[:2], q[:, :2] - mq[:2]
+    th = float(np.arctan2((P[:, 0] * Q[:, 1] - P[:, 1] * Q[:, 0]).sum(), (P * Q).sum()))
+    t = mq - _rot(th) @ mp
+    return th, t
+
+
+def fit_move(r: Blob, a: Blob, voxel: float) -> dict:
+    """Register the removed shape onto the added shape: turn about z + shift, from 12 starting turns."""
+    from scipy.spatial import cKDTree
+    src = r.voxels - r.voxels.mean(0)
+    dst = a.voxels - a.voxels.mean(0)
+    tree = cKDTree(dst)
+    tol = 1.5 * voxel
+    results = []
+    for k in range(12):
+        th, t = k * np.pi / 6, np.zeros(3)
+        for _ in range(20):
+            cur = src @ _rot(th).T + t
+            d, j = tree.query(cur, k=1, distance_upper_bound=4 * voxel)
+            ok = np.isfinite(d)
+            if ok.sum() < 5:
+                break
+            dth, dt = _kabsch_xy(cur[ok], dst[j[ok]])
+            th, t = th + dth, _rot(dth) @ t + dt
+            if abs(dth) < 1e-4 and np.linalg.norm(dt) < 1e-4:
+                break
+        cur = src @ _rot(th).T + t
+        d1, _ = tree.query(cur, k=1)
+        d2, _ = cKDTree(cur).query(dst, k=1)
+        fit = float(min((d1 < tol).mean(), (d2 < tol).mean()))
+        rmse = float(np.sqrt(np.mean(np.minimum(d1, 4 * voxel) ** 2)))
+        results.append((fit, rmse, (th + np.pi) % (2 * np.pi) - np.pi))
+    results.sort(key=lambda x: (-x[0], x[1]))
+    best = results[0]
+    rival = max((f for f, _, th in results[1:] if abs((th - best[2] + np.pi) % (2 * np.pi) - np.pi) > np.radians(45)), default=0.0)
+    return {"fitness": round(best[0], 3), "rmse_m": round(best[1], 4), "turn_deg": round(float(np.degrees(best[2])), 1),
+            "turn_determined": bool(best[0] - rival > 0.08)}
+
+
+def match_moves(removed: list[Blob], added: list[Blob], cfg: Config) -> list[tuple]:
+    """Pair removals with additions whose SHAPES match after a turn and shift (colour breaks ties)."""
     if not removed or not added:
         return []
     cost = np.ones((len(removed), len(added)))
+    fits = {}
     for i, r in enumerate(removed):
         for j, a in enumerate(added):
             sr, sa = np.sort(r.size), np.sort(a.size)
-            size_cost = float(np.mean(np.abs(sr - sa) / np.maximum(sr, sa)))
-            color_cost = 1 - float(np.minimum(_hist(r.colors), _hist(a.colors)).sum())
+            if np.mean(np.abs(sr - sa) / np.maximum(sr, sa)) > 0.5:
+                continue
             dist = float(np.linalg.norm(r.centre[:2] - a.centre[:2]))
-            cost[i, j] = 0.5 * size_cost + 0.5 * color_cost if dist >= cfg.min_move else 1.0
+            f = fit_move(r, a, cfg.voxel)
+            turned = f["turn_determined"] and abs(f["turn_deg"]) > 20
+            if dist < cfg.min_move and not turned:
+                continue
+            colour = 1 - float(np.minimum(_hist(r.colors), _hist(a.colors)).sum())
+            fits[(i, j)] = f
+            cost[i, j] = (1 - f["fitness"]) + 0.1 * colour
     rows, cols = linear_sum_assignment(cost)
-    return [(int(i), int(j), float(cost[i, j])) for i, j in zip(rows, cols) if cost[i, j] <= cfg.match_max_cost]
+    return [(int(i), int(j), float(cost[i, j]), fits[(i, j)]) for i, j in zip(rows, cols)
+            if (i, j) in fits and fits[(i, j)]["fitness"] >= cfg.min_fit]
+
+
+def naive_diff(A: Session, B: Session, cfg: Config, thresh: float = 0.05) -> dict:
+    """The obvious baseline: a point is changed if the other cloud has nothing within 5 cm. No visibility."""
+    from scipy.spatial import cKDTree
+    out = {}
+    for kind, X, Y in (("removed", A, B), ("added", B, A)):
+        cx = voxelize(X.points(conf_pct=cfg.conf_pct, stride=2)[0], None, cfg.voxel)["centres"]
+        cy = voxelize(Y.points(conf_pct=cfg.conf_pct, stride=2)[0], None, cfg.voxel)["centres"]
+        d, _ = cKDTree(cy).query(cx, k=1)
+        sel = np.nonzero((d > thresh) & (cx[:, 2] > cfg.floor_cut))[0]
+        found = []
+        for comp in _components(cx[sel], cfg.voxel):
+            ids = sel[comp]
+            ext = cx[ids].max(0) - cx[ids].min(0)
+            if len(ids) >= cfg.min_blob_voxels and cfg.min_blob_extent <= ext.max() <= cfg.max_blob_extent:
+                found.append({"centre_m": np.round(cx[ids].mean(0), 2).tolist(), "size_m": np.round(ext, 2).tolist()})
+        out[kind] = found
+    return out
 
 
 def detect(A: Session, B: Session, cfg: Config | None = None, log=print) -> dict:

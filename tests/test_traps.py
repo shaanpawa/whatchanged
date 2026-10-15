@@ -113,6 +113,29 @@ def test_moved_box_is_moved():
     moved = ((2.0, 2.2, 0.0), (2.4, 2.5, 0.4), BOX[2])
     r = run(ROOM + [BOX], ROOM + [moved])
     assert len(r["moves"]) == 1
-    i, j, _ = r["moves"][0]
+    i, j = r["moves"][0][:2]
     dist = np.linalg.norm(r["added"][j].centre[:2] - r["removed"][i].centre[:2])
     assert dist == pytest.approx(np.hypot(1.0, 1.2), abs=0.1)
+
+
+def test_moved_and_turned_box_reports_the_turn():
+    long_box = ((1.0, 1.0, 0.0), (1.6, 1.25, 0.45), (200, 60, 40))
+    # same box moved ~0.9 m and turned 90 degrees (its long side now runs along y)
+    turned = ((2.2, 1.6, 0.0), (2.45, 2.2, 0.45), (200, 60, 40))
+    r = run(ROOM + [long_box], ROOM + [turned])
+    assert len(r["moves"]) == 1
+    fit = r["moves"][0][3]
+    assert fit["fitness"] > 0.5
+    assert abs(abs(fit["turn_deg"]) - 90) < 15 or abs(abs(fit["turn_deg"]) - 90) > 165  # 90 deg, either sense
+
+
+def test_icp_recovers_a_small_misalignment():
+    from whatchanged.align import icp_4dof
+    A = session("A", ROOM + [BOX], A_EYES)
+    pts = A.points(conf_pct=0, stride=2)[0]
+    th, shift = np.radians(2.0), np.array([0.05, -0.03, 0.01])
+    R = np.array([[np.cos(th), -np.sin(th), 0], [np.sin(th), np.cos(th), 0], [0, 0, 1]])
+    moved = pts @ R.T + shift
+    T, stats = icp_4dof(moved, pts)
+    back = moved @ T[:3, :3].T + T[:3, 3]
+    assert np.abs(back - pts).max() < 0.005

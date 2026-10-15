@@ -32,6 +32,17 @@ def _label_ok(label: str, names: list[str]) -> bool:
     return any(lw & _words(n) for n in names)
 
 
+def wilson(k: int, n: int, z: float = 1.96) -> list[float]:
+    """95% Wilson score interval for k successes out of n (honest for small n)."""
+    if n == 0:
+        return [0.0, 1.0]
+    p = k / n
+    den = 1 + z * z / n
+    centre = (p + z * z / (2 * n)) / den
+    half = z * ((p * (1 - p) / n + z * z / (4 * n * n)) ** 0.5) / den
+    return [round(max(0.0, centre - half), 2), round(min(1.0, centre + half), 2)]
+
+
 def score(changes_json: Path, key_yaml: Path) -> dict:
     found = json.loads(Path(changes_json).read_text())["changes"]
     key = yaml.safe_load(Path(key_yaml).read_text())
@@ -66,7 +77,9 @@ def score(changes_json: Path, key_yaml: Path) -> dict:
         bad = [d["id"] for d in found if d["type"] == "removed" and _label_ok(d["label"], t.get("names", []))]
         traps.append({"id": t["id"], "kind": t["kind"], "passed": not bad, "wrongly_reported": bad})
     n_found = sum(e["result"] == "found" for e in table if "expected miss" not in e["truth"])
+    n_true = len([m for m in matches if m[2] == 0])
     out = {
+        "recall_95ci": wilson(n_found, len(counted)), "precision_95ci": wilson(n_true, len(found)),
         "recall": round(n_found / max(len(counted), 1), 2),
         "precision": round(len([m for m in matches if m[2] == 0]) / max(len(found), 1), 2),
         "found": n_found, "of": len(counted), "type_only": sum(e["result"] == "type only" for e in table),
@@ -78,7 +91,8 @@ def score(changes_json: Path, key_yaml: Path) -> dict:
 
 def markdown(s: dict, title: str) -> str:
     lines = [f"### {title}", "",
-             f"Found **{s['found']} of {s['of']}** real changes · precision {s['precision']:.0%} · "
+             f"Found **{s['found']} of {s['of']}** real changes (95% interval {s['recall_95ci'][0]:.0%}-{s['recall_95ci'][1]:.0%}) · "
+             f"precision {s['precision']:.0%} · "
              f"false alarms **{s['false_alarms']}** · traps passed {sum(t['passed'] for t in s['traps'])}/{len(s['traps'])}", "",
              "| # | What really changed | Result | Detected | Move error |", "|---|---|---|---|---|"]
     for e in s["table"]:

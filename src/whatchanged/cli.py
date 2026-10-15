@@ -56,6 +56,8 @@ def _detect_and_report(out: Path, labels: str, cfg: ch.Config, objects: bool = T
     B = Session.load("B", out / "cache" / "B.npz")
     diag = json.loads((out / "cache" / "diag.json").read_text())
     res = ch.detect(A, B, cfg, log)
+    baseline = ch.naive_diff(A, B, cfg)
+    log(f"Baseline (plain point difference, no visibility): {len(baseline['removed'])} removed, {len(baseline['added'])} added")
     boxes = _object_boxes(out, A, B, objects)
     found = semantics.describe(res, A, B, out, labels, log, boxes=boxes)
     regions = [r for r in res["regions_A"] if r["reason"] == "hidden"] + res["regions_A"][:3]
@@ -75,7 +77,7 @@ def _detect_and_report(out: Path, labels: str, cfg: ch.Config, objects: bool = T
         "cant_tell": [{"reason": r["reason"], "centre_m": np.round(r["centre"], 2).tolist(),
                        "min_m": np.round(r["min"], 2).tolist(), "max_m": np.round(r["max"], 2).tolist(), "voxels": r["n"]}
                       for r in regions],
-        "floor_map": floor, "look_next": plans, "diagnostics": diag,
+        "floor_map": floor, "look_next": plans, "baseline_naive": baseline, "diagnostics": diag,
     }
     (out / "changes.json").write_text(json.dumps(summary, indent=1))
     path = report.write(out, A, B, found, regions, floor, diag, plans, boxes=boxes)
@@ -144,8 +146,47 @@ def cmd_score(a) -> None:
         sys.exit(f"{s['false_alarms']} false alarms, more than {a.max_false}")
 
 
+def cmd_calibrate(a) -> None:
+    """Pick the most sensitive thresholds that report NOTHING on an untouched pair, plus a margin."""
+    import itertools
+    import subprocess
+    from datetime import datetime, timezone
+
+    from .recon import Session
+    out = Path(a.out)
+    A = Session.load("A", out / "cache" / "A.npz")
+    B = Session.load("B", out / "cache" / "B.npz")
+    ks, shares, views = [2.0, 2.5, 3.0, 4.0, 5.0, 6.0], [0.5, 0.6, 0.7], [3, 4, 5]
+    grid = []
+    for k, f, v in itertools.product(ks, shares, views):
+        cfg = ch.Config(k_sigma=k, free_share=f, min_views=v)
+        r = ch.detect(A, B, cfg, log=lambda *_: None)
+        n = len(r["removed"]) + len(r["added"])
+        grid.append({"k_sigma": k, "free_share": f, "min_views": v, "false_blobs": n})
+        print(f"  k={k:<4} share={f:<4} views={v}: {n} changes", flush=True)
+    clean = [g for g in grid if g["false_blobs"] == 0]
+    if not clean:
+        sys.exit("Even the strictest setting reports changes on the untouched pair; check alignment first.")
+    # most sensitive = lowest k, then lowest share, then fewest views; then one step of margin on k
+    best = min(clean, key=lambda g: (g["k_sigma"], g["free_share"], g["min_views"]))
+    k_next = next((k for k in ks if k > best["k_sigma"]), best["k_sigma"])
+    chosen = {"k_sigma": k_next, "free_share": best["free_share"], "min_views": best["min_views"]}
+    sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
+    doc = {"config": chosen, "chosen_from": out.name, "rule": "most sensitive setting with 0 changes on the untouched pair, then one step stricter on k_sigma",
+           "frozen_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "code_commit": sha, "grid": grid}
+    Path(a.write).write_text(json.dumps(doc, indent=1))
+    print(f"Chosen: {chosen} -> {a.write}. Commit this file BEFORE running the real before/after pair.")
+
+
 def _cfg(a) -> ch.Config:
     cfg = ch.Config()
+    path = getattr(a, "config", None)
+    if path:
+        frozen = json.loads(Path(path).read_text())["config"]
+        for k, v in frozen.items():
+            if hasattr(cfg, k):
+                setattr(cfg, k, v)
+        log(f"Config: {path} (frozen {json.loads(Path(path).read_text()).get('frozen_at', '')})")
     for k in ("voxel", "min_views", "free_share", "k_sigma"):
         v = getattr(a, k, None)
         if v is not None:
@@ -177,12 +218,13 @@ def main(argv=None) -> None:
         sp.add_argument("--free-share", dest="free_share", type=float)
         sp.add_argument("--k-sigma", dest="k_sigma", type=float)
         sp.add_argument("--no-objects", dest="no_objects", action="store_true", help="skip the labelled boxes for every object")
+        sp.add_argument("--config", help="frozen thresholds from `whatchanged calibrate`")
 
     r = sub.add_parser("run", help="full pipeline on two videos")
     r.add_argument("before")
     r.add_argument("after")
     r.add_argument("--out", default="out/run")
-    r.add_argument("--frames", type=int, default=24, help="keyframes per video")
+    r.add_argument("--frames", type=int, default=32, help="keyframes per video")
     r.add_argument("--device", default="auto", help="auto, cpu, cuda or mps")
     r.add_argument("--force", action="store_true")
     tuning(r)
@@ -205,6 +247,11 @@ def main(argv=None) -> None:
     s.add_argument("--min-recall", dest="min_recall", type=float, help="fail below this recall (for CI)")
     s.add_argument("--max-false", dest="max_false", type=int, help="fail above this many false alarms (for CI)")
     s.set_defaults(fn=cmd_score)
+
+    cb = sub.add_parser("calibrate", help="set thresholds from an untouched pair (must report nothing)")
+    cb.add_argument("out", help="a run of the untouched pair, e.g. out/room-repeat")
+    cb.add_argument("--write", default="config.frozen.json")
+    cb.set_defaults(fn=cmd_calibrate)
 
     d = sub.add_parser("demo", help="run the bundled example from its cache")
     d.set_defaults(fn=cmd_demo)

@@ -15,7 +15,7 @@ from PIL import Image
 COLOURS = {"moved": (0, 114, 178), "added": (0, 158, 115), "removed": (213, 94, 0), "unsure": (230, 159, 0)}
 
 
-def write(path: Path, A, B, changes: list[dict], plans: list[dict], max_points: int = 150_000) -> Path:
+def write(path: Path, A, B, changes: list[dict], plans: list[dict], max_points: int = 150_000, boxes: dict | None = None) -> Path:
     import rerun as rr
 
     rr.init("whatchanged", spawn=False)
@@ -45,16 +45,23 @@ def write(path: Path, A, B, changes: list[dict], plans: list[dict], max_points: 
 
     for c in changes:
         col = COLOURS[c["type"]]
-        boxes = [c] + ([c["before"]] if c["type"] == "moved" else [])
+        bx = [c] + ([c["before"]] if c["type"] == "moved" else [])
         rr.log(f"world/changes/{c['id']}", rr.Boxes3D(
-            centers=[b["centre_m"] for b in boxes],
-            half_sizes=[np.array(b["size_m"]) / 2 for b in boxes],
-            rotation_axis_angles=[rr.RotationAxisAngle(axis=[0, 0, 1], degrees=b["yaw_deg"]) for b in boxes],
-            colors=[col] * len(boxes), labels=[f"{c['type']}: {c['label']}"] + (["(was here)"] if len(boxes) > 1 else [])),
+            centers=[b["centre_m"] for b in bx],
+            half_sizes=[np.array(b["size_m"]) / 2 for b in bx],
+            rotation_axis_angles=[rr.RotationAxisAngle(axis=[0, 0, 1], degrees=b["yaw_deg"]) for b in bx],
+            colors=[col] * len(bx), labels=[f"{c['type']}: {c['label']}"] + (["(was here)"] if len(bx) > 1 else [])),
             static=True)
         if c["type"] == "moved":
             o = np.array(c["before"]["centre_m"])
             rr.log(f"world/changes/{c['id']}/arrow", rr.Arrows3D(origins=[o], vectors=[np.array(c["centre_m"]) - o], colors=[col]), static=True)
+    for name, key in (("A", "before"), ("B", "after")):
+        for_session = (boxes or {}).get(name) or []
+        if for_session:
+            rr.log(f"world/objects_{key}", rr.Boxes3D(
+                centers=[b.centre for b in for_session], half_sizes=[b.size / 2 for b in for_session],
+                rotation_axis_angles=[rr.RotationAxisAngle(axis=[0, 0, 1], radians=b.yaw) for b in for_session],
+                colors=[(160, 166, 172)] * len(for_session), labels=[b.label for b in for_session]), static=True)
     for p in plans:
         cam = np.array(p["stand_at_m"] + [p["camera_height_m"]])
         rr.log(f"world/look_next/{p['id']}", rr.Arrows3D(origins=[cam], vectors=[(np.array(p["region_centre_m"]) - cam) * 0.5],

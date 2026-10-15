@@ -42,8 +42,10 @@ def _fmt_t(t):
 
 
 def write(out_dir: Path, A, B, changes: list[dict], regions: list[dict], floor: dict, diag: dict,
-          plans: list[dict] | None = None, title: str = "What changed in the room?", max_points: int = 120_000) -> Path:
+          plans: list[dict] | None = None, title: str = "What changed in the room?", max_points: int = 120_000,
+          boxes: dict | None = None) -> Path:
     plans = plans or []
+    boxes = boxes or {}
     pa, ca = A.points(conf_pct=30, stride=2)
     pb, cb = B.points(conf_pct=30, stride=2)
     data = {
@@ -55,6 +57,7 @@ def write(out_dir: Path, A, B, changes: list[dict], regions: list[dict], floor: 
         "regions": [{"reason": r["reason"], "min": np.round(r["min"], 3).tolist(), "max": np.round(r["max"], 3).tolist()}
                     for r in regions],
         "colours": TYPE_COLOURS,
+        "objects": {k: [b.to_dict() for b in v] for k, v in boxes.items()},
         "views": [{"id": p["id"], "cam": p["stand_at_m"] + [p["camera_height_m"]], "target": p["region_centre_m"]} for p in plans],
     }
     counts = {t: sum(c["type"] == t for c in changes) for t in ("moved", "added", "removed")}
@@ -152,7 +155,7 @@ details summary{cursor:pointer;font-weight:700}
 </style></head><body><div class="wrap">
 <header><p class="eyebrow">whatchanged · report</p><h1>__TITLE__</h1><p class="counts">__COUNTS__</p></header>
 <section class="viewer"><canvas id="gl"></canvas>
-<div class="tools"><button data-show="A">Before (A)</button><button data-show="B">After (B)</button><button data-show="AB" class="on">Both</button><button id="tour">Reset view</button></div>
+<div class="tools"><button data-show="A">Before (A)</button><button data-show="B">After (B)</button><button data-show="AB" class="on">Both</button><button id="objs" class="on">All objects</button><button id="tour">Reset view</button></div>
 <div class="legend"><span><i style="background:#0072b2"></i>moved</span><span><i style="background:#009e73"></i>added</span><span><i style="background:#d55e00"></i>removed</span><span><i style="background:#e69f00"></i>can't tell</span></div></section>
 <section><h2>Changes</h2><p class="muted">Click a card to fly to it. Every number in a sentence comes from the 3D measurements.</p><div class="grid">__CARDS__</div></section>
 <section><h2>Where to look next</h2><p class="muted">For each spot the second video could not check, the best place to stand to settle it, judged against the current obstacles. The preview is rendered from the 3D model.</p><div class="grid">__LOOK__</div></section>
@@ -198,6 +201,16 @@ for (const v of D.views){ const cam=new THREE.Vector3(...v.cam), tgt=new THREE.V
   scene.add(new THREE.ArrowHelper(dir.normalize(), cam, Math.min(len,0.6), 0xe69f00, 0.15, 0.1));
   const s=new THREE.Mesh(new THREE.SphereGeometry(0.06,16,12), new THREE.MeshBasicMaterial({color:0xe69f00})); s.position.copy(cam); scene.add(s);
   targets[v.id]=cam; }
+const objGroup = new THREE.Group(); scene.add(objGroup);
+for (const [sess, list] of Object.entries(D.objects||{})) for (const o of list){
+  const geo=new THREE.BoxGeometry(...o.size_m); const line=new THREE.LineSegments(new THREE.EdgesGeometry(geo),
+    new THREE.LineBasicMaterial({color: sess==='A'?0x9aa0a6:0xc9ced3, transparent:true, opacity:0.55}));
+  line.position.set(...o.centre_m); line.rotation.z=o.yaw_deg*Math.PI/180; line.userData.sess=sess; objGroup.add(line);
+  const cv=document.createElement('canvas'); cv.width=256; cv.height=48; const g=cv.getContext('2d'); g.fillStyle='rgba(15,20,24,.75)'; g.fillRect(0,0,256,48);
+  g.fillStyle='#e3e9ed'; g.font='26px monospace'; g.fillText(o.label,10,33);
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv), depthTest:false, transparent:true}));
+  sp.scale.set(0.5,0.094,1); sp.position.set(o.centre_m[0], o.centre_m[1], o.centre_m[2]+o.size_m[2]/2+0.08); sp.userData.sess=sess; objGroup.add(sp); }
+document.getElementById('objs').addEventListener('click', e=>{ objGroup.visible=!objGroup.visible; e.target.classList.toggle('on', objGroup.visible); });
 const all = [...D.camsA, ...D.camsB]; const cen = new THREE.Vector3();
 const bb = new THREE.Box3().setFromObject(ptsA); bb.getCenter(cen);
 function home(){ const sz=bb.getSize(new THREE.Vector3()).length(); camera.position.copy(cen).add(new THREE.Vector3(-0.35*sz, -0.55*sz, 0.6*sz)); controls.target.copy(cen); }
@@ -209,7 +222,8 @@ function flyTo(p){ const off=camera.position.clone().sub(controls.target).normal
 document.querySelectorAll('.card').forEach(el=>{ const go=()=>{ if(targets[el.dataset.id]){ flyTo(targets[el.dataset.id]); document.querySelector('.viewer').scrollIntoView({behavior:'smooth'}); } };
   el.addEventListener('click', go); el.addEventListener('keydown', e=>{ if(e.key==='Enter') go(); }); });
 document.querySelectorAll('[data-show]').forEach(b=>b.addEventListener('click',()=>{ document.querySelectorAll('[data-show]').forEach(x=>x.classList.toggle('on', x===b));
-  ptsA.visible = b.dataset.show.includes('A'); ptsB.visible = b.dataset.show.includes('B'); }));
+  ptsA.visible = b.dataset.show.includes('A'); ptsB.visible = b.dataset.show.includes('B');
+  objGroup.children.forEach(o=>{ o.visible = b.dataset.show.includes(o.userData.sess); }); }));
 document.getElementById('tour').addEventListener('click', home);
 function resize(){ const w=canvas.clientWidth, h=canvas.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
 addEventListener('resize', resize); resize();

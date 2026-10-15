@@ -198,6 +198,13 @@ def label(images: list[Image.Image], kind: str, labeller: str, cache: Cache, ext
     return ans
 
 
+def _pick(ans: dict, box_name: str | None, labeller: str) -> str:
+    """Gemini's name wins; otherwise a 3D box's name (seen from several views) beats one SigLIP crop."""
+    if labeller == "gemini" and ans.get("label"):
+        return ans["label"]
+    return box_name or ans.get("label", "object")
+
+
 # ---------------------------------------------------------------- sentences
 
 def _support(bottom: float, named: str) -> str:
@@ -212,15 +219,19 @@ def sentence(c: dict) -> str:
     name = (c["colour"] + " " if c.get("colour") else "") + c["label"]
     size = c["size_m"]
     dims = f"about {round(size[0] * 100, -1):.0f} × {round(size[1] * 100, -1):.0f} cm, {round(size[2] * 100, -1):.0f} cm tall"
+    near_a = f" next to the {c['near_after']}" if c.get("near_after") else ""
+    near_b = f" next to the {c['near_before']}" if c.get("near_before") else ""
     if c["type"] == "added":
-        return f"A {name} ({dims}) appeared on {_support(c['bottom_m'], c.get('on_after', ''))}."
+        return f"A {name} ({dims}) appeared on {_support(c['bottom_m'], c.get('on_after', ''))}{near_a}."
     if c["type"] == "removed":
-        return (f"The {name} on {_support(c['bottom_m'], c.get('on_before', ''))} is gone; "
+        return (f"The {name} on {_support(c['bottom_m'], c.get('on_before', ''))}{near_b} is gone; "
                 f"video B saw that spot empty from {c['evidence']['free_views']} viewpoints.")
     move = f"moved about {c['move']['distance_m']:.1f} m"
     a, b = c.get("on_before", ""), c.get("on_after", "")
     if a and b and a != b:
         move += f" from the {a} to the {b}"
+    elif c.get("near_before") and c.get("near_after") and c["near_before"] != c["near_after"]:
+        move += f" from beside the {c['near_before']} to beside the {c['near_after']}"
     elif c["move"].get("height_change_m", 0) > 0.25:
         move += f" up onto {_support(c['bottom_m'], b)}"
     if c["move"].get("turn_deg") is not None and abs(c["move"]["turn_deg"]) >= 20:
@@ -247,8 +258,24 @@ def check_sentence(c: dict) -> list[str]:
 
 # ---------------------------------------------------------------- assemble
 
-def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str = "auto", log=print) -> list[dict]:
+def _boxes_context(pts: np.ndarray, bottom: float, boxes) -> tuple[str | None, str, str]:
+    """(name from the object box containing these points, what it rests on, what it is next to)."""
+    if not boxes:
+        return None, "", ""
+    from .objects3d import label_for_points, support_and_near
+    name, _ = label_for_points(pts, boxes)
+    own = None
+    if name:
+        from .objects3d import _inside_share
+        own = max(boxes, key=lambda b: _inside_share(pts, b, pad=0.05))
+    on, near = support_and_near(pts.mean(0), bottom, boxes, exclude=own)
+    return name, on, near
+
+
+def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str = "auto", log=print,
+             boxes: dict | None = None) -> list[dict]:
     labeller = pick_labeller(labeller)
+    boxes = boxes or {}
     log(f"Labels: using {labeller}")
     cache = Cache(out_dir / "label_cache.json")
     crops = out_dir / "crops"
@@ -275,8 +302,9 @@ def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str 
         n += 1
         before, after, j, k = pair_views(b, A, B)
         ans = label([before, after], "removed", labeller, cache)
-        c = {"id": f"c{n:02d}", "type": "removed", **facts(b), "label": ans["label"], "colour": ans.get("colour", ""),
-             "on_before": ans.get("on_before", ""), "on_after": "",
+        bname, on, near = _boxes_context(b.voxels, b.bottom, boxes.get("A"))
+        c = {"id": f"c{n:02d}", "type": "removed", **facts(b), "label": _pick(ans, bname, labeller), "colour": ans.get("colour", ""),
+             "on_before": on or ans.get("on_before", ""), "on_after": "", "near_before": near, "near_after": "",
              "evidence": {"free_views": b.views, "free_share": round(b.score, 2), "noise_margin": round(b.margin, 1)},
              "frames": {"A": A.paths[j] if j >= 0 else None, "B": B.paths[k] if k >= 0 else None},
              "times": {"A": float(A.times[j]) if j >= 0 else None, "B": float(B.times[k]) if k >= 0 else None},
@@ -288,8 +316,9 @@ def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str 
         n += 1
         after, before, k, j = pair_views(b, B, A)
         ans = label([before, after], "added", labeller, cache)
-        c = {"id": f"c{n:02d}", "type": "added", **facts(b), "label": ans["label"], "colour": ans.get("colour", ""),
-             "on_before": "", "on_after": ans.get("on_after", ""),
+        bname, on, near = _boxes_context(b.voxels, b.bottom, boxes.get("B"))
+        c = {"id": f"c{n:02d}", "type": "added", **facts(b), "label": _pick(ans, bname, labeller), "colour": ans.get("colour", ""),
+             "on_before": "", "on_after": on or ans.get("on_after", ""), "near_before": "", "near_after": near,
              "evidence": {"free_views": b.views, "free_share": round(b.score, 2), "noise_margin": round(b.margin, 1)},
              "frames": {"A": A.paths[j] if j >= 0 else None, "B": B.paths[k] if k >= 0 else None},
              "times": {"A": float(A.times[j]) if j >= 0 else None, "B": float(B.times[k]) if k >= 0 else None},
@@ -303,8 +332,11 @@ def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str 
         ans = label([before, after], "moved", labeller, cache,
                     extra=" Image 1 shows the object at its old place, image 2 at its new place.")
         turn = float(np.degrees(((a.yaw - r.yaw + np.pi / 2) % np.pi) - np.pi / 2))
-        c = {"id": f"c{n:02d}", "type": "moved", **facts(a), "label": ans["label"], "colour": ans.get("colour", ""),
-             "on_before": ans.get("on_before", ""), "on_after": ans.get("on_after", ""),
+        nb, onb, nearb = _boxes_context(r.voxels, r.bottom, boxes.get("A"))
+        na, ona, neara = _boxes_context(a.voxels, a.bottom, boxes.get("B"))
+        c = {"id": f"c{n:02d}", "type": "moved", **facts(a), "label": _pick(ans, nb or na, labeller), "colour": ans.get("colour", ""),
+             "on_before": onb or ans.get("on_before", ""), "on_after": ona or ans.get("on_after", ""),
+             "near_before": nearb, "near_after": neara,
              "before": facts(r), "after": facts(a),
              "move": {"distance_m": round(float(np.linalg.norm(a.centre[:2] - r.centre[:2])), 2),
                       "height_change_m": round(float(a.bottom - r.bottom), 2),

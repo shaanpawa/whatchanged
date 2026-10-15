@@ -27,7 +27,27 @@ def log(msg: str) -> None:
     print(f"[{time.time() - T0:6.1f}s] {msg}", flush=True)
 
 
-def _detect_and_report(out: Path, labels: str, cfg: ch.Config) -> dict:
+def _object_boxes(out: Path, A, B, enabled: bool):
+    """Labelled 3D boxes for every object in each session (cached in objects.json)."""
+    from . import objects3d
+    path = out / "objects.json"
+    if path.exists():
+        return objects3d.load(path)
+    if not enabled:
+        return None
+    try:
+        boxes = {S.name: objects3d.boxes_for_session(S, n_frames=8, device="cpu", log=log)[0] for S in (A, B)}
+    except ImportError as e:
+        log(f"warning: object boxes skipped ({e})")
+        return None
+    objects3d.write(path, boxes)
+    for name, key in (("A", "before"), ("B", "after")):
+        (out / f"scene_graph_{key}.json").write_text(json.dumps(objects3d.scene_graph(boxes[name]), indent=1))
+        (out / f"markers_{key}.json").write_text(json.dumps(objects3d.marker_array(boxes[name], f"objects_{key}")))
+    return boxes
+
+
+def _detect_and_report(out: Path, labels: str, cfg: ch.Config, objects: bool = True) -> dict:
     from . import floormap, lookahead, report, semantics
     from .geometry import write_ply
     from .recon import Session
@@ -36,7 +56,8 @@ def _detect_and_report(out: Path, labels: str, cfg: ch.Config) -> dict:
     B = Session.load("B", out / "cache" / "B.npz")
     diag = json.loads((out / "cache" / "diag.json").read_text())
     res = ch.detect(A, B, cfg, log)
-    found = semantics.describe(res, A, B, out, labels, log)
+    boxes = _object_boxes(out, A, B, objects)
+    found = semantics.describe(res, A, B, out, labels, log, boxes=boxes)
     regions = [r for r in res["regions_A"] if r["reason"] == "hidden"] + res["regions_A"][:3]
     seen_ids = set()
     regions = [r for r in regions if not (id(r) in seen_ids or seen_ids.add(id(r)))]
@@ -57,10 +78,10 @@ def _detect_and_report(out: Path, labels: str, cfg: ch.Config) -> dict:
         "floor_map": floor, "look_next": plans, "diagnostics": diag,
     }
     (out / "changes.json").write_text(json.dumps(summary, indent=1))
-    path = report.write(out, A, B, found, regions, floor, diag, plans)
+    path = report.write(out, A, B, found, regions, floor, diag, plans, boxes=boxes)
     try:
         from . import rrd
-        rrd.write(out / "scene.rrd", A, B, found, plans)
+        rrd.write(out / "scene.rrd", A, B, found, plans, boxes=boxes)
         log(f"Rerun recording: {out / 'scene.rrd'}")
     except Exception as e:  # the report matters more than the extra recording
         log(f"warning: Rerun export skipped ({e})")
@@ -83,17 +104,18 @@ def cmd_run(a) -> None:
         fb = extract_keyframes(a.after, out / "frames", "B", n=a.frames)
         save_manifest(fa + fb, out / "frames.json")
         A, B, diag = reconstruct(fa, fb, device=a.device, log=log)
+        (out / "objects.json").unlink(missing_ok=True)
         A.save(out / "cache" / "A.npz")
         B.save(out / "cache" / "B.npz")
         diag["inputs"] = {"before": str(a.before), "after": str(a.after)}
         (out / "cache" / "diag.json").write_text(json.dumps(diag, indent=1))
     else:
         log("3D: using cached reconstruction (pass --force to redo)")
-    _detect_and_report(out, a.labels, _cfg(a))
+    _detect_and_report(out, a.labels, _cfg(a), not a.no_objects)
 
 
 def cmd_report(a) -> None:
-    _detect_and_report(Path(a.out), a.labels, _cfg(a))
+    _detect_and_report(Path(a.out), a.labels, _cfg(a), not a.no_objects)
 
 
 def cmd_check(a) -> None:
@@ -154,6 +176,7 @@ def main(argv=None) -> None:
         sp.add_argument("--min-views", dest="min_views", type=int)
         sp.add_argument("--free-share", dest="free_share", type=float)
         sp.add_argument("--k-sigma", dest="k_sigma", type=float)
+        sp.add_argument("--no-objects", dest="no_objects", action="store_true", help="skip the labelled boxes for every object")
 
     r = sub.add_parser("run", help="full pipeline on two videos")
     r.add_argument("before")

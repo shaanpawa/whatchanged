@@ -171,7 +171,7 @@ def main(argv=None) -> None:
     sub = p.add_subparsers(dest="cmd", required=True)
 
     def tuning(sp):
-        sp.add_argument("--labels", default="auto", choices=["auto", "gemini", "siglip", "none"])
+        sp.add_argument("--labels", default="auto", choices=["auto", "claude", "gemini", "siglip", "none"])
         sp.add_argument("--voxel", type=float)
         sp.add_argument("--min-views", dest="min_views", type=int)
         sp.add_argument("--free-share", dest="free_share", type=float)

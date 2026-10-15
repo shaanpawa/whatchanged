@@ -5,6 +5,7 @@ object and the fixed thing it sits on. Sentences are filled from measured facts,
 words, the 3D boxes and the numbers cannot disagree.
 
 Labellers, in order of preference:
+  claude  - Claude (Opus 5.5) via the Anthropic SDK, when ANTHROPIC_API_KEY is set
   gemini  - Gemini via the google-genai SDK, when GEMINI_API_KEY is set
   siglip  - SigLIP 2 zero-shot over an indoor vocabulary, on CPU, no key needed
   none    - "object"
@@ -28,6 +29,7 @@ from .recon import Session
 
 PROMPT_VERSION = "v1"
 GEMINI_MODEL = os.environ.get("WHATCHANGED_GEMINI_MODEL", "gemini-3.8-flash")
+CLAUDE_MODEL = os.environ.get("WHATCHANGED_CLAUDE_MODEL", "claude-opus-5-5")
 SIGLIP_MODEL = "google/siglip2-base-patch16-224"
 
 VOCAB = [
@@ -143,6 +145,49 @@ def _gemini(images: list[Image.Image], kind: str, extra: str) -> dict:
     return json.loads(resp.text)
 
 
+LABEL_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "label": {"type": "string"},
+        "colour": {"type": "string"},
+        "on_before": {"type": "string"},
+        "on_after": {"type": "string"},
+        "same_object": {"type": ["boolean", "null"]},
+        "visible": {"type": "boolean"},
+    },
+    "required": ["label", "colour", "on_before", "on_after", "same_object", "visible"],
+    "additionalProperties": False,
+}
+
+
+def _claude(images: list[Image.Image], kind: str, extra: str) -> dict | None:
+    """Claude names the object from before/after crops. Returns None on a refusal."""
+    import base64
+
+    import anthropic
+
+    content = []
+    for im in images:
+        im = im.convert("RGB")
+        im.thumbnail((1024, 1024))
+        buf = io.BytesIO()
+        im.save(buf, format="JPEG", quality=90)
+        content.append({"type": "image", "source": {"type": "base64", "media_type": "image/jpeg",
+                                                    "data": base64.standard_b64encode(buf.getvalue()).decode()}})
+    content.append({"type": "text", "text": GEMINI_PROMPT.format(kind=kind, extra=extra)})
+    client = anthropic.Anthropic()
+    resp = client.beta.messages.create(
+        model=CLAUDE_MODEL, max_tokens=4000,
+        betas=["server-side-fallback-2026-07-01"], fallbacks="default",
+        output_config={"effort": "medium", "format": {"type": "json_schema", "schema": LABEL_SCHEMA}},
+        messages=[{"role": "user", "content": content}],
+    )
+    if resp.stop_reason == "refusal":
+        return None
+    text = next(b.text for b in resp.content if b.type == "text")
+    return json.loads(text)
+
+
 _SIGLIP = None
 
 
@@ -168,6 +213,12 @@ def _siglip(images: list[Image.Image], kind: str) -> dict:
 def pick_labeller(requested: str = "auto") -> str:
     if requested != "auto":
         return requested
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        try:
+            import anthropic  # noqa: F401
+            return "claude"
+        except ImportError:
+            pass
     if os.environ.get("GEMINI_API_KEY"):
         try:
             import google.genai  # noqa: F401
@@ -186,7 +237,12 @@ def label(images: list[Image.Image], kind: str, labeller: str, cache: Cache, ext
     key = cache.key(*images, extra=f"{kind}|{extra}")
     if key in cache.data:
         return cache.data[key]
-    if labeller == "gemini":
+    if labeller == "claude":
+        ans = _claude(images, kind, extra)
+        if ans is None:                      # declined: fall back to the offline labeller
+            labeller = "siglip"
+            ans = _siglip(images, kind)
+    elif labeller == "gemini":
         ans = _gemini(images, kind, extra)
     elif labeller == "siglip":
         ans = _siglip(images, kind)
@@ -200,7 +256,7 @@ def label(images: list[Image.Image], kind: str, labeller: str, cache: Cache, ext
 
 def _pick(ans: dict, box_name: str | None, labeller: str) -> str:
     """Gemini's name wins; otherwise a 3D box's name (seen from several views) beats one SigLIP crop."""
-    if labeller == "gemini" and ans.get("label"):
+    if labeller in ("claude", "gemini") and ans.get("label"):
         return ans["label"]
     return box_name or ans.get("label", "object")
 

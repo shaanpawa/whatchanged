@@ -18,6 +18,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+claude = ["anthropic>=1.0"]
 gemini = ["google-genai>=1.0"]
 dev = ["pytest"]
 

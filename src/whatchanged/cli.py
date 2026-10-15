@@ -68,6 +68,7 @@ def _detect_and_report(out: Path, labels: str, cfg: ch.Config, objects: bool = T
     g = np.load(out / "maps" / "grids.npz")
     plans = lookahead.plan(A, B, res["regions_A"], g["free_both"], g["origin"], float(g["res"]), out, log=log)
     diag["noise_floor"] = {"A_to_B_sigma": round(res["VA"]["sigma"], 4), "B_to_A_sigma": round(res["VB"]["sigma"], 4)}
+    diag["smallest_detectable_change"] = {"removals (judged by B)": res["VA"]["error_budget"], "additions (judged by A)": res["VB"]["error_budget"]}
     diag["config"] = asdict(cfg)
     for name, S in (("A", A), ("B", B)):
         p, c = S.points(conf_pct=30, stride=2)
@@ -126,10 +127,12 @@ def cmd_check(a) -> None:
 
 
 def cmd_demo(a) -> None:
-    root = Path(__file__).resolve().parents[2] / "examples" / "bedroom"
+    repo = Path(__file__).resolve().parents[2]
+    root = repo / "examples" / "bedroom"
     if not (root / "cache" / "A.npz").exists():
         sys.exit(f"Example cache not found at {root}. Run `whatchanged run` on your own videos instead.")
-    _detect_and_report(root, "auto", ch.Config())
+    a.config = str(repo / "config.frozen.json") if (repo / "config.frozen.json").exists() else None
+    _detect_and_report(root, "auto", _cfg(a))
 
 
 def cmd_score(a) -> None:

@@ -131,7 +131,20 @@ def _cfg(a) -> ch.Config:
     return cfg
 
 
+def _load_dotenv() -> None:
+    """Read KEY=VALUE lines from ./.env (git-ignored) without overriding the real environment."""
+    import os
+    for path in (Path.cwd() / ".env", Path(__file__).resolve().parents[2] / ".env"):
+        if path.exists():
+            for line in path.read_text().splitlines():
+                k, sep, v = line.partition("=")
+                if sep and k.strip() and not k.strip().startswith("#"):
+                    os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+            break
+
+
 def main(argv=None) -> None:
+    _load_dotenv()
     p = argparse.ArgumentParser(prog="whatchanged", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
 

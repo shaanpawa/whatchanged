@@ -177,15 +177,15 @@ def _claude(images: list[Image.Image], kind: str, extra: str) -> dict | None:
     content.append({"type": "text", "text": GEMINI_PROMPT.format(kind=kind, extra=extra)})
     client = anthropic.Anthropic()
     resp = client.beta.messages.create(
-        model=CLAUDE_MODEL, max_tokens=4000,
+        model=CLAUDE_MODEL, max_tokens=16000,
         betas=["server-side-fallback-2026-07-01"], fallbacks="default",
         output_config={"effort": "medium", "format": {"type": "json_schema", "schema": LABEL_SCHEMA}},
         messages=[{"role": "user", "content": content}],
     )
-    if resp.stop_reason == "refusal":
+    if resp.stop_reason in ("refusal", "max_tokens"):
         return None
-    text = next(b.text for b in resp.content if b.type == "text")
-    return json.loads(text)
+    text = next((b.text for b in resp.content if b.type == "text"), None)
+    return json.loads(text) if text else None
 
 
 _SIGLIP = None

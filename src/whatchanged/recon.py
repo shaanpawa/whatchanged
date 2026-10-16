@@ -133,6 +133,23 @@ def _infer(paths: list[str], device: str, cameras: list[dict] | None = None) -> 
     return out
 
 
+MAX_VIEWS = 24   # MapAnything views per pass when COLMAP gives the cameras
+
+
+def infer_in_passes(paths: list[str], device: str, cameras: list[dict], max_views: int = MAX_VIEWS) -> dict:
+    """_infer on runs of at most `max_views` consecutive frames, joined back in order.
+
+    With COLMAP cameras each frame's depth is fitted to its own COLMAP points afterwards, so nothing
+    needs the network to see all frames at once. One pass over many views gave worse depth: on the
+    trial room, 62 frames in one pass disagreed between the two videos by 25% more than 24 frames in
+    one pass (same frames compared), took 2.7x as long and peaked at 14.7 GB.
+    """
+    n = len(paths)
+    cuts = np.linspace(0, n, -(-n // max_views) + 1).round().astype(int)
+    parts = [_infer(paths[a:b], device, cameras=cameras[a:b]) for a, b in zip(cuts[:-1], cuts[1:])]
+    return {k: np.concatenate([p[k] for p in parts]) for k in parts[0]}
+
+
 def model_K(cam: dict, model_wh: tuple[int, int]) -> np.ndarray:
     """A COLMAP pinhole camera's K on the image MapAnything sees (cover-resize, then centre crop).
 
@@ -208,7 +225,8 @@ def level_and_align(A: Session, B: Session, diag: dict, log=print) -> None:
     diag["camera_height_m"] = {"median": round(float(np.median(heights)), 3),
                                "p10": round(float(np.percentile(heights, 10)), 3),
                                "p90": round(float(np.percentile(heights, 90)), 3)}
-    if np.percentile(heights, 90) - np.percentile(heights, 10) > 1.0 or not 0.5 < np.median(heights) < 2.2:
+    # Filming at three heights (about 0.75, 1.3 and 2 m) spans about 1.2 m, so only a wider spread is suspect.
+    if np.percentile(heights, 90) - np.percentile(heights, 10) > 1.6 or not 0.5 < np.median(heights) < 2.2:
         log("warning: camera heights look implausible for a handheld walk; the floor fit may be wrong")
 
     # Align B onto A on structure that did not change (4-DoF robust ICP), then measure agreement.
@@ -317,26 +335,36 @@ def local_correction(d: np.ndarray, z: np.ndarray, u: np.ndarray, v: np.ndarray,
 
 
 def reconstruct_colmap(videos: list[str], out: Path, n_frames: int = 32, device: str = "auto",
-                       work: Path | None = None, log=print) -> tuple[Session, Session, dict, list[dict]]:
+                       work: Path | None = None, metres_per_unit: float | None = None,
+                       log=print) -> tuple[Session, Session, dict, list[dict]]:
     """Sessions whose cameras are COLMAP's and whose depth is MapAnything's, in metres.
 
     Each frame's depth is fitted to the COLMAP points that frame saw (scale and offset, see fit_depth,
     then a local correction around the points), which takes out the network's frame-to-frame wobble and
     its stretching of depth; depth with no point near it is left out. The one metric scale for the model
     is the median of MapAnything depth over COLMAP depth across all frames (as room3d.metric_scale),
-    after correcting the network's depth for its focal-length guess. Then the world is levelled with
-    room3d's level_up and find_floor, so it matches the splat viewer's.
+    after correcting the network's depth for its focal-length guess, unless `metres_per_unit` (from a
+    floor marker) is given. Then the world is levelled with room3d's level_up and find_floor, so it
+    matches the splat viewer's.
     """
     from . import room3d
     from .align import nn_stats, subsample
 
-    device = pick_device(device)
     work = Path(work) if work else out / "colmap"
     frames, dense = colmap_model(videos, work, log)
     sp = dense / "sparse" / "0"
     imgs = room3d.read_images(sp / "images.bin")
+    room3d.check_joined(room3d.registered_counts({n: [f["name"] for f in frames[n]] for n in "AB"},
+                                                 {im["name"] for im in imgs.values()}),
+                        "re-film or drop the pass that will not pose, or use --poses mapanything")
     cams = room3d.read_cameras(sp / "cameras.bin")
     xyz, _, seen = room3d.read_points(sp / "points3D.bin")
+    off = room3d.check_scale(room3d.frame_depths(imgs, xyz, seen),
+                             "rebuild the COLMAP model (the `whatchanged room` folder) at another frame rate in a fresh folder, "
+                             "or use --poses mapanything")
+    if off:
+        log(f"warning: {len(off)} posed frames sit at another scale in COLMAP's model; they are left out")
+    device = pick_device(device)
     obs: dict[int, list[int]] = {}
     for k, ids in enumerate(seen):
         for i in ids:
@@ -344,11 +372,17 @@ def reconstruct_colmap(videos: list[str], out: Path, n_frames: int = 32, device:
     by_name = {im["name"]: iid for iid, im in imgs.items()}
     diag = {"device": device, "poses_from": "colmap", "views": {}, "depth_from": "session"}
 
+    chosen = {}
+    for name in "AB":
+        posed = {f["name"] for f in frames[name] if len(obs.get(by_name.get(f["name"], -1), [])) >= 50 and f["name"] not in off}
+        chosen[name] = posed, pick_posed_keyframes(frames[name], posed, n_frames)
+        if not chosen[name][1]:
+            raise SystemExit(f"{name}: no frame has 50 COLMAP points, so there is nothing to fit depth to; "
+                             "film slower, with more texture in view")
+
     (out / "frames").mkdir(parents=True, exist_ok=True)
     raw, keyframes = {}, []
-    for name in "AB":
-        posed = {f["name"] for f in frames[name] if len(obs.get(by_name.get(f["name"], -1), [])) >= 50}
-        keys = pick_posed_keyframes(frames[name], posed, n_frames)
+    for name, (posed, keys) in chosen.items():
         paths = []
         for i, f in enumerate(keys):
             p = out / "frames" / f"{name}_{i:03d}.jpg"
@@ -359,7 +393,7 @@ def reconstruct_colmap(videos: list[str], out: Path, n_frames: int = 32, device:
         diag["views"][name] = len(keys)
         log(f"3D: {name}: {len(keys)} keyframes from {len(posed)}/{len(frames[name])} COLMAP-posed frames; "
             f"MapAnything depth on {device}")
-        pred = _infer(paths, device, cameras=[cams[imgs[i]["camera_id"]] for i in ids])
+        pred = infer_in_passes(paths, device, [cams[imgs[i]["camera_id"]] for i in ids])
         pred["c2w"] = np.stack([room3d.cam_to_world(imgs[i]) for i in ids])
         pred["times"] = np.array([f["t"] for f in keys])
         pred["paths"] = paths
@@ -385,19 +419,22 @@ def reconstruct_colmap(videos: list[str], out: Path, n_frames: int = 32, device:
     # too short (on the trial: 2.3x, which put the phone at 0.72 m instead of the bed and desk's 1.45 m).
     focal = np.concatenate([p["K"][:, 0, 0] / p["K_net"][:, 0, 0] for p in raw.values()])
     ratios = [d * k / z for p in raw.values() for (d, z), k in zip(p["pairs"], p["K"][:, 0, 0] / p["K_net"][:, 0, 0])]
-    s = float(np.median(np.concatenate(ratios)))
+    s_net = float(np.median(np.concatenate(ratios)))      # network metres per COLMAP unit
     s_raw = float(np.median(np.concatenate([d / z for p in raw.values() for d, z in p["pairs"]])))
-    diag["metric_scale"] = {"m_per_colmap_unit": round(s, 6), "uncorrected": round(s_raw, 6),
-                            "network_focal_short_by": round(float(np.median(focal)), 3)}
-    log(f"3D: metric scale {s:.4f} m per COLMAP unit (MapAnything guessed a focal length "
+    s, source = (metres_per_unit, "marker") if metres_per_unit else (s_net, "metric depth")
+    diag["metric_scale"] = {"m_per_colmap_unit": round(s, 6), "scale_from": source, "metric_depth": round(s_net, 6),
+                            "uncorrected": round(s_raw, 6), "network_focal_short_by": round(float(np.median(focal)), 3)}
+    log(f"3D: metric scale {s_net:.4f} m per COLMAP unit from depth (MapAnything guessed a focal length "
         f"{np.median(focal):.2f}x too short; uncorrected scale {s_raw:.4f})")
+    if metres_per_unit:
+        log(f"3D: using {s:.4f} m per COLMAP unit from the marker instead ({s_net / s - 1:+.1%} off)")
     # Shape: each frame's depth fitted to its own COLMAP points (z = a*d + b), then the leftover misfit
     # corrected locally around the points. Depth with no COLMAP point near it is dropped: the network
     # works from its own (wrong) field of view, so a plain white wall can sit 40% too near, and the
     # other video then "sees through" that phantom wall. Unanchored spots become "can't tell" instead.
     for name, p in raw.items():
         k = p["K"][:, 0, 0] / p["K_net"][:, 0, 0]
-        fits = [fit_depth(d, z, fallback=ki / s) for (d, z), ki in zip(p["pairs"], k)]
+        fits = [fit_depth(d, z, fallback=ki / s_net) for (d, z), ki in zip(p["pairs"], k)]   # network depth -> COLMAP units
         depth = s * np.stack([correct_depth(dm, f) for dm, f in zip(p["depth"], fits)])
         for j, ((d, z), (u, v), f) in enumerate(zip(p["pairs"], p["uv"], fits)):
             r, w = local_correction(d, z, u, v, f, depth.shape[1:])
@@ -431,13 +468,19 @@ def reconstruct_colmap(videos: list[str], out: Path, n_frames: int = 32, device:
     diag["camera_height_m"] = {"median": round(float(np.median(heights)), 3),
                                "p10": round(float(np.percentile(heights, 10)), 3),
                                "p90": round(float(np.percentile(heights, 90)), 3)}
-    if np.percentile(heights, 90) - np.percentile(heights, 10) > 1.0 or not 0.5 < np.median(heights) < 2.2:
+    # Filming at three heights (about 0.75, 1.3 and 2 m) spans about 1.2 m, so only a wider spread is suspect.
+    if np.percentile(heights, 90) - np.percentile(heights, 10) > 1.6 or not 0.5 < np.median(heights) < 2.2:
         log("warning: camera heights look implausible for a handheld walk; the floor fit may be wrong")
+    if not 0.2 < np.median(heights) < 5.0 or not np.isfinite(A.depth).all() or not np.isfinite(B.depth).all():
+        # Nothing after this can be right, and infinite depth only crashes later; stop with the reason instead.
+        raise SystemExit(f"The cameras come out {np.median(heights):.2f} m above the floor, so the metric scale "
+                         f"({s:.4g} m per COLMAP unit, from {source}) is wrong. Check the COLMAP model (the `whatchanged "
+                         "room` log) or pass the floor marker's scale with --metres-per-unit.")
     # Both videos sit in one bundle-adjusted model, so B is on A by construction: measure, don't move.
     diag["alignment_B_to_A_m"] = nn_stats(subsample(A.points(conf_pct=50, stride=4)[0]),
                                           subsample(B.points(conf_pct=50, stride=4)[0]))
     diag["colmap"] = {"work": str(work.resolve()), "to_levelled": np.round(L, 8).tolist(),
-                      "metric_scale_m_per_unit": round(s, 6),
+                      "metric_scale_m_per_unit": round(s, 6), "scale_from": source,
                       "registered": {k: f"{sum(f['name'] in by_name for f in frames[k])}/{len(frames[k])}" for k in "AB"}}
     log(f"3D: COLMAP poses, {s:.4f} m per COLMAP unit; static surfaces agree to "
         f"{diag['alignment_B_to_A_m']['p50'] * 100:.1f} cm (median), cameras at {diag['camera_height_m']['median']:.2f} m")

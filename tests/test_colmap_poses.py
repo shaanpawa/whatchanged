@@ -131,3 +131,20 @@ def test_shared_model_boxes_land_exactly(tmp_path):
     box = detection_boxes(run, ["A"], align)["objects"]["A"][0]
     assert np.allclose(box["centre"], M[:3, :3] @ p_colmap + M[:3, 3], atol=1e-3)
     assert shared_alignment(run, tmp_path / "elsewhere", M, log=lambda *_: None) is None
+
+
+def test_depth_runs_in_passes_of_at_most_24_frames_in_order(monkeypatch):
+    from whatchanged import recon
+    seen = []
+
+    def infer(paths, device, cameras=None):
+        seen.append(len(paths))
+        k = np.array([int(p) for p in paths], float)
+        return {"depth": k[:, None, None] * np.ones((len(k), 2, 3)), "K": np.stack([np.eye(3)] * len(k)), "K_net": np.stack([np.eye(3)] * len(k))}
+    monkeypatch.setattr(recon, "_infer", infer)
+    out = recon.infer_in_passes([str(i) for i in range(62)], "cpu", [{}] * 62)
+    assert seen == [21, 20, 21] and max(seen) <= 24
+    assert out["depth"].shape == (62, 2, 3) and list(out["depth"][:, 0, 0]) == list(range(62))
+    seen.clear()
+    recon.infer_in_passes([str(i) for i in range(24)], "cpu", [{}] * 24)
+    assert seen == [24]

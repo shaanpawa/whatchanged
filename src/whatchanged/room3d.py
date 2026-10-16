@@ -26,6 +26,10 @@ import numpy as np
 
 
 VIEWER = Path(__file__).with_name("viewer") / "room.html"
+INCREMENTAL_MAX = 400     # frames; above this the incremental mapper is not worth the hours
+# How far from a filmed view the viewer still counts as photoreal (holdout renders on the trial:
+# 7 cm and under 2 degrees held 20-24 dB; 4 cm but 5.5 degrees turned fell to 17 dB).
+GATE = {"R_m": 0.10, "theta_deg": 5}
 
 
 # ---------------------------------------------------------------- frames
@@ -123,16 +127,25 @@ def run_colmap(work: Path, groups: list[list[str]], log=print) -> Path:
         _colmap("global_mapper", "--database_path", db, "--image_path", images, "--output_path", sparse,
                 "--GlobalMapper.gp_use_gpu", 0, log=log)
     except RuntimeError as e:
-        log(f"  global mapper failed, trying incremental: {str(e).splitlines()[0]}")
+        log(f"  global mapper failed: {str(e).splitlines()[0]}")
     n_all = sum(len(g) for g in groups)
     model, n_reg = _largest_model(sparse)
-    if n_reg < 0.8 * n_all:
+    if n_reg < 0.8 * n_all and n_all <= INCREMENTAL_MAX:
         log(f"  global mapper posed {n_reg}/{n_all}; trying the incremental mapper")
         shutil.rmtree(sparse)
         sparse.mkdir()
         _colmap("mapper", "--database_path", db, "--image_path", images, "--output_path", sparse, log=log)
         model, n_reg = _largest_model(sparse)
+    elif n_reg < 0.8 * n_all:
+        # On thousands of frames the incremental mapper runs for hours on the CPU; better to stop
+        # soon and drop the pass that will not pose.
+        log(f"  global mapper posed {n_reg}/{n_all}; not trying the incremental mapper on more than {INCREMENTAL_MAX} frames")
+    if model is None:
+        raise RuntimeError("COLMAP could not pose the video. Film slower, with more texture in view.")
     log(f"  poses: {n_reg}/{n_all} frames registered in {time.time() - t:.0f}s")
+    posed = {im["name"] for im in read_images(model / "images.bin").values()}
+    counts = registered_counts({g[0].split("/")[0]: g for g in groups if g}, posed)
+    log("  per video: " + ", ".join(f"{n} {k}/{m}" for n, (k, m) in counts.items()))
     dense = work / "dense"
     shutil.rmtree(dense, ignore_errors=True)
     _colmap("image_undistorter", "--image_path", images, "--input_path", model, "--output_path", dense,
@@ -143,15 +156,74 @@ def run_colmap(work: Path, groups: list[list[str]], log=print) -> Path:
     return dense
 
 
-def _largest_model(sparse: Path) -> tuple[Path, int]:
-    best, n_best = None, -1
+def _largest_model(sparse: Path) -> tuple[Path | None, int]:
+    best, n_best = None, 0
     for m in sorted(p for p in sparse.iterdir() if (p / "images.bin").exists()):
         n = len(read_images(m / "images.bin"))
         if n > n_best:
             best, n_best = m, n
-    if best is None:
-        raise RuntimeError("COLMAP could not pose the video. Film slower, with more texture in view.")
     return best, n_best
+
+
+def registered_counts(groups: dict[str, list[str]], posed: set[str]) -> dict[str, tuple[int, int]]:
+    """(frames in the model, frames extracted) for each video."""
+    return {n: (sum(f in posed for f in g), len(g)) for n, g in groups.items()}
+
+
+def check_joined(counts: dict[str, tuple[int, int]], hint: str, min_share: float = 0.5) -> None:
+    """Stop, before any training or depth inference, when a video barely made it into the joint model.
+
+    COLMAP keeps the largest connected model; if the videos did not join, that holds one video
+    and a few stray frames of the other, and everything after it would quietly use nothing.
+    """
+    if len(counts) < 2:
+        return
+    bad = [n for n, (k, m) in counts.items() if k < min_share * m]
+    if bad:
+        got = ", ".join(f"{n} {k}/{m}" for n, (k, m) in counts.items())
+        raise SystemExit(f"Only {got} frames are in the COLMAP model, so the videos did not join "
+                         f"({', '.join(bad)} under {min_share:.0%}); {hint}")
+
+
+SCALE_JUMP = 30.0   # a frame whose points sit this many times nearer or further than the model's median is off scale
+
+
+def frame_depths(imgs: dict[int, dict], xyz: np.ndarray, seen: list[np.ndarray], min_points: int = 20) -> dict[str, float]:
+    """Median depth, in model units, of the COLMAP points each registered image saw."""
+    obs: dict[int, list[int]] = {}
+    for k, ids in enumerate(seen):
+        for i in ids:
+            obs.setdefault(int(i), []).append(k)
+    out = {}
+    for iid, im in imgs.items():
+        k = obs.get(int(iid), [])
+        if len(k) < min_points:
+            continue
+        w2c = np.linalg.inv(cam_to_world(im))
+        z = (xyz[k] @ w2c[:3, :3].T + w2c[:3, 3])[:, 2]
+        z = z[z > 0]
+        if len(z) >= min_points:
+            out[im["name"]] = float(np.median(z))
+    return out
+
+
+def check_scale(depths: dict[str, float], hint: str, max_share: float = 0.1, jump: float = SCALE_JUMP) -> set[str]:
+    """Stop when part of the COLMAP model sits at another scale; return the few off-scale frames otherwise.
+
+    A room walk's frames see their points between about 0.3 and 5 m, so the per-frame median depths stay
+    within about 10x of each other. The global mapper can collapse part of the model instead (pairs with
+    no baseline: a pan on the spot, or the same picture in both videos); on the rehearsal clips half the
+    frames saw their points 100,000x nearer than the rest, and the metric scale, the depth and the
+    camera heights that followed were nonsense (cameras 41 m up, then a crash on infinite depth).
+    """
+    if not depths:
+        return set()
+    med = float(np.median(list(depths.values())))
+    bad = {n for n, z in depths.items() if not med / jump < z < med * jump}
+    if len(bad) > max_share * len(depths):
+        raise SystemExit(f"COLMAP's model is broken: {len(bad)} of {len(depths)} posed frames see the room at a scale "
+                         f"more than {jump:g}x off the rest (part of the model collapsed); {hint}")
+    return bad
 
 
 # ---------------------------------------------------------------- COLMAP binary files (just what we need)
@@ -378,11 +450,12 @@ def find_floor(pts: np.ndarray, up: np.ndarray, centres: np.ndarray) -> tuple[np
     return n, float(-n @ c)
 
 
-def viewer_frame(cams_c2w: np.ndarray, pts: np.ndarray, camera_height: float = 1.4, scale: float | None = None) -> dict:
+def viewer_frame(cams_c2w: np.ndarray, pts: np.ndarray, camera_height: float = 1.4, scale: float | None = None,
+                 source: str = "metric depth") -> dict:
     """Similarity from COLMAP's world to a Y-up, floor-at-zero, metric frame centred on the walk.
 
-    COLMAP has no scale: `scale` (metres per COLMAP unit, e.g. from metric depth) sets it when known,
-    otherwise the median camera height is taken to be `camera_height` metres.
+    COLMAP has no scale: `scale` (metres per COLMAP unit, from metric depth or a floor marker, named
+    by `source`) sets it when known, otherwise the median camera height is taken to be `camera_height` metres.
     """
     centres = cams_c2w[:, :3, 3]
     y, d = find_floor(pts, level_up(cams_c2w), centres)
@@ -397,8 +470,17 @@ def viewer_frame(cams_c2w: np.ndarray, pts: np.ndarray, camera_height: float = 1
     M = np.eye(4)
     M[:3, :3] = s * R
     M[:3, 3] = t
-    return {"matrix": M, "scale": s, "scale_from": "metric depth" if scale else f"camera height {camera_height} m",
+    return {"matrix": M, "scale": s, "scale_from": source if scale else f"camera height {camera_height} m",
             "median_camera_height_m": round(h * s, 3)}
+
+
+def camera_meta(cam: dict) -> dict:
+    """Field of view and image size of an undistorted (PINHOLE: fx, fy, cx, cy) COLMAP camera, for the viewer."""
+    fx, fy = cam["params"][:2]
+    w, h = cam["width"], cam["height"]
+    return {"fov_y_deg": round(float(np.degrees(2 * np.arctan(h / 2 / fy))), 2),
+            "fov_x_deg": round(float(np.degrees(2 * np.arctan(w / 2 / fx))), 2),
+            "image_wh": [int(w), int(h)]}
 
 
 # ---------------------------------------------------------------- tie-in with a detection run
@@ -572,21 +654,40 @@ def detection_alignment(run: Path, names: list[str], frames: dict, imgs: dict[in
             "inliers": int(best.sum()), "pairs": len(src), "rms_m": round(rms, 4)}
 
 
+def state_object(o: dict, state: str) -> dict | None:
+    """A shared object (objects.json "shared") as state A or B shows it: static ones in both, a removed or
+    added one only on its side, a moved one at that state's position; None when that state has no such object."""
+    st = o.get("state") or "both"
+    if st in ("both", state):
+        return o
+    if st == "moved" and state in o.get("positions", {}):
+        return {**o, **o["positions"][state]}
+    return None
+
+
 def detection_boxes(run: Path, names: list[str], align: dict) -> dict:
     """Object boxes and changes from a detection run, moved into the viewer frame (y up, metres)."""
     T = align["matrix"]
+    k = float(np.cbrt(np.linalg.det(T[:3, :3])))   # 1 unless the viewer took a different scale (a marker) than the run
 
     def box(f: dict, **extra) -> dict:
         x, y, z = f["centre_m"]
         c = T[:3, :3] @ np.array([x, z, -y]) + T[:3, 3]
-        return {"centre": np.round(c, 3).tolist(), "size": [f["size_m"][0], f["size_m"][2], f["size_m"][1]],
+        size = [round(k * v, 3) for v in (f["size_m"][0], f["size_m"][2], f["size_m"][1])]
+        return {"centre": np.round(c, 3).tolist(), "size": size,
                 "yaw_deg": round(f.get("yaw_deg", 0.0) + align["yaw_deg"], 1), **extra}
 
     out = {"objects": {}, "changes": []}
     if (run / "objects.json").exists():
-        sessions = json.loads((run / "objects.json").read_text())["sessions"]
-        for n in names:
-            out["objects"][n] = [box(o, label=o["label"]) for o in sessions.get("A" if n in ("room", "A") else n, [])]
+        doc = json.loads((run / "objects.json").read_text())
+        for n in names:   # boxes Claude dropped (verified false: a wall, empty space, part of something) stay out
+            key = "A" if n in ("room", "A") else n
+            if "shared" in doc:   # one object set: each state shows the static objects plus its side of each change
+                objs = [o for o in (state_object(o, key) for o in doc["shared"] if o.get("verified") is not False) if o]
+            else:
+                objs = [o for o in doc["sessions"].get(key, []) if o.get("verified") is not False]
+            out["objects"][n] = [box(o, label=o["label"], **{k: o[k] for k in ("id", "state", "change") if o.get(k)})
+                                 for o in objs]
     if (run / "changes.json").exists():
         for c in json.loads((run / "changes.json").read_text())["changes"]:
             item = {"id": c["id"], "type": c["type"], "label": c["label"], "sentence": c["sentence"], **box(c)}
@@ -612,6 +713,16 @@ def camera_path(imgs: dict[int, dict], M: np.ndarray, times: dict[str, float]) -
 
 
 def build_viewer(out: Path, splats: dict[str, str], frame: dict, cams: dict[str, list], meta: dict, boxes: dict) -> Path:
+    # Small copies of the video frames, so the viewer can show the real footage beside the render.
+    for c in (c for cs in cams.values() for c in cs):
+        src, dst = out / "work" / "images" / c["name"], out / "frames" / c["name"]
+        if src.exists() and (not dst.exists() or dst.stat().st_mtime < src.stat().st_mtime):   # re-extracted frames
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            img = cv2.imread(str(src))
+            s = 640 / max(img.shape[:2])
+            cv2.imwrite(str(dst), cv2.resize(img, None, fx=s, fy=s, interpolation=cv2.INTER_AREA), [cv2.IMWRITE_JPEG_QUALITY, 82])
+    if (out / "frames").exists():
+        meta["frames_dir"] = "frames"
     scene = {"splats": splats, "matrix": np.round(frame["matrix"], 6).T.reshape(-1).tolist(),  # column-major for three.js
              "cameras": cams, "meta": meta, **boxes}
     (out / "scene.json").write_text(json.dumps(scene))
@@ -624,7 +735,8 @@ def build_viewer(out: Path, splats: dict[str, str], frame: dict, cams: dict[str,
 
 def build(videos: list[str], out: Path, fps: float = 4.0, max_side: int = 1600, iterations: int = 30000,
           sh_degree: int = 3, camera_height: float = 1.4, detections: Path | None = None, force: bool = False,
-          log=print) -> Path:
+          metres_per_unit: float | None = None, log=print) -> Path:
+    """`metres_per_unit` (e.g. from scripts/marker_scale.py) overrides the scale from metric depth or camera height."""
     out.mkdir(parents=True, exist_ok=True)
     work = out / "work"
     names = ["A", "B", "C", "D"][: len(videos)] if len(videos) > 1 else ["room"]
@@ -651,16 +763,28 @@ def build(videos: list[str], out: Path, fps: float = 4.0, max_side: int = 1600, 
         log("Poses: COLMAP (SIFT, sequential + loop pairs, global mapper)")
         dense = run_colmap(work, [[f["name"] for f in frames[n]] for n in names], log=log)
     imgs = read_images(dense / "sparse" / "0" / "images.bin")
+    check_joined(registered_counts({n: [f["name"] for f in frames[n]] for n in names}, {im["name"] for im in imgs.values()}),
+                 "drop the pass that will not pose and rerun, or build one room per video (`whatchanged room A.MOV --out ...`)")
     xyz, rgb, seen = read_points(dense / "sparse" / "0" / "points3D.bin")
+    off = check_scale(frame_depths(imgs, xyz, seen),
+                      f"move {out} aside and rebuild it at another frame rate (e.g. --fps {2 * fps:g})")
+    if off:
+        log(f"warning: {len(off)} posed frames sit at another scale in COLMAP's model: {', '.join(sorted(off)[:6])}")
     c2w = np.stack([cam_to_world(im) for im in imgs.values()])
-    same_model = bool(shared and (shared / "dense").resolve() == dense.resolve())
-    offsets, scale = None, None
+    same_model =bool(shared and (shared / "dense").resolve() == dense.resolve())
+    offsets, scale, source = None, None, "metric depth"
     if same_model:
-        scale = json.loads((run / "cache" / "diag.json").read_text())["colmap"]["metric_scale_m_per_unit"]
+        colmap = json.loads((run / "cache" / "diag.json").read_text())["colmap"]
+        scale, source = colmap["metric_scale_m_per_unit"], colmap.get("scale_from", "metric depth")
     elif run:
         offsets = clip_offsets(run, names, frames, imgs, log=log)
         scale = metric_scale(run, names, frames, imgs, xyz, seen, log=log, offsets=offsets)
-    frame = viewer_frame(c2w, xyz, camera_height, scale)
+    if metres_per_unit:
+        if scale:
+            log(f"Scale: {metres_per_unit:.4f} m per COLMAP unit from the marker ({source} says {scale:.4f}, "
+                f"{scale / metres_per_unit - 1:+.1%})")
+        scale, source = metres_per_unit, "marker"
+    frame = viewer_frame(c2w, xyz, camera_height, scale, source)
     log(f"Viewer frame: scale from {frame['scale_from']}, median camera height {frame['median_camera_height_m']} m")
     align = None
     if same_model:
@@ -671,15 +795,18 @@ def build(videos: list[str], out: Path, fps: float = 4.0, max_side: int = 1600, 
             align["clip_offsets_s"] = offsets
 
     cam0 = next(iter(read_cameras(dense / "sparse" / "0" / "cameras.bin").values()))
-    fov_y = float(np.degrees(2 * np.arctan(cam0["height"] / 2 / cam0["params"][1])))
     times = {f["name"]: f["t"] for n in names for f in frames[n]}
     splats, cams = {}, {}
-    meta = {"videos": dict(zip(names, videos)), "fov_y_deg": round(fov_y, 2)}
+    # File names only: the viewer gets published, and full paths would carry the local user and folders.
+    meta = {"videos": {n: Path(v).name for n, v in zip(names, videos)}, **camera_meta(cam0), "gate": dict(GATE)}
     for n in names:
         ds = work / f"ds_{n}"
         k = session_dataset(dense, n, ds)
         ply = work / f"{n}.ply"
-        if force or not ply.exists():
+        model = dense / "sparse" / "0" / "images.bin"
+        if ply.exists() and not force and ply.stat().st_mtime < model.stat().st_mtime:
+            log(f"Splat {n}: the COLMAP model is newer than {ply.name}, so the splat is trained again")
+        if force or not ply.exists() or ply.stat().st_mtime < model.stat().st_mtime:
             log(f"Splat {n}: training on {k} posed frames, {iterations} steps (Metal)")
             meta[f"train_{n}"] = train_splat(ds, ply, iterations, log=log)
             (work / f"{n}.train.json").write_text(json.dumps(meta[f"train_{n}"]))

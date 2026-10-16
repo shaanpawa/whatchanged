@@ -299,9 +299,10 @@ def match_moves(removed: list[Blob], added: list[Blob], cfg: Config) -> list[tup
 
 def object_blob(b, kind: str, views: int, hits: int, S: Session, n: int = 6) -> Blob:
     """An object box the other video looked at and did not find (objects3d.object_changes) as a change Blob:
-    the box filled with a grid of points, coloured like the session's own points inside it."""
-    t = np.linspace(-0.5, 0.5, n)
-    g = np.stack(np.meshgrid(t, t, t, indexing="ij"), -1).reshape(-1, 3) * b.size
+    the box filled with a grid of points at most 4 cm apart (within change_overlap's reach, so a big box still
+    links to its change), coloured like the session's own points inside it."""
+    axes = [np.linspace(-0.5, 0.5, max(n, int(np.ceil(side / 0.04)) + 1)) for side in b.size]
+    g = np.stack(np.meshgrid(*axes, indexing="ij"), -1).reshape(-1, 3) * b.size
     c, s = np.cos(b.yaw), np.sin(b.yaw)
     R = np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
     vox = g @ R.T + b.centre
@@ -348,6 +349,32 @@ def add_object_changes(result: dict, found: list[tuple], A: Session, B: Session,
     if n:
         log(f"Changes: {len(R)} removed and {len(D)} added from the object detector, "
             f"{sum(m[0] >= r0 for m in result['moves'])} of them paired as moves")
+    return n
+
+
+def in_place_moves(result: dict, still_there, A: Session, B: Session, log=print) -> int:
+    """A removal (or addition) that sits inside an object both videos still detect where it is, was that object
+    turned or shifted in place: paired with the object's box as a move marked in_place. `still_there(voxels)`
+    returns that box or None (objects3d.still_there). Returns how many were turned into moves."""
+    n = 0
+    for kind, mine, other in (("removed", A, B), ("added", B, A)):
+        paired = {m[0] if kind == "removed" else m[1] for m in result["moves"]}
+        for i, blob in enumerate(list(result[kind])):
+            if i in paired:
+                continue
+            b = still_there(blob.voxels)
+            if b is None:
+                continue
+            twin_kind = "added" if kind == "removed" else "removed"
+            twin = object_blob(b, twin_kind, blob.views, 0, other)
+            result[twin_kind].append(twin)
+            j = len(result[twin_kind]) - 1
+            fit = {"fitness": None, "rmse_m": None, "turn_deg": None, "turn_determined": False, "in_place": True,
+                   "stand_in": twin_kind}               # which end is the object's own box, not a measured change
+            result["moves"].append((i, j, 0.0, fit) if kind == "removed" else (j, i, 0.0, fit))
+            n += 1
+            log(f"Changes: the {kind} spot at ({blob.centre[0]:.2f}, {blob.centre[1]:.2f}) is inside the {b.label}, which both "
+                f"videos still detect there: turned or shifted in place, not {kind}")
     return n
 
 

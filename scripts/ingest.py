@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Copy the morning's clips to data/raw/{pilot,A,A2,B}.mov with location, audio and all other metadata removed.
+"""Copy the clips to data/raw/{pilot,A,A2,B}.mov with location, audio and all other metadata removed.
 
   scripts/ingest.py A=~/Downloads/IMG_0102.MOV A2=IMG_0103.MOV B=IMG_0107.MOV [pilot=IMG_0100.MOV]
   scripts/ingest.py A=IMG_0102.MOV+IMG_0104.MOV ...          a take that broke: the clips are joined in order
@@ -290,7 +290,7 @@ def main(argv=None) -> None:
         src = [x.name for x in plan[label]]
         if (not a.redo and out.exists() and record.get(label, {}).get("sources") == src
                 and all(x.stat().st_mtime < out.stat().st_mtime for x in plan[label])):
-            # Rewriting would give it a new date, and morning.sh would then refuse to reuse finished work.
+            # Rewriting would give it a new date, and protocol.sh would then refuse to reuse finished work.
             print(f"  kept {out}: already made from {'+'.join(src)} (--redo to rewrite)")
             continue
         s = clean(plan[label], out)

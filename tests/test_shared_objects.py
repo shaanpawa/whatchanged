@@ -378,7 +378,7 @@ def test_detector_found_removal_says_how_it_was_found():
     c = {"id": "c01", "type": "removed", "label": "speaker", "colour": "red", "size_m": [0.1, 0.1, 0.2], "bottom_m": 0.75,
          "on_before": "desk", "evidence": {"free_views": 4, "free_share": 1.0, "noise_margin": 0.0, "by": "objects"}}
     c["sentence"] = sentence(c)
-    assert c["sentence"] == ("The red speaker on the desk is gone; video B looked at that spot from 4 viewpoints "
+    assert c["sentence"] == ("The red speaker is no longer on the desk; video B looked at that spot from 4 viewpoints "
                              "and did not find it.")
     assert check_sentence(c) == []
 
@@ -421,3 +421,40 @@ def test_an_object_mostly_seen_after_is_shown_from_the_after_video():
     assert set(objects3d.free_frames(spans, chair, cap=10 ** 6, min_share=0.25)) == set(range(10, 30))
     both = _kept(CAB, frames=(3, 5, 12, 14))
     assert set(objects3d.free_frames(spans, both, cap=10 ** 6, min_share=0.25)) == set(range(30))
+
+
+def test_a_change_inside_an_object_both_videos_still_see_is_a_turn_in_place_not_a_removal():
+    A, B = session("A", ROOM + [CAB], A_EYES), session("B", ROOM + [CAB], B_EYES)
+    C, spans = objects3d.combine({"A": A, "B": B})
+    cab = _kept(CAB, label="chair")                                  # a tall chair where the cabinet stands
+    dets = dets_of(C, CAB, label="chair")
+    frames = list(range(len(C.depth)))
+    back = blob((1.0, 1.0, 0.6), (1.4, 1.1, 1.0))                  # where its back was: now empty
+    assert objects3d.still_there(C, spans, [cab], dets, frames, back.voxels) is cab
+    # a small thing inside it (a mug on a shelf) stays a removal, and supports never count
+    assert objects3d.still_there(C, spans, [cab], dets, frames, blob((1.1, 1.1, 0.9), (1.18, 1.18, 1.0)).voxels) is None
+    desk = _kept(CAB, label="desk")
+    assert objects3d.still_there(C, spans, [desk], dets_of(C, CAB, label="desk"), frames, back.voxels) is None
+    # only the before video still detects it: it may really be gone, so no turn in place
+    only_a = [d for d in dets if spans["A"][0] <= d.frame < spans["A"][1]]
+    assert objects3d.still_there(C, spans, [cab], only_a, frames, back.voxels) is None
+    from whatchanged import changes as ch
+    res = {"removed": [back], "added": [], "moves": []}
+    n = ch.in_place_moves(res, lambda v: objects3d.still_there(C, spans, [cab], dets, frames, v), A, B, log=lambda *_: None)
+    (i, j, _, fit), = res["moves"]
+    assert n == 1 and (i, j) == (0, 0) and fit["in_place"] and res["added"][0].source == "objects"
+    # the object stays where it is in both states (not carried along to where the freed space was)
+    objects3d.assign_states([cab], res, log=lambda *_: None)
+    assert cab.state == "moved" and cab.positions["A"] == cab.positions["B"]
+    assert np.allclose(cab.positions["A"]["centre_m"], cab.centre, atol=1e-3)
+
+
+def test_turned_in_place_sentence_has_no_made_up_numbers():
+    from whatchanged.semantics import check_sentence, sentence
+    c = {"id": "c05", "type": "moved", "label": "office chair", "colour": "black", "size_m": [1.0, 0.8, 1.1],
+         "bottom_m": 0.0, "near_before": "desk", "near_after": "desk", "on_before": "", "on_after": "",
+         "move": {"distance_m": 0.3, "height_change_m": 0.0, "turn_deg": None, "in_place": True},
+         "evidence": {"free_views": 4, "by": "both"}}
+    c["sentence"] = sentence(c)
+    assert c["sentence"].startswith("The black office chair next to the desk was turned or shifted in place")
+    assert check_sentence(c) == []

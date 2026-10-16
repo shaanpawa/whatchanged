@@ -18,8 +18,10 @@ out/
 data/raw/
 *.MOV
 *.mov
-/*.mp4
-/*.MP4
+*.mp4
+*.MP4
+*.m4v
+!docs/media/whatchanged.mp4
 *.HEIC
 *.heic
 

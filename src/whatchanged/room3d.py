@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import gzip
 import json
+import os
 import shutil
 import struct
 import subprocess
@@ -112,8 +113,10 @@ def run_colmap(work: Path, groups: list[list[str]], log=print) -> Path:
     shutil.rmtree(sparse, ignore_errors=True)
     sparse.mkdir(parents=True)
     t = time.time()
+    # One lens per video by default; WHATCHANGED_ONE_CAMERA=1 shares one calibration between them (same phone and lens).
+    cams = ("--ImageReader.single_camera", 1) if os.environ.get("WHATCHANGED_ONE_CAMERA") == "1" else ("--ImageReader.single_camera_per_folder", 1)
     _colmap("feature_extractor", "--database_path", db, "--image_path", images,
-            "--ImageReader.camera_model", "OPENCV", "--ImageReader.single_camera_per_folder", 1,
+            "--ImageReader.camera_model", "OPENCV", *cams,
             "--FeatureExtraction.use_gpu", 0, "--SiftExtraction.max_num_features", 8192, log=log)
     log(f"  features: {time.time() - t:.0f}s")
     pairs = match_pairs(groups)

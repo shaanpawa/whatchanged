@@ -116,7 +116,7 @@ class Cache:
         self.path.write_text(json.dumps(self.data, indent=1))
 
 
-GEMINI_PROMPT = """You are labelling one change found by a 3D change detector in a room.
+LABEL_PROMPT = """You are labelling one change found by a 3D change detector in a room.
 The detector already decided the change type ({kind}) and its position from geometry. Do not second-guess
 the geometry. Look at the images and answer only about the object.
 Image 1: BEFORE view of the spot. Image 2: AFTER view of the spot.{extra}
@@ -139,7 +139,7 @@ def _gemini(images: list[Image.Image], kind: str, extra: str) -> dict:
         buf = io.BytesIO()
         im.convert("RGB").save(buf, format="JPEG", quality=90)
         parts.append(types.Part.from_bytes(data=buf.getvalue(), mime_type="image/jpeg"))
-    parts.append(GEMINI_PROMPT.format(kind=kind, extra=extra))
+    parts.append(LABEL_PROMPT.format(kind=kind, extra=extra))
     resp = client.models.generate_content(
         model=GEMINI_MODEL, contents=parts,
         config=types.GenerateContentConfig(response_mime_type="application/json", temperature=0),
@@ -176,7 +176,7 @@ def _claude(images: list[Image.Image], kind: str, extra: str) -> dict | None:
         im.save(buf, format="JPEG", quality=90)
         content.append({"type": "image", "source": {"type": "base64", "media_type": "image/jpeg",
                                                     "data": base64.standard_b64encode(buf.getvalue()).decode()}})
-    content.append({"type": "text", "text": GEMINI_PROMPT.format(kind=kind, extra=extra)})
+    content.append({"type": "text", "text": LABEL_PROMPT.format(kind=kind, extra=extra)})
     from .naming import USAGE
     client = anthropic.Anthropic()
     resp = client.beta.messages.create(
@@ -290,7 +290,11 @@ def sentence(c: dict) -> str:
     if c["type"] == "removed":
         seen = ("looked at that spot from {} viewpoints and did not find it" if c["evidence"].get("by") == "objects"
                 else "saw that spot empty from {} viewpoints").format(c["evidence"]["free_views"])
-        return f"The {name} on {_support(c['bottom_m'], c.get('on_before', ''))}{near_b} is gone; video B {seen}."
+        return f"The {name} is no longer on {_support(c['bottom_m'], c.get('on_before', ''))}{near_b}; video B {seen}."
+    if c["move"].get("in_place"):
+        where = f" next to the {c['near_after'] or c['near_before']}" if c.get("near_after") or c.get("near_before") else ""
+        return (f"The {name}{where} was turned or shifted in place: it is still there in both videos, "
+                f"but part of the space it filled has changed.")
     move = f"moved about {c['move']['distance_m']:.1f} m"
     a, b = c.get("on_before", ""), c.get("on_after", "")
     if a and b and a != b:
@@ -299,6 +303,9 @@ def sentence(c: dict) -> str:
         move += f" from beside the {c['near_before']} to beside the {c['near_after']}"
     elif c["move"].get("height_change_m", 0) > 0.25:
         move += f" up onto {_support(c['bottom_m'], b)}"
+    dz = c["move"].get("height_change_m", 0)
+    if abs(dz) >= 0.25:
+        move += f", {abs(dz):.1f} m {'up' if dz > 0 else 'down'}"
     if c["move"].get("turn_deg") is not None and abs(c["move"]["turn_deg"]) >= 20:
         move += f" and turned about {abs(round(c['move']['turn_deg'], -1)):.0f}°"
     return f"The {name} {move}."
@@ -311,7 +318,7 @@ def check_sentence(c: dict) -> list[str]:
     nums = [float(x) for x in re.findall(r"\d+(?:\.\d+)?", c["sentence"])]
     allowed = {round(v * 100, -1) for v in c["size_m"]} | {c["evidence"].get("free_views", -1)}
     if "move" in c:
-        allowed |= {round(c["move"]["distance_m"], 1)}
+        allowed |= {round(c["move"]["distance_m"], 1), round(abs(c["move"].get("height_change_m", 0)), 1)}
         if c["move"].get("turn_deg") is not None:
             allowed |= {abs(round(c["move"]["turn_deg"], -1))}
     allowed |= {round(c["bottom_m"], 1)}
@@ -340,8 +347,9 @@ def _boxes_context(pts: np.ndarray, bottom: float, boxes) -> tuple[str | None, s
 
 
 def _hint(checked: str, labeller: str) -> str:
-    """Tell a vision labeller what Claude called the object box here, so the change and the box share a name."""
-    if not checked or labeller not in ("claude", "gemini"):
+    """Tell a vision labeller what Claude called the object box here, so the change and the box share a name.
+    The same for every labeller (SigLIP ignores it), so a replay without a key finds Claude's cached answer."""
+    if not checked:
         return ""
     return f' A 3D object box at this spot was named "{checked}" from several other views; use that name if it is the same object.'
 
@@ -407,16 +415,25 @@ def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str 
         na, ona, neara, ca = _boxes_context(a.voxels, a.bottom, boxes.get("B"))
         ans = label([before, after], "moved", labeller, cache,
                     extra=" Image 1 shows the object at its old place, image 2 at its new place." + _hint(cb or ca, labeller))
-        c = {"id": f"c{n:02d}", "type": "moved", **facts(a), "label": _pick(ans, nb or na, labeller), "colour": ans.get("colour", ""),
+        here = fit.get("in_place")
+        if here:                                           # the object stays where it is: report its own box at both ends
+            obj, seen = (a, r) if fit.get("stand_in") == "added" else (r, a)
+            r_f = a_f = facts(obj)
+        else:
+            obj, seen, r_f, a_f = a, None, facts(r), facts(a)
+        c = {"id": f"c{n:02d}", "type": "moved", **facts(obj), "label": _pick(ans, nb or na, labeller), "colour": ans.get("colour", ""),
              "on_before": onb or ans.get("on_before", ""), "on_after": ona or ans.get("on_after", ""),
              "near_before": nearb, "near_after": neara,
-             "before": facts(r), "after": facts(a),
-             "move": {"distance_m": round(float(np.linalg.norm(a.centre[:2] - r.centre[:2])), 2),
-                      "height_change_m": round(float(a.bottom - r.bottom), 2),
+             "before": r_f, "after": a_f,
+             "move": {"distance_m": 0.0 if here else round(float(np.linalg.norm(a.centre[:2] - r.centre[:2])), 2),
+                      "height_change_m": 0.0 if here else round(float(a.bottom - r.bottom), 2),
                       "turn_deg": round(fit["turn_deg"]) if fit["turn_determined"] else None,
-                      "shape_fit": fit["fitness"], "shape_rmse_m": fit["rmse_m"], "match_cost": round(cost, 2)},
-             "evidence": {"free_views": min(r.views, a.views), "free_share": round(min(r.score, a.score), 2),
-                          "noise_margin": round(min(r.margin, a.margin), 1), "by": r.source if r.source == a.source else "both"},
+                      "shape_fit": fit["fitness"], "shape_rmse_m": fit["rmse_m"], "match_cost": round(cost, 2),
+                      "in_place": bool(fit.get("in_place"))},
+             "evidence": ({"free_views": seen.views, "free_share": round(seen.score, 2), "noise_margin": round(seen.margin, 1),
+                           "by": seen.source} if here else
+                          {"free_views": min(r.views, a.views), "free_share": round(min(r.score, a.score), 2),
+                           "noise_margin": round(min(r.margin, a.margin), 1), "by": r.source if r.source == a.source else "both"}),
              "frames": {"A": A.paths[j] if j >= 0 else None, "B": B.paths[k] if k >= 0 else None},
              "times": {"A": float(A.times[j]) if j >= 0 else None, "B": float(B.times[k]) if k >= 0 else None},
              "crops": {"before": _save(before, crops / f"c{n:02d}_before.jpg"), "after": _save(after, crops / f"c{n:02d}_after.jpg")}}

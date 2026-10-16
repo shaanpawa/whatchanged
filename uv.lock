@@ -4626,6 +4626,7 @@ dependencies = [
     { name = "torch" },
     { name = "torchvision" },
     { name = "transformers" },
+    { name = "websockets" },
 ]
 
 [package.optional-dependencies]
@@ -4657,5 +4658,6 @@ requires-dist = [
     { name = "torch", specifier = ">=2.6" },
     { name = "torchvision" },
     { name = "transformers", specifier = ">=4.50" },
+    { name = "websockets", specifier = ">=12" },
 ]
 provides-extras = ["claude", "gemini", "dev", "room"]

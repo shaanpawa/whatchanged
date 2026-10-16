@@ -82,7 +82,8 @@ def write(out_dir: Path, A, B, changes: list[dict], regions: list[dict], floor: 
         extra = ""
         if c["type"] == "moved":
             turn = c["move"]["turn_deg"]
-            extra = f" · moved {c['move']['distance_m']:.2f} m" + (f" · turned {abs(turn):.0f}°" if turn is not None else " · turn not determined")
+            extra = (" · turned or shifted in place" if c["move"].get("in_place") else
+                     f" · moved {c['move']['distance_m']:.2f} m" + (f" · turned {abs(turn):.0f}°" if turn is not None else " · turn not determined"))
         cards.append(f"""
       <article class="card" data-id="{c['id']}" tabindex="0">
         <div class="row"><span class="chip c-{c['type']}">{c['type']}</span><span class="name">{html.escape(c['label'])}</span><span class="cid">{c['id']}</span></div>
@@ -106,8 +107,8 @@ def write(out_dir: Path, A, B, changes: list[dict], regions: list[dict], floor: 
         <p class="ev">predicted to see {p['predicted_visible']:.0%} of it · nearest camera of B would see {p['naive_visible']:.0%}</p></article>"""
         for p in plans) or '<p class="muted">Nothing left to check.</p>'
     al = diag.get("alignment_B_to_A_m", {})
-    home = str(Path.home())  # the report gets published: show paths relative to the home folder
-    diag_rows = "".join(f"<tr><td>{html.escape(str(k))}</td><td>{html.escape(json.dumps(v).replace(home, '~'))}</td></tr>"
+    here, home = str(Path.cwd()) + "/", str(Path.home())   # the report gets published: no local folder names in it
+    diag_rows = "".join(f"<tr><td>{html.escape(str(k))}</td><td>{html.escape(json.dumps(v).replace(here, '').replace(home, '~'))}</td></tr>"
                         for k, v in diag.items())
 
     page = TEMPLATE.replace("__TITLE__", html.escape(title)) \

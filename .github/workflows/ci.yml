@@ -3,7 +3,7 @@ name: ci
 # Every push and pull request: the unit tests (the brief's traps on a synthetic room, COLMAP guards, shared
 # object set, Claude naming with a fake client, video maths). No model download, no COLMAP, no API key.
 #
-# Once examples/bedroom is committed, a second job rebuilds it from its cached 3D (no model, no key), checks
+# A second job rebuilds examples/bedroom from its cached 3D (no model, no key) into out/demo, checks
 # the rebuild finds the same changes as the committed result, scores it against the answer key, checks the
 # untouched repeat reports nothing, and publishes the reports and the 3D walkthrough to GitHub Pages.
 on:
@@ -28,8 +28,6 @@ jobs:
     name: Unit tests (synthetic room, no models)
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    outputs:
-      example: ${{ steps.example.outputs.found }}
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.0   # setup-uv publishes no moving v10 tag
@@ -39,9 +37,6 @@ jobs:
         run: >-
           uv run --no-project --python 3.12 --with numpy --with scipy --with pyyaml --with pillow
           --with opencv-python-headless --with pytest python -m pytest -q tests
-      - name: Is the real example committed yet?
-        id: example
-        run: echo "found=${{ hashFiles('examples/bedroom/cache/A.npz') != '' }}" >> "$GITHUB_OUTPUT"
 
   hygiene:
     name: No keys, home folders or huge files in the repo
@@ -69,8 +64,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     needs: tests
-    # Skipped (not failed) until examples/bedroom/cache is pushed; Publish is skipped with it.
-    if: needs.tests.outputs.example == 'true'
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.0
@@ -87,15 +80,12 @@ jobs:
             --exclude 'cache/' --exclude 'work/' --exclude 'colmap/' --exclude '*.npz' --exclude '*.ply' \
             --exclude '*_cache.json' --exclude 'object_crops/' \
             examples/ site/
-      - name: Keep the committed result to compare with
-        run: |
-          mkdir -p "$RUNNER_TEMP/committed"
-          cp examples/bedroom/changes.json "$RUNNER_TEMP/committed/changes.json"
-      - name: Rebuild changes, labels, maps, look-next and report from the cache
-        run: .venv/bin/whatchanged demo
+          cp docs/media/whatchanged.mp4 site/whatchanged.mp4
+      - name: Rebuild changes, labels, maps, look-next and report from the cache (into out/demo)
+        run: .venv/bin/whatchanged demo --out out/demo
       - name: The rebuild finds the same changes as the committed result
         run: |
-          .venv/bin/python - "$RUNNER_TEMP/committed/changes.json" examples/bedroom/changes.json <<'EOF'
+          .venv/bin/python - examples/bedroom/changes.json out/demo/changes.json <<'EOF'
           import json, math, sys
           old, new = (json.load(open(p))["changes"] for p in sys.argv[1:3])
           print(f"committed: {len(old)} changes, rebuilt: {len(new)} changes")
@@ -111,7 +101,7 @@ jobs:
       - name: Score the committed result against the answer key
         run: |
           if [ -f examples/bedroom/ground_truth.yaml ]; then
-            .venv/bin/whatchanged score "$RUNNER_TEMP/committed" examples/bedroom/ground_truth.yaml \
+            .venv/bin/whatchanged score examples/bedroom examples/bedroom/ground_truth.yaml \
               --title "Bedroom: before vs after" | tee -a "$GITHUB_STEP_SUMMARY"
           else
             echo "No examples/bedroom/ground_truth.yaml yet; nothing to score." | tee -a "$GITHUB_STEP_SUMMARY"

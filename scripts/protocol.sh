@@ -1,35 +1,36 @@
 #!/usr/bin/env bash
-# The morning's button-pressing: clips in, a fast pair first, then the full runs. One heavy step at a time.
+# The full filming protocol: clips in, a fast pair first, then the untouched repeat, calibration and the real pair,
+# one heavy step at a time. For just two videos, `whatchanged all BEFORE AFTER` is enough.
 #
-#   scripts/morning.sh A=IMG_0102.MOV A2=IMG_0103.MOV B=IMG_0107.MOV     ingest (names in ~/Downloads), then all
-#   scripts/morning.sh --times "pilot=09:05 A=09:20 A2=09:33 B=10:08"   same, clips matched by clock time
-#   scripts/morning.sh                                                   data/raw/{A,A2,B}.mov already there
-#   scripts/morning.sh --from full       resume at a stage (ingest, fast, full, report); finished work is reused
-#   scripts/morning.sh --only fast       just one stage
-#   scripts/morning.sh --dry-run         print the commands, run nothing
+#   scripts/protocol.sh A=IMG_0102.MOV A2=IMG_0103.MOV B=IMG_0107.MOV     ingest (names in ~/Downloads), then all
+#   scripts/protocol.sh --times "pilot=09:05 A=09:20 A2=09:33 B=10:08"   same, clips matched by clock time
+#   scripts/protocol.sh                                                   data/raw/{A,A2,B}.mov already there
+#   scripts/protocol.sh --from full       resume at a stage (ingest, fast, full, report); finished work is reused
+#   scripts/protocol.sh --only fast       just one stage
+#   scripts/protocol.sh --dry-run         print the commands, run nothing
 #
-# Knobs (environment): SIDE_MM=150 FAST_S=90 FAST_FPS=2 FAST_ITERS=7000 FPS=1 ITERS=30000 REPEAT_ITERS=2000
+# Knobs (environment): SIDE_MM=150 FAST_S=90 FAST_FPS=2 FAST_ITERS=7000 FPS=2 ITERS=30000 REPEAT_ITERS=2000
 #   FRAMES=auto (0.4 keyframes per second of the shortest of A, A2, B, from 24 to 64; the same for both runs, so the
-#   frozen thresholds fit the real pair) GT=examples/bedroom/ground_truth.yaml; RAW=data/raw OUT=out CONFIG=config.frozen.json;
+#   frozen thresholds fit the real pair) GT= (an answer key to score the real pair against); RAW=data/raw OUT=out CONFIG=config.frozen.json;
 #   FAST_LABELS=auto REPEAT_LABELS=auto (siglip: no Claude calls for that run, so Claude names only the real pair);
 #   SKIP_CALIBRATE=1 runs A vs B on the default thresholds when the untouched pair can't be calibrated
-# Every step is logged to $OUT/morning/NN-step.log, with its time in $OUT/morning/timings.tsv. A failed
+# Every step is logged to $OUT/protocol/NN-step.log, with its time in $OUT/protocol/timings.tsv. A failed
 # step prints STOP and nothing after it runs. Other arguments (e.g. --allow-hdr) pass through to ingest.py.
 
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 SIDE_MM=${SIDE_MM:-150}; FAST_S=${FAST_S:-90}; FAST_FPS=${FAST_FPS:-2}; FAST_ITERS=${FAST_ITERS:-7000}
-FPS=${FPS:-1}; ITERS=${ITERS:-30000}; REPEAT_ITERS=${REPEAT_ITERS:-2000}; FRAMES=${FRAMES:-auto}
-GT=${GT:-examples/bedroom/ground_truth.yaml}; SKIP_CALIBRATE=${SKIP_CALIBRATE:-}
+FPS=${FPS:-2}; ITERS=${ITERS:-30000}; REPEAT_ITERS=${REPEAT_ITERS:-2000}; FRAMES=${FRAMES:-auto}
+GT=${GT:-}; SKIP_CALIBRATE=${SKIP_CALIBRATE:-}
 FAST_LABELS=${FAST_LABELS:-auto}; REPEAT_LABELS=${REPEAT_LABELS:-auto}
 RAW=${RAW:-data/raw}; OUT=${OUT:-out}; CONFIG=${CONFIG:-config.frozen.json}
 PY=.venv/bin/python
 WC=.venv/bin/whatchanged
-LOGDIR=$OUT/morning
+LOGDIR=$OUT/protocol
 STAGES="ingest fast full report"
 # Heavy jobs: COLMAP, the CLI, splat training, MapAnything. Narrow on purpose: an http.server serving
-# out/ also has "whatchanged" in its command line and runs all night.
+# out/ also has "whatchanged" in its command line and can be left running.
 HEAVY='(^|/)colmap |bin/whatchanged |-m whatchanged|msplat|mapanything|dense_depth'
 
 FROM=ingest; ONLY=""; DRY=0; INGEST=()
@@ -77,7 +78,7 @@ heavy_pids() {  # other heavy jobs now running. A shell, grep or tail whose comm
   done
 }
 
-wait_idle() {  # never two heavy jobs at once: wait for anyone else's to finish
+wait_idle() {  # never two heavy jobs at once: wait for any other COLMAP, splat or MapAnything job to finish
   [ $DRY = 1 ] && return 0
   local n=0 pids
   while pids=$(heavy_pids); [ -n "$pids" ]; do
@@ -145,7 +146,7 @@ scale_flag() {  # the marker scale as a CLI flag
 }
 
 # ---------------------------------------------------------------- preflight
-say "morning.sh: stages from '$FROM'${ONLY:+ (only $ONLY)}; logs in $LOGDIR"
+say "protocol.sh: stages from '$FROM'${ONLY:+ (only $ONLY)}; logs in $LOGDIR"
 for t in ffmpeg ffprobe colmap "$PY" "$WC"; do command -v "$t" >/dev/null || { echo "STOP: $t not found"; exit 2; }; done
 free=$(df -g . | awk 'NR==2 {print $4}')
 if [ "$free" -lt 15 ]; then say "warning: only ${free} GB free on disk; the full runs want about 15 GB"; fi
@@ -210,7 +211,7 @@ if want full; then
   # A folder that already has work/frames.json keeps its frames whatever --fps says, so a retry at
   # another FPS needs the folder moved aside first.
   HINT="If too few frames posed, the videos did not join or the model is broken, retry at 2 fps in a fresh folder:
-      mv $OUT/pair $OUT/pair.fps$FPS && FPS=2 scripts/morning.sh --from full"
+      mv $OUT/pair $OUT/pair.fps$FPS && FPS=2 scripts/protocol.sh --from full"
   heavy pair-room "$WC" room "$A" "$B" --fps "$FPS" --iters "$ITERS" --out "$OUT/pair"
   MPU_PAIR=$(marker "$OUT/pair")
   HINT=""
@@ -218,7 +219,7 @@ if want full; then
   if [ -n "$HAS_A2" ]; then
     # A+A2: a second joint model (nothing registers A2 into A's model); its splats are only a by-product.
     HINT="If too few frames posed, the videos did not join or the model is broken, retry at 2 fps in a fresh folder:
-      mv $OUT/repeat-room $OUT/repeat-room.fps$FPS && FPS=2 scripts/morning.sh --from full"
+      mv $OUT/repeat-room $OUT/repeat-room.fps$FPS && FPS=2 scripts/protocol.sh --from full"
     heavy repeat-room "$WC" room "$A" "$A2" --fps "$FPS" --iters "$REPEAT_ITERS" --out "$OUT/repeat-room"
     HINT=""
     MPU_REPEAT=$(marker "$OUT/repeat-room")
@@ -234,7 +235,7 @@ if want full; then
     CFG=()
   else
     HINT="The untouched pair still shows changes. Look at $OUT/repeat/report.html; to get the A vs B result anyway:
-      SKIP_CALIBRATE=1 scripts/morning.sh --from full"
+      SKIP_CALIBRATE=1 scripts/protocol.sh --from full"
     step calibrate "$WC" calibrate "$OUT/repeat" --write "$CONFIG"
     HINT=""
     [ $DRY = 1 ] || say "frozen: $CONFIG sha256 $(shasum -a 256 "$CONFIG" | cut -c1-16) at $(date +%H:%M:%S); commit it"
@@ -244,10 +245,10 @@ if want full; then
     ${CFG[@]+"${CFG[@]}"} --out "$OUT/real" $(scale_flag "$MPU_PAIR")
   heavy pair-viewer "$WC" room "$A" "$B" --out "$OUT/pair" --detections "$OUT/real" $(scale_flag "$MPU_PAIR")
   heavy pair-video "$WC" video "$OUT/pair" --detections "$OUT/real" --out "$OUT/pair/whatchanged.mp4"
-  if [ -f "$GT" ]; then
-    step score "$WC" score "$OUT/real" "$GT" --title "Bedroom: before vs after"
+  if [ -n "$GT" ] && [ -f "$GT" ]; then
+    step score "$WC" score "$OUT/real" "$GT"
   else
-    say "score skipped: no answer key at $GT"
+    say "score skipped: pass GT=path/to/ground_truth.yaml to score the real pair"
   fi
 fi
 

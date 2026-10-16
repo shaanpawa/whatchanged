@@ -55,7 +55,7 @@ EDGES = [(0, 1), (2, 3), (4, 5), (6, 7), (0, 2), (1, 3), (4, 6), (5, 7), (0, 4),
 FACES = [(0, 1, 3, 2), (4, 5, 7, 6), (0, 1, 5, 4), (2, 3, 7, 6), (0, 2, 6, 4), (1, 3, 7, 5)]
 CLAUDE_MODEL = os.environ.get("WHATCHANGED_CLAUDE_MODEL", "claude-opus-5-5")
 SUMMARY_VERSION = "s1"
-# What morning.sh counts as a heavy job; COLMAP registration waits politely (nice) if one is running.
+# What protocol.sh counts as a heavy job; COLMAP registration waits politely (nice) if one is running.
 HEAVY = r"(^|/)colmap |bin/whatchanged run|bin/whatchanged room|-m whatchanged|msplat|mapanything|dense_depth"
 
 

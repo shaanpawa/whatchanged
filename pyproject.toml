@@ -28,6 +28,7 @@ dependencies = [
     "pillow",
     "pyyaml",
     "transformers>=4.50",
+    "websockets>=12",
 ]
 
 [project.optional-dependencies]

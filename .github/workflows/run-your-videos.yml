@@ -28,8 +28,6 @@ jobs:
       BEFORE_URL: ${{ inputs.before_url }}
       AFTER_URL: ${{ inputs.after_url }}
       FRAMES: ${{ inputs.frames }}
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.0   # setup-uv publishes no moving v10 tag
@@ -52,7 +50,10 @@ jobs:
           curl -L --fail --max-filesize 1500000000 -o before.mp4 "$BEFORE_URL"
           curl -L --fail --max-filesize 1500000000 -o after.mp4 "$AFTER_URL"
           .venv/bin/whatchanged check before.mp4 after.mp4
-      - name: Run the pipeline
+      - name: Run the pipeline (the API keys reach this step only)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: .venv/bin/whatchanged run before.mp4 after.mp4 --out out/yours --frames "$FRAMES"
       - name: Summary
         if: always()
@@ -64,7 +65,7 @@ jobs:
             else
               echo "The run stopped before any changes were written; see the log of the step that failed."
             fi
-            echo; echo "Download the **report** artifact below and open report.html."
+            echo; echo "Download the **whatchanged-output** artifact below and open report.html."
           } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v7
         if: always()

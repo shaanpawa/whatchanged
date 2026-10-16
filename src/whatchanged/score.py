@@ -94,7 +94,7 @@ def score(changes_json: Path, key_yaml: Path) -> dict:
         bad = [d["id"] for d in found if d["type"] == "removed" and _label_ok(d["label"], t.get("names", []))]
         traps.append({"id": t["id"], "kind": t["kind"], "passed": not bad, "wrongly_reported": bad})
     n_found = sum(e["result"] == "found" for e in table if "expected miss" not in e["truth"])
-    n_true = len([m for m in matches if m[2] < 0.1])
+    n_true = len([m for m in matches if m[2] < 0.6])          # the right object, whole move or one end of it
     out = {
         "recall_95ci": wilson(n_found, len(counted)), "precision_95ci": wilson(n_true, len(found)),
         "recall": round(n_found / max(len(counted), 1), 2),
@@ -112,7 +112,8 @@ def markdown(s: dict, title: str) -> str:
              f"Found **{s['found']} of {s['of']}** real changes (95% interval {s['recall_95ci'][0]:.0%}-{s['recall_95ci'][1]:.0%}) · "
              + (f"one end of a move for {s['one_end']} more · " if s.get("one_end") else "")
              + f"precision {s['precision']:.0%} · "
-             f"false alarms **{s['false_alarms']}** · traps passed {sum(t['passed'] for t in s['traps'])}/{len(s['traps'])}", "",
+             f"false alarms **{s['false_alarms']}**"
+             + (f" · traps passed {sum(t['passed'] for t in s['traps'])}/{len(s['traps'])}" if s["traps"] else ""), "",
              "| # | What really changed | Result | Detected | Move error |", "|---|---|---|---|---|"]
     for e in s["table"]:
         err = f"{e['distance_error_m'] * 100:.0f} cm" if "distance_error_m" in e else ""

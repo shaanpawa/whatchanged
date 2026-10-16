@@ -1,11 +1,13 @@
 """whatchanged: two phone videos in, a 3D change report out.
 
-  whatchanged run BEFORE.mp4 AFTER.mp4 --out out/room     full pipeline
-  ... --poses colmap                                      cameras from COLMAP, shared with `whatchanged room`
+  whatchanged all BEFORE.mp4 AFTER.mp4 --out out/mine     everything: 3D room, changes, walkthrough, video
   whatchanged check BEFORE.mp4 AFTER.mp4                  footage warnings, no 3D
-  whatchanged report out/room                             rebuild everything after 3D from the cache
-  whatchanged demo                                        the bundled example, no model download
-  whatchanged room ROOM.MOV --out out/room3d              photoreal 3D room (Gaussian splat) + web viewer
+  whatchanged room BEFORE.mp4 AFTER.mp4 --out out/room    COLMAP model, a splat per video, web viewer
+  whatchanged run BEFORE.mp4 AFTER.mp4 --poses colmap --colmap-from out/room --out out/run
+                                                          change detection on the room's cameras
+  whatchanged video out/room --detections out/run         results video (mp4)
+  whatchanged report out/run                              redo everything after 3D from the cache
+  whatchanged demo                                        the bundled example, no model download, no key
 """
 
 from __future__ import annotations
@@ -243,7 +245,9 @@ def _object_changes(out: Path, A, B, shared: list, res: dict, cfg: ch.Config, la
     kept = [b for b in shared if b.verified is not False]
     found = objects3d.object_changes(S, spans, kept, dets, d["frames"], log=log)
     checked = naming.confirm_changes(out, S, spans, found, log=log) if labels in ("auto", "claude") else None
-    return ch.add_object_changes(res, found if checked is None else checked, A, B, cfg, log=log)
+    n = ch.add_object_changes(res, found if checked is None else checked, A, B, cfg, log=log)
+    n += ch.in_place_moves(res, lambda vox: objects3d.still_there(S, spans, kept, dets, d["frames"], vox), A, B, log=log)
+    return n
 
 
 def _detect_and_report(out: Path, labels: str, cfg: ch.Config, objects: bool = True) -> dict:
@@ -402,7 +406,11 @@ def cmd_demo(a) -> None:
     if not (root / "cache" / "A.npz").exists():
         sys.exit(f"Example cache not found at {root}. Run `whatchanged run` on your own videos instead.")
     a.config = str(repo / "config.frozen.json") if (repo / "config.frozen.json").exists() else None
-    _detect_and_report(root, "auto", _cfg(a))
+    import shutil
+    out = Path(a.out)                           # a copy, so the committed example stays as it is
+    shutil.copytree(root, out, dirs_exist_ok=True)
+    _detect_and_report(out, "auto", _cfg(a))
+    log(f"Open {out / 'report.html'}; the 3D walkthrough: python3 -m http.server -d {repo / 'examples' / 'bedroom-3d'} 8000")
 
 
 def cmd_relevel(a) -> None:
@@ -420,6 +428,48 @@ def cmd_relevel(a) -> None:
     B.save(out / "cache" / "B.npz")
     (out / "cache" / "diag.json").write_text(json.dumps(diag, indent=1))
     (out / "objects.json").unlink(missing_ok=True)
+
+
+def auto_frames(videos: list[str]) -> int:
+    """Keyframes per video for detection: 0.4 per second of the shorter video, from 24 to 64."""
+    from .frames import video_info
+    shortest = min(video_info(v)["duration_s"] for v in videos)
+    return int(min(64, max(24, round(0.4 * shortest))))
+
+
+def cmd_all(a) -> None:
+    """Every step on two videos, each in its own process so one heavy job runs at a time: one COLMAP model and
+    a splat per video (room), change detection on the same cameras (run), the walkthrough with the boxes, the
+    results video, and the score when an answer key is given."""
+    import subprocess
+    out = Path(a.out)
+    room, run = out / "room", out / "run"
+    frames = a.frames or auto_frames([a.before, a.after])
+    me = [sys.executable, "-m", "whatchanged.cli"]
+    vids = [a.before, a.after]
+    steps = [
+        ("3D room: COLMAP and one splat per video", [*me, "room", *vids, "--fps", str(a.fps), "--iters", str(a.iters), "--out", str(room)]),
+        ("changes", [*me, "run", *vids, "--poses", "colmap", "--colmap-from", str(room), "--frames", str(frames),
+                     "--labels", a.labels, "--out", str(run)]),
+        ("walkthrough with the boxes", [*me, "room", *vids, "--fps", str(a.fps), "--iters", str(a.iters), "--out", str(room),
+                                        "--detections", str(run)]),
+    ]
+    if not a.no_video:
+        steps.append(("results video", [*me, "video", str(room), "--detections", str(run)]))
+    if a.key:
+        steps.append(("score", [*me, "score", str(run), a.key]))
+    t0 = time.perf_counter()
+    for i, (what, cmd) in enumerate(steps, 1):
+        log(f"[{i}/{len(steps)}] {what}")
+        t = time.perf_counter()
+        if subprocess.run(cmd).returncode:
+            sys.exit(f"stopped at step {i} ({what}); fix it and rerun: finished steps are reused")
+        log(f"[{i}/{len(steps)}] {what} done in {(time.perf_counter() - t) / 60:.1f} min")
+    log(f"All done in {(time.perf_counter() - t0) / 60:.1f} min:")
+    log(f"  changes:     {run / 'report.html'}  ({run / 'changes.json'})")
+    log(f"  walkthrough: python3 -m http.server -d {room} 8000, then open http://localhost:8000")
+    if not a.no_video:
+        log(f"  video:       {room / 'whatchanged.mp4'}")
 
 
 def cmd_room(a) -> None:
@@ -526,7 +576,20 @@ def main(argv=None) -> None:
         sp.add_argument("--no-objects", dest="no_objects", action="store_true", help="skip the labelled boxes for every object")
         sp.add_argument("--config", help="frozen thresholds from `whatchanged calibrate`")
 
-    r = sub.add_parser("run", help="full pipeline on two videos")
+    al = sub.add_parser("all", help="everything on two videos: 3D room, changes, walkthrough, results video")
+    al.add_argument("before")
+    al.add_argument("after")
+    al.add_argument("--out", default="out/mine")
+    al.add_argument("--fps", type=float, default=2.0, help="frames per second of video posed by COLMAP")
+    al.add_argument("--iters", type=int, default=30000, help="splat training steps per video")
+    al.add_argument("--frames", type=int, default=0, help="keyframes per video for detection (0: 0.4 per second of the shorter video)")
+    al.add_argument("--labels", default="auto", choices=["auto", "claude", "gemini", "siglip", "none"],
+                    help="auto: with ANTHROPIC_API_KEY, Claude names the object boxes and checks the changes")
+    al.add_argument("--key", help="an answer key (ground_truth.yaml) to score the result against")
+    al.add_argument("--no-video", dest="no_video", action="store_true", help="skip the results video")
+    al.set_defaults(fn=cmd_all)
+
+    r = sub.add_parser("run", help="change detection on two videos (the report, maps and object boxes)")
     r.add_argument("before")
     r.add_argument("after")
     r.add_argument("--out", default="out/run")
@@ -597,7 +660,8 @@ def main(argv=None) -> None:
     vd.add_argument("--reg-fps", dest="reg_fps", type=float, default=10.0, help="frames per second registered inside the shown stretches")
     vd.set_defaults(fn=cmd_video)
 
-    d = sub.add_parser("demo", help="run the bundled example from its cache")
+    d = sub.add_parser("demo", help="rebuild the bundled example from its cache (no model download, no API key)")
+    d.add_argument("--out", default="out/demo", help="where to write it (the committed example is left as it is)")
     d.set_defaults(fn=cmd_demo)
 
     a = p.parse_args(argv)

@@ -1202,6 +1202,41 @@ def object_changes(S: Session, spans: dict[str, tuple[int, int]], boxes: list[Bo
     return out
 
 
+def still_there(S: Session, spans: dict[str, tuple[int, int]], boxes: list[Box3D], dets: list[Det2D], frames: list[int],
+                voxels: np.ndarray, min_inside: float = 0.5, min_hits: int = 2, min_share: float = 0.5,
+                min_part: float = 0.25) -> Box3D | None:
+    """The kept box that holds most of a change blob (at least `min_inside` of its voxels) and that BOTH videos
+    still detect steadily where it is (at least `min_hits` and `min_share` of the frames that should show it):
+    the object was turned or shifted in place, not removed or added. A chair turned around frees the space its
+    back filled and fills space beside it, but it is the same chair in the same spot. Supports (desks, beds,
+    tables, shelves) never count, and the blob must be a real part of the object (at least `min_part` of its
+    longest side), so a mug gone from a desk stays a removal. None if there is none."""
+    by_frame: dict[int, list[Det2D]] = {}
+    for d in dets:
+        by_frame.setdefault(d.frame, []).append(d)
+    ran = set(frames)
+    best, best_share = None, min_inside
+    for b in boxes:
+        if b.verified is False or {b.label, b.owl_label} & FLAT_OR_SUPPORT:
+            continue
+        if np.max(voxels.max(0) - voxels.min(0)) < min_part * np.max(b.size):
+            continue
+        share = _inside_share(voxels, b, pad=0.05)
+        if share < best_share:
+            continue
+        labels = kin(_labels_of(b))
+        ok = True
+        for n, span in spans.items():
+            r = view_checks(S, b, [f for f in range(*span) if f in ran], by_frame, labels)
+            hits = sum(r.values())
+            if hits < min_hits or hits < min_share * len(r):
+                ok = False
+                break
+        if ok:
+            best, best_share = b, share
+    return best
+
+
 def change_list(result: dict) -> list[tuple]:
     """The detected changes in semantics.describe's order and numbering:
     (id, type, blob in A or None, blob in B or None, move fit or None)."""
@@ -1298,6 +1333,11 @@ def assign_states(shared: list[Box3D], result: dict, names: tuple[str, str] = ("
     for cid, g in groups.items():
         g.sort(key=lambda x: -x[0])
         _, _, _, rb, ab, fit = g[0]
+        if fit and fit.get("in_place"):                      # turned or shifted where it stands: it stays put
+            for _, i, *_ in g:
+                b = kept[i]
+                b.state, b.positions = "moved", {a_name: _geom(b), b_name: _geom(b)}
+            continue
         turn = np.radians(fit["turn_deg"]) if fit and fit.get("turn_determined") and fit.get("turn_deg") is not None else 0.0
         first = {end: i for _, i, end, *_ in reversed(g)}       # the best-overlapping object at each end
         if "before" in first and "after" in first:             # seen at both ends: one object, two places
@@ -1468,18 +1508,19 @@ def support_and_near(centre: np.ndarray, bottom: float, boxes: list[Box3D], excl
 
 def scene_graph(boxes: list[Box3D]) -> dict:
     objs, rels = [], []
+    ids = [b.id or f"o{i}" for i, b in enumerate(boxes)]      # the shared object id when there is one
     for i, b in enumerate(boxes):
-        objs.append({"id": f"o{i}", **b.to_dict()})
+        objs.append({**b.to_dict(), "id": ids[i]})
     for i, b in enumerate(boxes):
         on, near = support_and_near(b.centre, b.centre[2] - b.size[2] / 2, boxes, exclude=b)
         if on and on != "floor":
             j = next(k for k, x in enumerate(boxes) if x.label == on and x is not b)
-            rels.append({"subject": f"o{i}", "predicate": "on", "object": f"o{j}"})
+            rels.append({"subject": ids[i], "predicate": "on", "object": ids[j]})
         elif on == "floor":
-            rels.append({"subject": f"o{i}", "predicate": "on", "object": "floor"})
+            rels.append({"subject": ids[i], "predicate": "on", "object": "floor"})
         if near:
             j = next(k for k, x in enumerate(boxes) if x.label == near and x is not b)
-            rels.append({"subject": f"o{i}", "predicate": "near", "object": f"o{j}"})
+            rels.append({"subject": ids[i], "predicate": "near", "object": ids[j]})
     return {"frame_id": "map", "convention": "metres, z up, floor z=0, yaw about +z", "objects": objs, "relations": rels}
 
 

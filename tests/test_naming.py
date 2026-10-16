@@ -258,6 +258,7 @@ def test_change_labeller_hears_the_checked_box_name():
     pts = BOX_C + np.random.default_rng(0).uniform(-0.1, 0.1, (50, 3))
     name, _, _, checked = semantics._boxes_context(pts, 0.0, [rad])
     assert name == checked == "radiator"
-    assert '"radiator"' in semantics._hint(checked, "claude") and semantics._hint(checked, "siglip") == ""
+    # the same hint for every labeller, so a keyless replay finds Claude's cached answer
+    assert '"radiator"' in semantics._hint(checked, "claude") and semantics._hint(checked, "siglip") == semantics._hint(checked, "claude")
     owl = named("heater", BOX_C, BOX_S, source="owlv2")
     assert semantics._boxes_context(pts, 0.0, [owl])[3] == ""

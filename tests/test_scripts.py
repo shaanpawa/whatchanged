@@ -1,5 +1,5 @@
 """The filming-night scripts, with no COLMAP run and no model: ingest.py strips every tag (location
-included) and stops on HDR, and morning.sh's dry run passes its knobs to the right steps."""
+included) and stops on HDR, and protocol.sh's dry run passes its knobs to the right steps."""
 
 import json
 import os
@@ -48,7 +48,7 @@ def test_ingest_keeps_the_video_and_drops_location_sound_and_tags(tmp_path):
     assert all(s not in data for s in (b"ISO6709", b"+12.3456", b"iPhone", b"com.apple"))
     rec = json.loads((tmp_path / "raw" / "ingest.json").read_text())["A"]
     assert rec["sources"] == ["IMG_0102.MOV"] and "12.3456" not in json.dumps(rec)
-    # a second ingest of the same clip keeps the file, so morning.sh can reuse the work built from it
+    # a second ingest of the same clip keeps the file, so protocol.sh can reuse the work built from it
     before = out.stat().st_mtime_ns
     ingest.main([f"A={src}", "--out", str(tmp_path / "raw")])
     assert out.stat().st_mtime_ns == before
@@ -66,10 +66,10 @@ def test_ingest_stops_on_hdr_unless_allowed(tmp_path):
 
 
 def _dry_run(tmp_path, seconds=None, **env) -> dict[str, str]:
-    """morning.sh --dry-run on placeholder clips (or test-pattern clips this many seconds long): the command
+    """protocol.sh --dry-run on placeholder clips (or test-pattern clips this many seconds long): the command
     line of every step, by step name."""
     if not all(shutil.which(t) for t in ("ffmpeg", "ffprobe", "colmap")) or not (REPO / ".venv/bin/whatchanged").exists():
-        pytest.skip("morning.sh's preflight needs ffmpeg, colmap and the .venv install")
+        pytest.skip("protocol.sh's preflight needs ffmpeg, colmap and the .venv install")
     raw = tmp_path / "raw"
     raw.mkdir(parents=True, exist_ok=True)
     for c, s in zip(("A", "A2", "B"), seconds or (None,) * 3):
@@ -78,7 +78,7 @@ def _dry_run(tmp_path, seconds=None, **env) -> dict[str, str]:
         else:
             subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=size=64x36:rate=2", "-t", str(s),
                             "-c:v", "mpeg4", str(raw / f"{c}.mov")], check=True)
-    r = subprocess.run(["bash", str(REPO / "scripts" / "morning.sh"), "--dry-run"], cwd=REPO, capture_output=True, check=False,
+    r = subprocess.run(["bash", str(REPO / "scripts" / "protocol.sh"), "--dry-run"], cwd=REPO, capture_output=True, check=False,
                        text=True, env={**os.environ, "RAW": str(raw), "OUT": str(tmp_path / "out"),
                                        "CONFIG": str(tmp_path / "config.json"), "GT": str(tmp_path / "no_key.yaml"), **env})
     assert r.returncode == 0, r.stdout + r.stderr
@@ -90,7 +90,7 @@ def _dry_run(tmp_path, seconds=None, **env) -> dict[str, str]:
     return steps
 
 
-def test_morning_dry_run_lists_every_step_in_order(tmp_path):
+def test_protocol_dry_run_lists_every_step_in_order(tmp_path):
     steps = _dry_run(tmp_path)
     assert list(steps) == ["cut-A", "cut-B", "fast-room", "fast-run", "fast-viewer", "fast-video", "pair-room",
                            "repeat-room", "repeat-run", "calibrate", "repeat-report", "real-run", "pair-viewer",
@@ -99,7 +99,7 @@ def test_morning_dry_run_lists_every_step_in_order(tmp_path):
     assert "--config" in steps["real-run"] and "--poses colmap" in steps["real-run"]
 
 
-def test_morning_label_knobs_reach_only_their_runs(tmp_path):
+def test_protocol_label_knobs_reach_only_their_runs(tmp_path):
     steps = _dry_run(tmp_path, FAST_LABELS="siglip", REPEAT_LABELS="siglip")
     for s in ("fast-run", "repeat-run", "repeat-report"):
         assert "--labels siglip" in steps[s], s
@@ -107,9 +107,9 @@ def test_morning_label_knobs_reach_only_their_runs(tmp_path):
 
 
 def test_a_shell_that_only_mentions_a_heavy_job_is_not_waited_for(tmp_path):
-    """morning.sh waits for other heavy jobs. A wrapper shell or log watcher whose command line names one
+    """protocol.sh waits for other heavy jobs. A wrapper shell or log watcher whose command line names one
     (zsh -c "... bin/whatchanged run ...") must not count, or the run waits forever; the job itself must."""
-    script = (REPO / "scripts" / "morning.sh").read_text()
+    script = (REPO / "scripts" / "protocol.sh").read_text()
     heavy = next(line for line in script.splitlines() if line.startswith("HEAVY="))
     start = script.index("heavy_pids() {")
     func = script[start:script.index("\n}\n", start) + 3]
@@ -128,7 +128,7 @@ def test_a_shell_that_only_mentions_a_heavy_job_is_not_waited_for(tmp_path):
         job.kill()
 
 
-def test_morning_keyframes_follow_the_shortest_clip_and_match_between_runs(tmp_path):
+def test_protocol_keyframes_follow_the_shortest_clip_and_match_between_runs(tmp_path):
     def frames(steps):
         got = {s: steps[s].split("--frames ")[1].split()[0] for s in ("repeat-run", "real-run")}
         assert got["repeat-run"] == got["real-run"]       # thresholds frozen on the repeat must fit the real pair

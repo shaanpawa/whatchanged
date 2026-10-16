@@ -285,6 +285,7 @@ def pick_posed_keyframes(frames: list[dict], posed: set[str], n: int) -> list[di
 # Depth from MapAnything is trusted only where COLMAP points pin it down (see reconstruct_colmap).
 ANCHOR_SIGMA_PX = 18.0    # how far, in model pixels, one COLMAP point's correction spreads
 ANCHOR_MIN = 2.0          # pixels with less point weight than this (about 2 points right there) are left out
+MAX_FIT_MISFIT = 0.08     # median depth misfit to COLMAP's points above which the model, not the network, is suspect
 
 
 def fit_depth(d: np.ndarray, z: np.ndarray, fallback: float, min_points: int = 200) -> dict:
@@ -452,6 +453,10 @@ def reconstruct_colmap(videos: list[str], out: Path, n_frames: int = 32, device:
         log(f"3D: {name} depth fitted to COLMAP points per frame ({sum(f['kind'] == 'affine' for f in fits)}/{len(fits)} "
             f"with an offset; off by {np.median(res):.1%} median, {np.percentile(res, 90):.1%} p90); "
             f"{p['mask'].mean():.0%} of pixels anchored")
+        if np.median(res) > MAX_FIT_MISFIT:
+            log(f"warning: {name}'s depth fits COLMAP's points only to {np.median(res):.0%} (median), so COLMAP's model "
+                f"is probably off for this video and the depth vote will see mostly noise. Rebuild the `whatchanged room` "
+                f"folder fresh (on the real pair one rebuild took it from 19% to 2%)")
 
     # Level exactly as the splat viewer does: up from the cameras' x axes, floor = lowest substantial layer.
     all_c2w = np.stack([room3d.cam_to_world(imgs[i]) for i in sorted(imgs, key=lambda i: imgs[i]["name"])])

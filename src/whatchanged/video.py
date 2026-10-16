@@ -1382,7 +1382,7 @@ def render_footage(room_out: Path, run: Path | None, scene: dict, path: Path, pa
                 canvas = base.copy()
                 for n in names:
                     tt, img = next(frames[n])
-                    R, tv, okk = poses[n][0][k], poses[n][1][k], poses[n][2][k]
+                    R, tv = poses[n][0][k], poses[n][1][k]
                     a = float(alphas[n][k])
                     total += 1
                     covered += a >= 0.999

@@ -11,7 +11,7 @@ import json
 
 import numpy as np
 import pytest
-from test_traps import A_EYES, B_EYES, ROOM, render, session
+from test_traps import A_EYES, B_EYES, ROOM, session
 
 from whatchanged import cli, objects3d
 from whatchanged.changes import Blob
@@ -336,3 +336,83 @@ def test_two_real_objects_of_one_name_both_stay():
     dets = dets_of(C, CAB) + dets_of(C, second)
     assert objects3d.drop_twins(C, spans, [one, two], dets, log=lambda *_: None) == 0
     assert one.verified is True and two.verified is True
+
+
+# ---------------------------------------------------------------- changes the object detector finds
+
+MOVED = ((2.4, 0.4, 0.0), (2.8, 0.7, 1.0), (30, 90, 200))      # the cabinet, after it was carried across the room
+
+
+def _in(C, spans, name, dets):
+    return [d for d in dets if spans[name][0] <= d.frame < spans[name][1]]
+
+
+def test_object_seen_steadily_in_one_video_and_absent_where_the_other_looked_is_a_move():
+    A, B = session("A", ROOM + [CAB], A_EYES), session("B", ROOM + [MOVED], B_EYES)
+    C, spans = objects3d.combine({"A": A, "B": B})
+    dets = _in(C, spans, "A", dets_of(C, CAB)) + _in(C, spans, "B", dets_of(C, MOVED))
+    before, after = _kept(CAB, seen=("A",)), _kept(MOVED, seen=("B",))
+    found = objects3d.object_changes(C, spans, [before, after], dets, list(range(len(C.depth))), log=lambda *_: None)
+    assert {(c[0] is before, c[1]) for c in found} == {(True, "removed"), (False, "added")}
+    assert all(c[2] >= 3 and c[3] == 0 for c in found)          # the other video showed the spot and found nothing
+    from whatchanged import changes as ch
+    res = {"removed": [], "added": [], "moves": []}
+    assert ch.add_object_changes(res, found, A, B, ch.Config(), log=lambda *_: None) == 2
+    (i, j, _, fit), = res["moves"]
+    assert res["removed"][i].source == res["added"][j].source == "objects" and fit["turn_deg"] is None
+    assert np.allclose(res["removed"][i].centre[:2], before.centre[:2], atol=0.05)
+
+
+def test_object_both_videos_detect_is_no_change_and_neither_is_one_the_other_never_looked_at():
+    A, B = session("A", ROOM + [CAB], A_EYES), session("B", ROOM + [CAB], B_EYES)
+    C, spans = objects3d.combine({"A": A, "B": B})
+    box = _kept(CAB)
+    assert objects3d.object_changes(C, spans, [box], dets_of(C, CAB), list(range(len(C.depth))), log=lambda *_: None) == []
+    # only A's frames went through the detector: B never looked, so nothing can be said about B
+    only_a = list(range(*spans["A"]))
+    assert objects3d.object_changes(C, spans, [box], _in(C, spans, "A", dets_of(C, CAB)), only_a, log=lambda *_: None) == []
+
+
+def test_detector_found_removal_says_how_it_was_found():
+    from whatchanged.semantics import check_sentence, sentence
+    c = {"id": "c01", "type": "removed", "label": "speaker", "colour": "red", "size_m": [0.1, 0.1, 0.2], "bottom_m": 0.75,
+         "on_before": "desk", "evidence": {"free_views": 4, "free_share": 1.0, "noise_margin": 0.0, "by": "objects"}}
+    c["sentence"] = sentence(c)
+    assert c["sentence"] == ("The red speaker on the desk is gone; video B looked at that spot from 4 viewpoints "
+                             "and did not find it.")
+    assert check_sentence(c) == []
+
+
+def test_claude_keeps_only_the_detector_changes_it_sees_are_gone(tmp_path, monkeypatch):
+    from test_naming import Fake
+
+    from whatchanged import naming
+    A, B = session("A", ROOM + [CAB], A_EYES), session("B", ROOM + [MOVED], B_EYES)
+    C, spans = objects3d.combine({"A": A, "B": B})
+    dets = _in(C, spans, "A", dets_of(C, CAB)) + _in(C, spans, "B", dets_of(C, MOVED))
+    before, after = _kept(CAB, seen=("A",)), _kept(MOVED, seen=("B",))
+    found = objects3d.object_changes(C, spans, [before, after], dets, list(range(len(C.depth))), log=lambda *_: None)
+    # Claude sees the cabinet gone from its old place, but (say) still sees something at the new one in video A
+    fake = Fake(lambda text: {"object": True, "there": "absent" if "video A of a room" in text else "present",
+                              "name": "blue cabinet"})
+    monkeypatch.setattr(naming, "available", lambda: True)
+    kept = naming.confirm_changes(tmp_path, C, spans, found, log=lambda *_: None, client=fake)
+    assert [c[1] for c in kept] == ["removed"] and len(fake.calls) == 2
+    assert all(len(call["messages"][0]["content"]) >= 3 for call in fake.calls)   # its own view(s) and the other's
+    # answers are cached: asking again costs nothing
+    again = Fake(lambda text: {"object": False, "there": "present", "name": ""})
+    assert [c[1] for c in naming.confirm_changes(tmp_path, C, spans, found, log=lambda *_: None, client=again)] == ["removed"]
+    assert again.calls == []
+    # without a key the cached verdicts still hold (the CI replay); with nothing cached, every change is kept
+    monkeypatch.setattr(naming, "available", lambda: False)
+    assert [c[1] for c in naming.confirm_changes(tmp_path, C, spans, found, log=lambda *_: None)] == ["removed"]
+    assert naming.confirm_changes(tmp_path / "fresh", C, spans, found, log=lambda *_: None) is None
+
+
+def test_an_object_mostly_seen_after_is_shown_from_the_after_video():
+    spans = {"A": (0, 10), "B": (10, 30)}
+    chair = _kept(CAB, frames=(3, 12, 14, 16, 18, 20, 22))          # one stray sighting before, six after
+    assert set(objects3d.free_frames(spans, chair, cap=10 ** 6)) == set(range(30))
+    assert set(objects3d.free_frames(spans, chair, cap=10 ** 6, min_share=0.25)) == set(range(10, 30))
+    both = _kept(CAB, frames=(3, 5, 12, 14))
+    assert set(objects3d.free_frames(spans, both, cap=10 ** 6, min_share=0.25)) == set(range(30))

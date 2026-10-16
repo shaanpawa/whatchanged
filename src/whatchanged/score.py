@@ -11,7 +11,10 @@ The key lists what was really changed, written before running anything:
       - {id: T1, kind: hidden, names: [shoes]}
 
 A detection matches a key entry when the change type agrees and the label shares a word with
-one of the names. "Expected miss" entries are reported but not counted against recall.
+one of the names; of several, the closest name wins ("wooden chair" goes to the wooden chair, not the
+office chair). A removal or addition of the right object against a move in the key is "one end of the
+move": the object was found gone from its old place (or new at its new one) but not paired. "Expected
+miss" entries are reported but not counted against recall.
 """
 
 from __future__ import annotations
@@ -32,6 +35,21 @@ def _label_ok(label: str, names: list[str]) -> bool:
     return any(lw & _words(n) for n in names)
 
 
+def _closeness(label: str, names: list[str]) -> float:
+    """The best share of words a detected name has in common with one of the key's names (0 = none)."""
+    lw = _words(label)
+    return max((len(lw & _words(n)) / len(lw | _words(n)) for n in names if lw | _words(n)), default=0.0)
+
+
+def _cost(d: dict, g: dict) -> float:
+    m = _closeness(d["label"], g["names"])
+    if d["type"] == g["type"]:
+        return 0.01 * (1 - m) if m > 0 else 0.9        # the right type on the wrong object is the weakest match
+    if g["type"] == "moved" and d["type"] in ("removed", "added") and m > 0:
+        return 0.5 + 0.01 * (1 - m)
+    return 1.0
+
+
 def wilson(k: int, n: int, z: float = 1.96) -> list[float]:
     """95% Wilson score interval for k successes out of n (honest for small n)."""
     if n == 0:
@@ -48,13 +66,11 @@ def score(changes_json: Path, key_yaml: Path) -> dict:
     key = yaml.safe_load(Path(key_yaml).read_text())
     gt = key.get("changes", [])
     counted = [g for g in gt if g.get("expected") != "miss"]
-    cost = [[0.0 if (d["type"] == g["type"] and _label_ok(d["label"], g["names"])) else
-             0.5 if d["type"] == g["type"] else 1.0 for d in found] for g in counted]
+    cost = [[_cost(d, g) for d in found] for g in counted]
     matches = []
     if counted and found:
         rows, cols = linear_sum_assignment(cost)
         matches = [(r, c, cost[r][c]) for r, c in zip(rows, cols) if cost[r][c] < 1.0]
-    rows_matched = {r for r, _, _ in matches}
     cols_matched = {c for _, c, _ in matches}
     table = []
     for i, g in enumerate(counted):
@@ -62,7 +78,8 @@ def score(changes_json: Path, key_yaml: Path) -> dict:
         entry = {"id": g["id"], "truth": f"{g['type']} {g['names'][0]}", "result": "missed"}
         if m:
             d = found[m[0]]
-            entry.update(result="found" if m[1] == 0 else "type only", detected=f"{d['type']} {d['label']}", change=d["id"])
+            result = "found" if m[1] < 0.1 else "one end of the move" if m[1] < 0.6 else "type only"
+            entry.update(result=result, detected=f"{d['type']} {d['label']}", change=d["id"])
             if g["type"] == "moved" and "distance_m" in g and "move" in d:
                 entry["distance_error_m"] = round(abs(d["move"]["distance_m"] - g["distance_m"]), 2)
         table.append(entry)
@@ -77,12 +94,13 @@ def score(changes_json: Path, key_yaml: Path) -> dict:
         bad = [d["id"] for d in found if d["type"] == "removed" and _label_ok(d["label"], t.get("names", []))]
         traps.append({"id": t["id"], "kind": t["kind"], "passed": not bad, "wrongly_reported": bad})
     n_found = sum(e["result"] == "found" for e in table if "expected miss" not in e["truth"])
-    n_true = len([m for m in matches if m[2] == 0])
+    n_true = len([m for m in matches if m[2] < 0.1])
     out = {
         "recall_95ci": wilson(n_found, len(counted)), "precision_95ci": wilson(n_true, len(found)),
         "recall": round(n_found / max(len(counted), 1), 2),
-        "precision": round(len([m for m in matches if m[2] == 0]) / max(len(found), 1), 2),
+        "precision": round(n_true / max(len(found), 1), 2),
         "found": n_found, "of": len(counted), "type_only": sum(e["result"] == "type only" for e in table),
+        "one_end": sum(e["result"] == "one end of the move" for e in table),
         "false_alarms": len(false), "false_alarm_list": [f"{d['type']} {d['label']} ({d['id']})" for d in false],
         "traps": traps, "table": table,
     }
@@ -92,7 +110,8 @@ def score(changes_json: Path, key_yaml: Path) -> dict:
 def markdown(s: dict, title: str) -> str:
     lines = [f"### {title}", "",
              f"Found **{s['found']} of {s['of']}** real changes (95% interval {s['recall_95ci'][0]:.0%}-{s['recall_95ci'][1]:.0%}) · "
-             f"precision {s['precision']:.0%} · "
+             + (f"one end of a move for {s['one_end']} more · " if s.get("one_end") else "")
+             + f"precision {s['precision']:.0%} · "
              f"false alarms **{s['false_alarms']}** · traps passed {sum(t['passed'] for t in s['traps'])}/{len(s['traps'])}", "",
              "| # | What really changed | Result | Detected | Move error |", "|---|---|---|---|---|"]
     for e in s["table"]:

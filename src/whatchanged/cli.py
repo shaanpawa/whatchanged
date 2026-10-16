@@ -20,7 +20,7 @@ from pathlib import Path
 import numpy as np
 
 from . import changes as ch
-from .frames import check_pair, extract_keyframes, load_manifest, save_manifest
+from .frames import check_pair, extract_keyframes, save_manifest
 
 T0 = time.time()
 OBJECT_FRAMES = 24   # keyframes per session for the labelled boxes (was 8: too few views per object on a long walk)
@@ -193,7 +193,7 @@ def _shared_objects(out: Path, A, B, enabled: bool, labels: str = "auto"):
             log(f"warning: object boxes failed on {device} ({str(e).splitlines()[0]}); trying the CPU")
 
     def views(b):                               # show a box only from the videos that saw it
-        return objects3d.free_frames(ctx["spans"], b, cap=10 ** 6)
+        return objects3d.free_frames(ctx["spans"], b, cap=10 ** 6, min_share=0.25)
     if namer and not namer.error:
         try:
             boxes = namer.name({"shared": ctx["S"]}, {"shared": boxes}, views={"shared": views}, room_yaw=ctx["room_yaw"])["shared"]
@@ -204,6 +204,10 @@ def _shared_objects(out: Path, A, B, enabled: bool, labels: str = "auto"):
         dstats["twins_dropped"] = objects3d.drop_twins(ctx["S"], ctx["spans"], boxes, ctx.get("dets", []), log=log)
     except Exception as e:  # noqa: BLE001  (a check; the boxes matter more)
         log(f"warning: duplicate check skipped ({type(e).__name__}: {e})")
+    (out / "cache").mkdir(exist_ok=True)       # the 2D detections, for the object-level change test (_object_changes)
+    (out / "cache" / "dets2d.json").write_text(json.dumps({
+        "frames": [int(f) for f in ctx.get("frames", [])],
+        "dets": [[int(d.frame), [round(float(v), 1) for v in d.box], d.label, round(float(d.score), 3)] for d in ctx.get("dets", [])]}))
     if namer and not namer.error:
         namer._tally({"shared": boxes})
     for i, b in enumerate(boxes):
@@ -213,7 +217,9 @@ def _shared_objects(out: Path, A, B, enabled: bool, labels: str = "auto"):
              "naming": namer.stats() if namer else {"label_source": "owlv2",
                                                     "reason": "no ANTHROPIC_API_KEY" if labels in ("auto", "claude") else f"--labels {labels}"}}
     objects3d.write_shared(path, boxes, stats)
-    return boxes, stats
+    # Carry on with the boxes as saved (rounded to the millimetre), exactly as a rerun from the cache sees them:
+    # Claude's cached answers are keyed by the pictures drawn from them, so a replay without a key gets the same.
+    return objects3d.load_shared(path), stats
 
 
 def _write_object_graphs(out: Path, boxes: dict) -> None:
@@ -221,6 +227,23 @@ def _write_object_graphs(out: Path, boxes: dict) -> None:
     for name, key in (("A", "before"), ("B", "after")):
         (out / f"scene_graph_{key}.json").write_text(json.dumps(objects3d.scene_graph(boxes[name]), indent=1))
         (out / f"markers_{key}.json").write_text(json.dumps(objects3d.marker_array(boxes[name], f"objects_{key}")))
+
+
+def _object_changes(out: Path, A, B, shared: list, res: dict, cfg: ch.Config, labels: str = "auto") -> int:
+    """Add what the object detector says changed (objects3d.object_changes) to the depth test's result:
+    each one checked by Claude when it is available."""
+    from . import naming, objects3d
+    path = out / "cache" / "dets2d.json"
+    if not path.exists():
+        log("Changes (objects): no saved 2D detections in this run; the depth test only")
+        return 0
+    d = json.loads(path.read_text())
+    dets = [objects3d.Det2D(int(f), np.array(box, float), label, float(score)) for f, box, label, score in d["dets"]]
+    S, spans = objects3d.combine({"A": A, "B": B})
+    kept = [b for b in shared if b.verified is not False]
+    found = objects3d.object_changes(S, spans, kept, dets, d["frames"], log=log)
+    checked = naming.confirm_changes(out, S, spans, found, log=log) if labels in ("auto", "claude") else None
+    return ch.add_object_changes(res, found if checked is None else checked, A, B, cfg, log=log)
 
 
 def _detect_and_report(out: Path, labels: str, cfg: ch.Config, objects: bool = True) -> dict:
@@ -245,6 +268,7 @@ def _detect_and_report(out: Path, labels: str, cfg: ch.Config, objects: bool = T
             shared, object_stats = got
     if shared is not None:
         from . import objects3d
+        _object_changes(out, A, B, shared, res, cfg, labels)
         objects3d.assign_states(shared, res, log=log)     # Before / After differ only where a change is
         kept = [b for b in shared if b.verified is not False]
         boxes = {n: objects3d.for_state(kept, n) for n in ("A", "B")}
@@ -265,6 +289,8 @@ def _detect_and_report(out: Path, labels: str, cfg: ch.Config, objects: bool = T
     diag["noise_floor"] = {"A_to_B_sigma": round(res["VA"]["sigma"], 4), "B_to_A_sigma": round(res["VB"]["sigma"], 4)}
     diag["smallest_detectable_change"] = {"removals (judged by B)": res["VA"]["error_budget"], "additions (judged by A)": res["VB"]["error_budget"]}
     diag["config"] = asdict(cfg)
+    diag["changes_by"] = {"depth": sum(c["evidence"].get("by") != "objects" for c in found),
+                          "objects": sum(c["evidence"].get("by") == "objects" for c in found)}
     if (out / "objects.json").exists():
         diag["object_naming"] = json.loads((out / "objects.json").read_text()).get("stats", {}).get("naming", {})
     diag["claude_this_run"] = naming.USAGE.summary()

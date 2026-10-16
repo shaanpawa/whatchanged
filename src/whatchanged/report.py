@@ -38,6 +38,17 @@ def _cloud(points: np.ndarray, colors: np.ndarray, n: int, seed: int = 0) -> dic
             "c": base64.b64encode(colors.astype(np.uint8).tobytes()).decode(), "n": int(len(points))}
 
 
+def _evidence(c: dict) -> str:
+    """One line on why the change was called: the depth vote, or the detector looking and not finding it."""
+    ev = c["evidence"]
+    other = "B" if c["type"] == "removed" else "A"
+    if ev.get("by") == "objects":
+        return (f"video {other if c['type'] != 'moved' else 'A and B'} showed the spot in {ev['free_views']} frames "
+                f"· detector found it in {1 - ev['free_share']:.0%} of them")
+    return (f"{other if c['type'] != 'moved' else 'B'} saw it free in {ev['free_views']} views · free share {ev['free_share']:.0%} · "
+            f"{ev['noise_margin']:.1f}× past the noise tolerance")
+
+
 def _fmt_t(t):
     return "" if t is None else f"{int(t // 60):02d}:{t % 60:04.1f}"
 
@@ -65,7 +76,6 @@ def write(out_dir: Path, A, B, changes: list[dict], regions: list[dict], floor: 
 
     cards = []
     for c in changes:
-        ev = c["evidence"]
         times = " / ".join(f"{k} {_fmt_t(v)}" for k, v in c["times"].items() if v is not None)
         extra = ""
         if c["type"] == "moved":
@@ -77,7 +87,7 @@ def write(out_dir: Path, A, B, changes: list[dict], regions: list[dict], floor: 
         <p class="sent">{html.escape(c['sentence'])}</p>
         <div class="thumbs"><figure><img src="{_b64_img(c['crops']['before'])}" alt="before"><figcaption>before (A)</figcaption></figure>
         <figure><img src="{_b64_img(c['crops']['after'])}" alt="after"><figcaption>after (B)</figcaption></figure></div>
-        <p class="ev">B saw it free in {ev['free_views']} views · free share {ev['free_share']:.0%} · {ev['noise_margin']:.1f}× past the noise tolerance{extra}{' · ' + times if times else ''}</p>
+        <p class="ev">{_evidence(c)}{extra}{' · ' + times if times else ''}</p>
       </article>""")
     if not cards:
         cards.append('<p class="muted">No changes found.</p>')

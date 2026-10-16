@@ -61,6 +61,7 @@ class Blob:
     yaw: float = 0.0                             # radians, footprint orientation
     bottom: float = 0.0
     top: float = 0.0
+    source: str = "depth"                        # "depth" (the vote) or "objects" (the detector, add_object_changes)
 
     def __post_init__(self):
         lo, hi = self.voxels.min(0), self.voxels.max(0)
@@ -294,6 +295,60 @@ def match_moves(removed: list[Blob], added: list[Blob], cfg: Config) -> list[tup
     rows, cols = linear_sum_assignment(cost)
     return [(int(i), int(j), float(cost[i, j]), fits[(i, j)]) for i, j in zip(rows, cols)
             if (i, j) in fits and fits[(i, j)]["fitness"] >= cfg.min_fit]
+
+
+def object_blob(b, kind: str, views: int, hits: int, S: Session, n: int = 6) -> Blob:
+    """An object box the other video looked at and did not find (objects3d.object_changes) as a change Blob:
+    the box filled with a grid of points, coloured like the session's own points inside it."""
+    t = np.linspace(-0.5, 0.5, n)
+    g = np.stack(np.meshgrid(t, t, t, indexing="ij"), -1).reshape(-1, 3) * b.size
+    c, s = np.cos(b.yaw), np.sin(b.yaw)
+    R = np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
+    vox = g @ R.T + b.centre
+    pts, cols = S.points(conf_pct=30, stride=4)
+    inside = np.all(np.abs((pts - b.centre) @ R) <= b.size / 2, axis=1)
+    col = np.median(cols[inside], 0) if inside.sum() >= 10 else np.array([128, 128, 128])
+    return Blob(kind=kind, voxels=vox, colors=np.tile(col.astype(np.uint8), (len(vox), 1)),
+                score=1.0 - hits / max(views, 1), margin=0.0, views=views, source="objects")
+
+
+def add_object_changes(result: dict, found: list[tuple], A: Session, B: Session, cfg: Config, log=print) -> int:
+    """Fold the detector's changes (objects3d.object_changes) into a detect() result. Each becomes a removed or
+    added Blob unless a depth change already covers that box; a removal and an addition of the same kind of
+    thing (objects3d.kin), of similar size and at least min_move apart, become one move. Returns how many were added."""
+    from .objects3d import _labels_of, change_overlap, kin
+    new = {"removed": [], "added": []}
+    for b, kind, views, hits, *_ in found:
+        # the depth vote already has it: overlapping, or one part of it found by depth (a chair's back) beside it
+        if any(change_overlap(b, x.voxels, True) > 0 or
+               np.linalg.norm(x.centre[:2] - b.centre[:2]) < 0.5 * max(b.size[:2]) + 0.35 for x in result[kind]):
+            continue
+        new[kind].append((b, object_blob(b, kind, views, hits, A if kind == "removed" else B)))
+    r0, a0 = len(result["removed"]), len(result["added"])
+    result["removed"] += [x for _, x in new["removed"]]
+    result["added"] += [x for _, x in new["added"]]
+    R, D = new["removed"], new["added"]
+    if R and D:
+        cost = np.full((len(R), len(D)), 1e6)
+        for i, (rb, _) in enumerate(R):
+            for j, (ab, _) in enumerate(D):
+                sr, sa = np.sort(rb.size), np.sort(ab.size)
+                rel = float(np.mean(np.abs(sr - sa) / np.maximum(sr, sa)))
+                dist = float(np.linalg.norm(rb.centre[:2] - ab.centre[:2]))
+                # one name (after Claude's naming) is the strong cue; a badly lifted box may have the wrong size
+                same = rb.label == ab.label or bool(kin(_labels_of(rb)) & kin(_labels_of(ab)) and rel <= 0.6)
+                if same and dist >= cfg.min_move:
+                    cost[i, j] = rel + 0.05 * dist
+        rows, cols = linear_sum_assignment(cost)
+        for i, j in zip(rows, cols):
+            if cost[i, j] < 1e6:
+                result["moves"].append((r0 + int(i), a0 + int(j), float(cost[i, j]),
+                                        {"fitness": None, "rmse_m": None, "turn_deg": None, "turn_determined": False}))
+    n = len(R) + len(D)
+    if n:
+        log(f"Changes: {len(R)} removed and {len(D)} added from the object detector, "
+            f"{sum(m[0] >= r0 for m in result['moves'])} of them paired as moves")
+    return n
 
 
 def naive_diff(A: Session, B: Session, cfg: Config, thresh: float = 0.05) -> dict:

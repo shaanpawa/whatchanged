@@ -288,8 +288,9 @@ def sentence(c: dict) -> str:
     if c["type"] == "added":
         return f"A {name} ({dims}) appeared on {_support(c['bottom_m'], c.get('on_after', ''))}{near_a}."
     if c["type"] == "removed":
-        return (f"The {name} on {_support(c['bottom_m'], c.get('on_before', ''))}{near_b} is gone; "
-                f"video B saw that spot empty from {c['evidence']['free_views']} viewpoints.")
+        seen = ("looked at that spot from {} viewpoints and did not find it" if c["evidence"].get("by") == "objects"
+                else "saw that spot empty from {} viewpoints").format(c["evidence"]["free_views"])
+        return f"The {name} on {_support(c['bottom_m'], c.get('on_before', ''))}{near_b} is gone; video B {seen}."
     move = f"moved about {c['move']['distance_m']:.1f} m"
     a, b = c.get("on_before", ""), c.get("on_after", "")
     if a and b and a != b:
@@ -378,7 +379,7 @@ def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str 
         ans = label([before, after], "removed", labeller, cache, extra=_hint(checked, labeller))
         c = {"id": f"c{n:02d}", "type": "removed", **facts(b), "label": _pick(ans, bname, labeller), "colour": ans.get("colour", ""),
              "on_before": on or ans.get("on_before", ""), "on_after": "", "near_before": near, "near_after": "",
-             "evidence": {"free_views": b.views, "free_share": round(b.score, 2), "noise_margin": round(b.margin, 1)},
+             "evidence": {"free_views": b.views, "free_share": round(b.score, 2), "noise_margin": round(b.margin, 1), "by": b.source},
              "frames": {"A": A.paths[j] if j >= 0 else None, "B": B.paths[k] if k >= 0 else None},
              "times": {"A": float(A.times[j]) if j >= 0 else None, "B": float(B.times[k]) if k >= 0 else None},
              "crops": {"before": _save(before, crops / f"c{n:02d}_before.jpg"), "after": _save(after, crops / f"c{n:02d}_after.jpg")}}
@@ -392,7 +393,7 @@ def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str 
         ans = label([before, after], "added", labeller, cache, extra=_hint(checked, labeller))
         c = {"id": f"c{n:02d}", "type": "added", **facts(b), "label": _pick(ans, bname, labeller), "colour": ans.get("colour", ""),
              "on_before": "", "on_after": on or ans.get("on_after", ""), "near_before": "", "near_after": near,
-             "evidence": {"free_views": b.views, "free_share": round(b.score, 2), "noise_margin": round(b.margin, 1)},
+             "evidence": {"free_views": b.views, "free_share": round(b.score, 2), "noise_margin": round(b.margin, 1), "by": b.source},
              "frames": {"A": A.paths[j] if j >= 0 else None, "B": B.paths[k] if k >= 0 else None},
              "times": {"A": float(A.times[j]) if j >= 0 else None, "B": float(B.times[k]) if k >= 0 else None},
              "crops": {"before": _save(before, crops / f"c{n:02d}_before.jpg"), "after": _save(after, crops / f"c{n:02d}_after.jpg")}}
@@ -415,7 +416,7 @@ def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str 
                       "turn_deg": round(fit["turn_deg"]) if fit["turn_determined"] else None,
                       "shape_fit": fit["fitness"], "shape_rmse_m": fit["rmse_m"], "match_cost": round(cost, 2)},
              "evidence": {"free_views": min(r.views, a.views), "free_share": round(min(r.score, a.score), 2),
-                          "noise_margin": round(min(r.margin, a.margin), 1)},
+                          "noise_margin": round(min(r.margin, a.margin), 1), "by": r.source if r.source == a.source else "both"},
              "frames": {"A": A.paths[j] if j >= 0 else None, "B": B.paths[k] if k >= 0 else None},
              "times": {"A": float(A.times[j]) if j >= 0 else None, "B": float(B.times[k]) if k >= 0 else None},
              "crops": {"before": _save(before, crops / f"c{n:02d}_before.jpg"), "after": _save(after, crops / f"c{n:02d}_after.jpg")}}

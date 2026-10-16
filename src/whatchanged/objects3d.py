@@ -985,9 +985,13 @@ def attach_dets(S: Session, boxes: list[Box3D], dets: list[Det2D], min_agree: fl
     return n
 
 
-def free_frames(spans: dict[str, tuple[int, int]], b: Box3D, cap: int = 48) -> list[int]:
-    """Frames of the videos that saw b (all of them when unknown), at most `cap`, spread evenly."""
-    own = [n for n, (a, z) in spans.items() if any(a <= f < z for f in b.frames)] or list(spans)
+def free_frames(spans: dict[str, tuple[int, int]], b: Box3D, cap: int = 48, min_share: float = 0.0) -> list[int]:
+    """Frames of the videos that saw b (all of them when unknown), at most `cap`, spread evenly. With
+    `min_share`, only videos with at least that share of its sightings: a chair seen 6 times after and once
+    before is shown from the after video, not from before, where its place may be empty."""
+    seen = {n: sum(a <= f < z for f in b.frames) for n, (a, z) in spans.items()}
+    total = sum(seen.values())
+    own = [n for n, k in seen.items() if k and k >= min_share * total] or list(spans)
     fr = [f for n in own for f in range(*spans[n])]
     if len(fr) > cap:
         fr = [fr[i] for i in np.linspace(0, len(fr) - 1, cap).round().astype(int)]
@@ -1036,7 +1040,7 @@ def boxes_shared(sessions: dict[str, Session], n_frames: int = 40, kind: str = "
     log(f"boxes: {len(kept)} labelled 3D boxes for both videos together ({both} seen by both; {fused['lifted_3d']} lifted "
         f"from {len(dets)} 2D, {joined} more 2D boxes joined); {grown} grown to their 2D boxes, {snapped} lined up "
         f"with the walls, in {stats['total_s']} s")
-    return kept, stats, {"S": C, "spans": spans, "supports": sup, "room_yaw": ry, "dets": dets}
+    return kept, stats, {"S": C, "spans": spans, "supports": sup, "room_yaw": ry, "dets": dets, "frames": frames}
 
 
 def _labels_of(b: Box3D, share: float = 0.2) -> set:
@@ -1087,7 +1091,7 @@ def drop_twins(S: Session, spans: dict[str, tuple[int, int]], boxes: list[Box3D]
     (view_checks): the twin is detected in at least 60% of them, this box in at most 20%, and there are at least
     two. Two real objects of one name (two pillows, two plants) are detected side by side in those frames, and an
     object that is only in one video (added, removed or moved) shares no video with its namesake, so neither
-    is dropped. Returns how many boxes were dropped."""
+    is dropped; a video "saw" a box only with at least a quarter of its sightings. Returns how many were dropped."""
     by_frame: dict[int, list[Det2D]] = {}
     for d in dets:
         by_frame.setdefault(d.frame, []).append(d)
@@ -1100,8 +1104,9 @@ def drop_twins(S: Session, spans: dict[str, tuple[int, int]], boxes: list[Box3D]
             checks[key] = view_checks(S, b, [f for n in sorted(sessions) for f in range(*spans[n])], by_frame, labels)
         return checks[key]
 
-    def videos(b):
-        return set(b.seen_by) or {n for n, (a, z) in spans.items() if any(a <= f < z for f in b.frames)}
+    def videos(b):              # a stray sighting or two does not count: a moved chair's new place, seen once before
+        seen = {n: sum(a <= f < z for f in b.frames) for n, (a, z) in spans.items()}
+        return {n for n, k in seen.items() if k and k >= 0.25 * sum(seen.values())} or set(b.seen_by)
 
     dropped = 0
     for b in kept:
@@ -1129,6 +1134,73 @@ def drop_twins(S: Session, spans: dict[str, tuple[int, int]], boxes: list[Box3D]
 
 
 # ---------------------------------------------------------------- which state shows which object
+
+# What the detector mixes up: one of these found on the spot means the object may well still be there.
+KIN = [{"bin", "basket", "bucket"}, {"fan", "heater"}, {"chair", "stool", "armchair"}, {"monitor", "television"},
+       {"box", "cardboard box"}, {"cup", "mug"}, {"plant", "potted plant", "vase"}]
+
+
+def kin(labels: set) -> set:
+    """These labels and the ones the detector confuses them with."""
+    out = set(labels) | {SYNONYMS.get(x, x) for x in labels}
+    for g in KIN:
+        if out & g:
+            out |= g
+    return out
+
+
+def object_changes(S: Session, spans: dict[str, tuple[int, int]], boxes: list[Box3D], dets: list[Det2D],
+                   frames: list[int], names: tuple[str, str] = ("A", "B"), min_views: int = 3, max_hits: float = 0.2,
+                   min_hits: int = 2, min_share: float = 0.5, min_move: float = 0.15, log=print) -> list[tuple]:
+    """Objects one video detects steadily and the other does not, although it looked straight at where they were.
+
+    The depth test (changes.py) needs depth good to a few per cent, which a very wide lens does not give; the
+    detector does not need depth at all. For each kept box and each video: over that video's detector frames
+    that should show the box (view_checks: in front of the camera, its outline in the image, not hidden behind
+    nearer depth), how often a detection of that kind of thing lands on it. Found in at least `min_hits` and
+    `min_share` of one video's frames, and in at most `max_hits` of at least `min_views` of the other's: the
+    object is not there in the other video. The other end of a move is often seen too seldom to stand alone (a
+    spot only one later frame shows, or a stray detection there in the first video), so a box of the same name
+    that the second video detects more often than the first (which finds it in at most twice `max_hits`) is
+    taken as that end, for Claude to confirm. Returns (box, "removed" | "added", the other video's
+    frames that showed the spot, hits there, its own video's frames that showed it, hits there)."""
+    by_frame: dict[int, list[Det2D]] = {}
+    for d in dets:
+        by_frame.setdefault(d.frame, []).append(d)
+    ran = set(frames)
+    kept = [b for b in boxes if b.verified is not False]
+    rate = {}
+    for b in kept:
+        labels = kin(_labels_of(b))
+        r = {n: view_checks(S, b, [f for f in range(*spans[n]) if f in ran], by_frame, labels) for n in names}
+        rate[id(b)] = {n: (len(r[n]), sum(r[n].values())) for n in names}
+    kind = {names[0]: "removed", names[1]: "added"}          # what it is when only this video has the object
+    out = []
+    for b in kept:
+        for mine, other in (names, names[::-1]):
+            (vm, hm), (vo, ho) = rate[id(b)][mine], rate[id(b)][other]
+            if hm >= min_hits and hm >= min_share * vm and vo >= min_views and ho <= max_hits * vo:
+                out.append((b, kind[mine], vo, ho, vm, hm))
+    share = lambda x, n: rate[id(x)][n][1] / max(rate[id(x)][n][0], 1)      # noqa: E731
+    taken = {id(c[0]) for c in out}
+    for c in list(out):                                      # the thinly seen other end of a move
+        b, k = c[0], c[1]
+        mine = names[0] if k == "removed" else names[1]
+        other = names[1] if mine == names[0] else names[0]
+        if any(x[1] != k and x[0].label == b.label for x in out):
+            continue
+        ends = [x for x in kept if id(x) not in taken and x.label == b.label and rate[id(x)][other][1] >= 1
+                and share(x, other) > share(x, mine) and share(x, mine) <= 2 * max_hits
+                and np.linalg.norm(x.centre[:2] - b.centre[:2]) >= min_move]
+        if ends:
+            x = max(ends, key=lambda x: (share(x, other) - share(x, mine), -np.linalg.norm(x.centre[:2] - b.centre[:2])))
+            (vm, hm), (vo, ho) = rate[id(x)][mine], rate[id(x)][other]
+            out.append((x, kind[other], vm, hm, vo, ho))
+            taken.add(id(x))
+    log(f"Changes (objects): {sum(c[1] == 'removed' for c in out)} objects only before, "
+        f"{sum(c[1] == 'added' for c in out)} only after, where the other video looked and found none")
+    return out
+
 
 def change_list(result: dict) -> list[tuple]:
     """The detected changes in semantics.describe's order and numbering:

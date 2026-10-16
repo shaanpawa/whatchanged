@@ -456,6 +456,84 @@ def merge(boxes: list[Box3D], iou: float = 0.2, near_m: float = 0.4, room_yaw: f
 
 # ---------------------------------------------------------------- the pass
 
+GONE_PROMPT = """The first {n} picture(s) come from video {own} of a room; the magenta wireframe marks {what}.
+The other {m} picture(s) come from video {other} of the same room, filmed at another time; the same wireframe marks the same place in the room.
+Answer in JSON:
+  "object": true if the wireframe in the first picture(s) surrounds one real, movable object, false if it is a part of furniture, a wall, a reflection, a shadow or several things;
+  "there": is that same physical object at the marked place in the later picture(s)? "present" if it is still there (even partly hidden or from another side), "absent" if the place is empty or holds something else, "unsure" if the pictures cannot tell (blocked, blurred, cut off);
+  "name": a short common name for the object (1-3 words, lowercase)."""
+GONE_SCHEMA = {
+    "type": "object",
+    "properties": {"object": {"type": "boolean"}, "there": {"type": "string", "enum": ["present", "absent", "unsure"]},
+                   "name": {"type": "string"}},
+    "required": ["object", "there", "name"],
+    "additionalProperties": False,
+}
+
+
+def confirm_changes(out_dir: str | Path, S: Session, spans: dict[str, tuple[int, int]], found: list[tuple],
+                    log=print, client=None) -> list[tuple] | None:
+    """Claude looks at each object-level change (objects3d.object_changes): the object in its own video next
+    to the other video's view of the same place, and keeps the change only if the object is real and absent
+    there. Unnamed boxes take Claude's name. Answers are cached, so a replay without a key (CI) gets the same
+    verdicts. None when some change has no answer and Claude is not available (keep every change then)."""
+    if not found:
+        return None
+    namer = Namer(out_dir, log=log, client=client)
+    jobs = []
+    for c in found:
+        b, kind = c[0], c[1]
+        own, other = ("A", "B") if kind == "removed" else ("B", "A")
+        mine = pick_views(S, b, k=2, frames=list(range(*spans[own])))
+        theirs = pick_views(S, b, k=2, frames=list(range(*spans[other])))
+        if not mine or not theirs:
+            continue
+        ims = [view_crop(S, j, uv) for j, uv in mine + theirs]
+        what = f"a {b.label} about {_m(b.size[0])} x {_m(b.size[1])} x {_m(b.size[2])}"
+        text = GONE_PROMPT.format(n=len(mine), own=own, what=what, m=len(theirs), other=other)
+        jobs.append((c, ims, text, namer.cache.key(*ims, extra=f"{VERSION}|gone|{text}")))
+    answers, todo = {}, []
+    for job in jobs:
+        if job[3] in namer.cache.data:
+            answers[id(job[0])] = namer.cache.data[job[3]]
+            namer.meter.add(cached=1)
+        else:
+            todo.append(job)
+    if todo and not available():
+        return None
+    if todo:
+        pool = ThreadPoolExecutor(namer.workers)
+        futures = {pool.submit(ask, namer._client(), ims, text, GONE_SCHEMA, "medium", namer.meter): (c, key)
+                   for c, ims, text, key in todo}
+        try:
+            for f in as_completed(futures):
+                c, key = futures[f]
+                try:
+                    ans = f.result()
+                except _api_errors() as e:
+                    namer._failed(f"check of the '{c[0].label}' change", e)
+                    if namer.error:
+                        return None
+                    continue
+                if ans:
+                    namer.cache.data[key] = ans
+                    namer.cache.save()
+                    answers[id(c)] = ans
+        finally:
+            pool.shutdown(wait=True, cancel_futures=True)
+    kept = []
+    for c, ims, _, _ in jobs:
+        ans = answers.get(id(c))
+        if not ans or not ans.get("object") or ans.get("there") != "absent":
+            continue
+        b = c[0]
+        if b.label_source != "claude" and clean(ans.get("name", "")):
+            b.owl_label, b.label = b.owl_label or b.label, clean(ans["name"])
+        kept.append(c)
+    log(f"Changes (objects): {MODEL} confirmed {len(kept)} of {len(found)} ({len(found) - len(jobs)} had no clear view)")
+    return kept
+
+
 class Namer:
     """Room vocabulary and box verdicts for one run folder, with a disk cache and a cost meter."""
 

@@ -458,3 +458,24 @@ def test_turned_in_place_sentence_has_no_made_up_numbers():
     c["sentence"] = sentence(c)
     assert c["sentence"].startswith("The black office chair next to the desk was turned or shifted in place")
     assert check_sentence(c) == []
+
+
+def test_a_colourful_object_that_left_is_found_where_it_went_by_its_own_colour():
+    # the cabinet is blue (30, 90, 200): nothing is told to look for red, or for blue
+    A, B = session("A", ROOM + [CAB], A_EYES), session("B", ROOM + [MOVED], B_EYES)
+    C, spans = objects3d.combine({"A": A, "B": B})
+    dets = _in(C, spans, "A", dets_of(C, CAB)) + _in(C, spans, "B", dets_of(C, MOVED))
+    gone = _kept(CAB, seen=("A",), frames=tuple(range(*spans["A"])))
+    gone.seen_by = {"A": list(range(spans["A"][1] - spans["A"][0]))}
+    hue = objects3d.colour_of(C, gone, list(range(*spans["A"])))
+    assert hue is not None and 200 < hue < 240
+    got = objects3d.find_by_colour(C, spans, gone, dets, list(range(len(C.depth))), "A", "B")
+    assert got is not None
+    nb, views, hits, n = got
+    assert np.allclose(nb.centre[:2], (np.array(MOVED[0][:2]) + MOVED[1][:2]) / 2, atol=0.15)
+    assert hits == 0 and views >= 2 and n >= 2 and set(nb.seen_by) == {"B"}
+    # a grey object has no colour of its own to follow
+    grey = ((1.0, 1.0, 0.0), (1.4, 1.3, 1.0), (128, 128, 128))
+    Ag = session("A", ROOM + [grey], A_EYES)
+    Cg, _ = objects3d.combine({"A": Ag, "B": B})
+    assert objects3d.colour_of(Cg, gone, list(range(*spans["A"]))) is None

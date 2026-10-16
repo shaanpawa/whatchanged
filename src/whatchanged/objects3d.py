@@ -1202,6 +1202,132 @@ def object_changes(S: Session, spans: dict[str, tuple[int, int]], boxes: list[Bo
     return out
 
 
+def _hue_mask(rgb: np.ndarray, hue_deg: float, tol_deg: float = 15.0, min_sat: float = 0.4) -> np.ndarray:
+    """Pixels of a strong colour near `hue_deg` (rgb: (..., 3) uint8)."""
+    import cv2
+    hsv = cv2.cvtColor(np.ascontiguousarray(rgb.reshape(-1, 1, 3)), cv2.COLOR_RGB2HSV).reshape(*rgb.shape[:-1], 3)
+    dh = np.abs((hsv[..., 0].astype(float) * 2 - hue_deg + 180) % 360 - 180)
+    return (dh <= tol_deg) & (hsv[..., 1] >= min_sat * 255) & (hsv[..., 2] >= 50)
+
+
+def colour_of(S: Session, b: Box3D, frames: list[int], min_sat: float = 0.4, min_share: float = 0.6) -> float | None:
+    """The hue (degrees) of an object with one strong colour, from the middle of its projected box in the frames
+    that detected it; None when it has no such colour (most of its strong pixels within 15 degrees of one hue)."""
+    import cv2
+    H, W = S.depth.shape[1:]
+    hues = []
+    for f in frames:
+        uv, z = project(b.corners(), S.poses[f], S.K[f])
+        if (z <= 0.1).any():
+            continue
+        lo, hi = np.clip(uv.min(0), 0, [W - 1, H - 1]), np.clip(uv.max(0), 0, [W - 1, H - 1])
+        c, h = (lo + hi) / 2, (hi - lo) / 4                      # the middle half of the box
+        x0, y0, x1, y1 = (int(round(v)) for v in (*(c - h), *(c + h + 1)))
+        if x1 <= x0 or y1 <= y0:
+            continue
+        hsv = cv2.cvtColor(np.ascontiguousarray(S.images[f, y0:y1, x0:x1]), cv2.COLOR_RGB2HSV).reshape(-1, 3)
+        strong = (hsv[:, 1] >= min_sat * 255) & (hsv[:, 2] >= 50)
+        hues += list(hsv[strong, 0].astype(float) * 2)
+    if len(hues) < 20:
+        return None
+    a = np.radians(hues)
+    mean = float(np.degrees(np.arctan2(np.sin(a).mean(), np.cos(a).mean())) % 360)
+    close = np.abs((np.array(hues) - mean + 180) % 360 - 180) <= 15
+    return mean if close.mean() >= min_share else None
+
+
+def find_by_colour(S: Session, spans: dict[str, tuple[int, int]], b: Box3D, dets: list[Det2D], frames: list[int],
+                   mine: str, other: str, min_px: int = 30, min_frames: int = 2, spread: float = 0.25,
+                   max_hits: float = 0.2) -> tuple | None:
+    """Where an object that left its place went, when it has one strong colour (a red speaker): the other video's
+    detections of its kind, cut down to the pixels of that colour (so the black box beside it does not pull the
+    place off), put in 3D from their depth. Kept when at least `min_frames` agree within `spread` metres and the
+    first video, where it looked at that place, saw that colour there in at most `max_hits` of its frames.
+    Returns (box at the new place, frames of the first video that showed it, colour hits there, frames that found
+    it) or None."""
+    own = [spans[mine][0] + f for f in b.seen_by.get(mine, [])]
+    hue = colour_of(S, b, own)
+    if hue is None:
+        return None
+    labels = kin(_labels_of(b))
+    H, W = S.depth.shape[1:]
+    ran = set(frames)
+    pts, found = [], []
+    for d in dets:
+        if d.label not in labels or not (spans[other][0] <= d.frame < spans[other][1]):
+            continue
+        f = d.frame
+        x0, y0 = (int(max(0, np.floor(v))) for v in d.box[:2])
+        x1, y1 = int(min(W, np.ceil(d.box[2]))), int(min(H, np.ceil(d.box[3])))
+        m = _hue_mask(S.images[f, y0:y1, x0:x1], hue)
+        if m.sum() < min_px:
+            continue
+        v, u = np.nonzero(m)
+        v, u = v + y0, u + x0
+        ok = S.mask[f, v, u] & (S.depth[f, v, u] > 0)
+        if ok.sum() < 5:
+            continue
+        z = float(np.median(S.depth[f, v[ok], u[ok]]))
+        uu, vv = float(np.median(u[ok])), float(np.median(v[ok]))
+        K, P = S.K[f], S.poses[f]
+        pc = np.array([(uu - K[0, 2]) / K[0, 0] * z, (vv - K[1, 2]) / K[1, 1] * z, z])
+        pts.append(P[:3, :3] @ pc + P[:3, 3])
+        found.append(f)
+    if len(pts) < min_frames:
+        return None
+    pts = np.array(pts)
+    mid = np.median(pts, 0)
+    near = np.linalg.norm(pts - mid, axis=1) <= spread
+    if near.sum() < min_frames or np.linalg.norm(mid[:2] - b.centre[:2]) < 0.15:
+        return None
+    centre = np.median(pts[near], 0)
+    nb = Box3D(b.label, b.score, centre, b.size.copy(), b.yaw, [found[i] for i in np.nonzero(near)[0]], dict(b.votes),
+               owl_label=b.owl_label, label_source=b.label_source, verified=True, colour=b.colour,
+               seen_by={other: sorted(found[i] - spans[other][0] for i in np.nonzero(near)[0])})
+    # The first video, where it looked at that place: was that colour there already?
+    views = hits = 0
+    for f in range(*spans[mine]):
+        if f not in ran:
+            continue
+        uv, zc = project(centre[None], S.poses[f], S.K[f])
+        if zc[0] <= 0.2:
+            continue
+        u, v = (int(round(x)) for x in uv[0])
+        if not (0 <= u < W and 0 <= v < H):
+            continue
+        if S.mask[f, v, u] and 0 < S.depth[f, v, u] < zc[0] - 0.15:       # something nearer hides the place
+            continue
+        r = max(6, int(np.ceil(np.max(b.size) / 2 * S.K[f][0, 0] / zc[0])))
+        sl = (f, slice(max(0, v - r), v + r + 1), slice(max(0, u - r), u + r + 1))
+        at = S.mask[sl] & (np.abs(S.depth[sl] - zc[0]) <= max(0.2, 0.1 * zc[0]))   # that colour at that place, not behind it
+        views += 1
+        hits += int((_hue_mask(S.images[sl], hue) & at).sum() >= min_px // 3)
+    if views < min_frames or hits > max_hits * views:
+        return None
+    return nb, views, hits, int(near.sum())
+
+
+def colour_ends(S: Session, spans: dict[str, tuple[int, int]], dets: list[Det2D], frames: list[int], found: list[tuple],
+                names: tuple[str, str] = ("A", "B"), log=print) -> list[tuple]:
+    """For each object-level change with no other end of its name, look for where it went (or came from) by its
+    colour (find_by_colour). Returns new candidates in object_changes' form, for Claude to confirm."""
+    out = []
+    for c in found:
+        b, k = c[0], c[1]
+        if any(x[1] != k and x[0].label == b.label for x in found):
+            continue
+        mine, other = (names[0], names[1]) if k == "removed" else (names[1], names[0])
+        got = find_by_colour(S, spans, b, dets, frames, mine, other)
+        if got is None:
+            continue
+        nb, views, hits, n = got
+        out.append((nb, "added" if k == "removed" else "removed", views, hits, n, n))
+        log(f"Changes (objects): the {b.label} that left ({b.centre[0]:.2f}, {b.centre[1]:.2f}) has its colour at "
+            f"({nb.centre[0]:.2f}, {nb.centre[1]:.2f}) in {n} frames of video {other}, and video {mine} saw that colour "
+            f"there in {hits} of {views}")
+    return out
+
+
 def still_there(S: Session, spans: dict[str, tuple[int, int]], boxes: list[Box3D], dets: list[Det2D], frames: list[int],
                 voxels: np.ndarray, min_inside: float = 0.5, min_hits: int = 2, min_share: float = 0.5,
                 min_part: float = 0.25) -> Box3D | None:

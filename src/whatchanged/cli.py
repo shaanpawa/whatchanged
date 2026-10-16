@@ -243,9 +243,16 @@ def _object_changes(out: Path, A, B, shared: list, res: dict, cfg: ch.Config, la
     dets = [objects3d.Det2D(int(f), np.array(box, float), label, float(score)) for f, box, label, score in d["dets"]]
     S, spans = objects3d.combine({"A": A, "B": B})
     kept = [b for b in shared if b.verified is not False]
-    found = objects3d.object_changes(S, spans, kept, dets, d["frames"], log=log)
-    checked = naming.confirm_changes(out, S, spans, found, log=log) if labels in ("auto", "claude") else None
-    n = ch.add_object_changes(res, found if checked is None else checked, A, B, cfg, log=log)
+    use_claude = labels in ("auto", "claude")
+
+    def confirmed(cands):
+        checked = naming.confirm_changes(out, S, spans, cands, log=log) if use_claude else None
+        return cands if checked is None else checked
+
+    found = confirmed(objects3d.object_changes(S, spans, kept, dets, d["frames"], log=log))
+    # an object that left with no other end confirmed: look for where it went by its own colour
+    found += confirmed(objects3d.colour_ends(S, spans, dets, d["frames"], found, log=log))
+    n = ch.add_object_changes(res, found, A, B, cfg, log=log)
     n += ch.in_place_moves(res, lambda vox: objects3d.still_there(S, spans, kept, dets, d["frames"], vox), A, B, log=log)
     return n
 

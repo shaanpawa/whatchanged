@@ -1395,7 +1395,7 @@
     ]
    },
    "state": "moved",
-   "change": "c02",
+   "change": "c01",
    "positions": {
     "A": {
      "centre_m": [
@@ -1496,7 +1496,7 @@
     ]
    },
    "state": "moved",
-   "change": "c03",
+   "change": "c02",
    "positions": {
     "A": {
      "centre_m": [
@@ -1742,6 +1742,9 @@
    "model": "claude-opus-5-5",
    "crop": "object_crops/shared_29.jpg",
    "note": "Orange cylindrical portable speaker (JBL-style) standing upright on desk corner; box hugs it well.",
+   "merged_from": [
+    "o53"
+   ],
    "seen_by": {
     "A": [
      3,
@@ -1755,8 +1758,36 @@
      27
     ]
    },
-   "state": "A",
-   "change": "c01",
+   "state": "moved",
+   "change": "c03",
+   "positions": {
+    "A": {
+     "centre_m": [
+      1.142,
+      1.413,
+      0.869
+     ],
+     "size_m": [
+      0.089,
+      0.065,
+      0.168
+     ],
+     "yaw_deg": -40.0
+    },
+    "B": {
+     "centre_m": [
+      0.609,
+      0.63,
+      0.483
+     ],
+     "size_m": [
+      0.356,
+      0.175,
+      0.172
+     ],
+     "yaw_deg": -24.0
+    }
+   },
    "grown": {
     "mode": "grow",
     "from_centre_m": [
@@ -2921,70 +2952,6 @@
    "state": "both"
   },
   {
-   "id": "o53",
-   "label": "wooden chair",
-   "score": 0.292,
-   "centre_m": [
-    0.609,
-    0.63,
-    0.483
-   ],
-   "size_m": [
-    0.356,
-    0.175,
-    0.172
-   ],
-   "yaw_deg": -24.0,
-   "frames": [
-    18,
-    44
-   ],
-   "owl_label": "chair",
-   "label_source": "claude",
-   "verified": true,
-   "colour": "brown",
-   "fit": "too_small",
-   "model": "claude-opus-5-5",
-   "crop": "object_crops/shared_65.jpg",
-   "note": "only part of the wooden chair was boxed: Box covers part of a wooden chair seat/stool top with a red speaker and black bag on it; mixed contents, not one object",
-   "seen_by": {
-    "A": [
-     18
-    ],
-    "B": [
-     16
-    ]
-   },
-   "state": "both",
-   "grown": {
-    "mode": "grow",
-    "from_centre_m": [
-     0.598,
-     0.605,
-     0.51
-    ],
-    "iou": [
-     0.59,
-     0.86
-    ],
-    "from_size_m": [
-     0.356,
-     0.121,
-     0.12
-    ],
-    "recall": [
-     0.62,
-     0.93
-    ],
-    "precision": [
-     0.92,
-     0.92
-    ],
-    "views": 2,
-    "walls": 1
-   }
-  },
-  {
    "id": "o56",
    "label": "wall socket",
    "score": 0.52,
@@ -3054,7 +3021,7 @@
   {
    "subject": "o00",
    "predicate": "near",
-   "object": "o43"
+   "object": "o41"
   },
   {
    "subject": "o01",
@@ -3144,7 +3111,7 @@
   {
    "subject": "o11",
    "predicate": "near",
-   "object": "o43"
+   "object": "o41"
   },
   {
    "subject": "o12",
@@ -3259,7 +3226,7 @@
   {
    "subject": "o30",
    "predicate": "on",
-   "object": "o43"
+   "object": "o11"
   },
   {
    "subject": "o32",
@@ -3390,16 +3357,6 @@
    "subject": "o50",
    "predicate": "on",
    "object": "floor"
-  },
-  {
-   "subject": "o53",
-   "predicate": "on",
-   "object": "o11"
-  },
-  {
-   "subject": "o53",
-   "predicate": "near",
-   "object": "o00"
   },
   {
    "subject": "o56",

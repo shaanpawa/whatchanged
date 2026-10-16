@@ -124,11 +124,24 @@ removal or addition that lies inside an object both videos still detect steadily
 part of it (at least a quarter of its longest side), is now reported as that object turned or shifted in
 place. Supports (desks, beds, tables, shelves) never count, so a mug gone from a desk stays a removal.
 
-Both rules were written after earlier passes over the real pair, so it is not a held-out result for them;
-the unit tests and the trial are. They are only as good as the detector: the speaker's new place behind the
-TV never got a box of its own (its sightings merged with the black box beside it), so it was reported gone
-from the desk, not moved. The same flakiness also shows in a fresh build: in 2 of 3 COLMAP builds of this
-pair the after video's focal length came out 3 to 10% off, and the result got worse. The warning catches it.
+**Following an object by its own colour.** The speaker's new place behind the TV never got a box of its own:
+it is 10 cm across, mostly hidden, and its sightings merged with a black box beside it that is there in both
+videos (Claude rightly said that box was there before). So an object that left, with no other end
+confirmed, is looked for by its colour. The colour is learnt, not given: the strong pixels in the middle of
+its box in the frames that detected it, kept only when most of them share one hue (a grey or black object
+has none, and is skipped). In the other video, each detection of its kind is cut down to pixels of that hue,
+so the black box beside it no longer drags the place off, and put in 3D from their depth. At least 2 frames
+must agree within 25 cm, and the first video, where it looked at that place, must have seen that colour at
+that depth in at most 20% of its looks. Then Claude confirms, as for any detector change. For the speaker:
+5 after frames agree on one spot on the TV bench, 1.0 m from the desk; the before video saw no such colour
+there in 8 of 8 looks; Claude confirmed. That made it 5 of 5.
+
+These rules were written after earlier passes over the real pair, so it is not a held-out result for them;
+the unit tests (including a blue object followed by its colour, and a grey one that is skipped) and the
+trial are. They are only as good as the detector and the colour: a grey or black object that ends up hidden
+stays "no longer at its old spot". The camera flakiness also shows in a fresh build: in 2 of 3 COLMAP builds
+of this pair the after video's focal length came out 3 to 10% off, and the result got worse. The warning
+catches it.
 
 ## 6. One object set for both videos
 
@@ -256,7 +269,7 @@ video stream only, so the Apple location, make, model and date tags never reach 
 | Static surfaces, A against B | 0.8 cm median | 2.1 cm median |
 | Noise floor by distance band | 1.0 to 5.3% | 1.9 to 3.8% |
 | Changes reported (plain point difference) | 0 (40) | 5, no false alarms (50) |
-| Of the five real changes | | 4 found as moves (one a turn in place), 1 found at its old spot |
+| Of the five real changes | | all 5 found: 4 moves and 1 turn in place |
 | Objects kept after Claude's check | 44 | 50 |
 | Claude cost | 85 calls, about $1.11 | about 100 calls, about $1.20 per full run |
-| Unit tests | 93, about 15 s, on every push in CI, no models, no keys | |
+| Unit tests | 94, about 15 s, on every push in CI, no models, no keys | |

@@ -106,5 +106,14 @@
   "same_object": true,
   "visible": true,
   "labeller": "claude"
+ },
+ "f082ca95eac90c65fc867fa40608a84e967ebc3b": {
+  "label": "speaker",
+  "colour": "red",
+  "on_before": "table",
+  "on_after": "table",
+  "same_object": true,
+  "visible": true,
+  "labeller": "claude"
  }
 }

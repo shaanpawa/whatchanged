@@ -15,10 +15,10 @@ real room, and says it in plain words. What it could not see, it reports as "can
 **[Scorecard](examples/bedroom/scorecard.md)** ·
 **[Design note](docs/DESIGN.md)**
 
-**In my bedroom:** I moved five things between two phone videos. whatchanged found four of the moves and
-the old spot of the fifth, named all five correctly, and raised no false alarms
-([scorecard](examples/bedroom/scorecard.md)). A plain point-by-point comparison of the same videos reports 50
-changes.
+**In my bedroom:** I moved five things between two phone videos. whatchanged found all five (four moves,
+including a speaker hidden behind the TV, and one chair turned in place), named them correctly, and raised
+no false alarms ([scorecard](examples/bedroom/scorecard.md)). A plain point-by-point comparison of the same
+videos reports 50 changes.
 
 ## The ideas
 
@@ -26,6 +26,10 @@ changes.
   saw through where something used to be. The *object detector* asks whether an object one video finds
   steadily is missing where the other video looked straight at it. Each catches what the other misses: the
   vote caught the office chair turned around, the detector caught a 10 cm speaker.
+- **Following an object by its own colour.** When something has left its place and nothing turned up at the
+  other end, it learns that object's colour from the video that saw it, and looks for it among the other
+  video's detections, at the right depth. That is how it found the red speaker half-hidden behind the TV.
+  It is not told any colour, and it skips objects without one strong colour.
 - **"Can't tell" is an answer.** Space the other video never saw, or saw only through something in the way,
   is reported as not checked, kept apart from "unchanged". A robot should not mark it free.
 - **Models describe, geometry measures, and each checks the other.** Claude Opus 5.5 names objects and can
@@ -53,21 +57,23 @@ filming, checked against the frames.
 | 2 | Office chair: turned around where it stood | moved ✓ | *The black office chair next to the desk was turned or shifted in place: it is still there in both videos, but part of the space it filled has changed.* |
 | 3 | Wooden chair: along the window wall | moved ✓ | *The brown wooden chair moved about 1.8 m from beside the window blind to beside the radiator.* |
 | 4 | Air purifier: floor to bedside table | moved ✓ | *The white air purifier moved about 0.2 m from the floor to the bedside table, 0.6 m up.* |
-| 5 | Red speaker: desk to behind the TV | old spot only | *The red speaker is no longer on the desk next to the remote control; video B looked at that spot from 7 viewpoints and did not find it.* |
+| 5 | Red speaker: desk to behind the TV | moved ✓ | *The red speaker moved about 1.0 m from the desk to the tv bench, 0.3 m down.* |
 
-- **What it missed:** where the speaker went. Behind the TV it is 10 cm across, mostly hidden, and right next
-  to a black box that is there in both videos; the detector's sightings of it merged into that box, and
-  Claude correctly said that box was there before too. So it reported only what it could prove.
+- **The hardest one:** behind the TV the speaker is 10 cm across, mostly hidden, and right next to a black
+  box that is there in both videos, so the detector's sightings of it merged into that box, and Claude
+  rightly said that box was there before. The colour search then found the speaker's red in 5 frames of the
+  after video at one spot, 1.0 m from the desk, where the before video saw no such colour in 8 of 8 looks;
+  Claude confirmed it.
 - **Which witness:** the depth vote found the office chair; the object detector found the other four.
-  Claude confirmed 7 of the detector's 11 candidates and turned down 4 (a window blind, books, a desk mat
+  Claude confirmed 8 of the detector's 12 candidates and turned down 4 (a window blind, books, a desk mat
   and the black box behind the TV).
 - **Geometry:** 307 of 309 frames posed in one COLMAP model. Depth fits COLMAP's points to 2.1% (A) and 2.0%
   (B), static surfaces agree to 2.1 cm (median), cameras sit at 1.48 m, and the smallest depth change it
   trusts is about 11 to 13 cm at 1.5 to 2.2 m from the camera.
 - **Not done for this pair:** no untouched repeat (A2), so the vote ran on default thresholds rather than
   calibrated ones; no floor marker or tape, so the scale is MapAnything's metric depth and move distances are
-  not checked against a tape. The object-level test and the turn-in-place rule were added after earlier
-  passes over this pair, so it is not a held-out test for them ([design note, section 5](docs/DESIGN.md#5-a-second-witness-the-object-detector)).
+  not checked against a tape. The object-level test, the turn-in-place rule and the colour search were added
+  after earlier passes over this pair, so it is not a held-out test for them ([design note, section 5](docs/DESIGN.md#5-a-second-witness-the-object-detector)).
 
 On a trial video of the same room (one walk split into two overlapping clips, nothing changed): **0 changes**,
 where the plain point difference reports 40.
@@ -182,7 +188,9 @@ flowchart TB
 5. **Second witness.** For each box, how often does each video's detector find it in the frames that should
    show it? Found steadily in one video and in at most 20% of at least 3 frames of the other: gone there,
    if Claude, shown both views, agrees. A removal and an addition of the same thing are one move. A change
-   inside an object both videos still see where it is (the chair turned around) is a turn in place.
+   inside an object both videos still see where it is (the chair turned around) is a turn in place. An
+   object that left with no other end found is looked for by its own colour (learnt from the video that saw
+   it) among the other video's detections of its kind, at the right depth, for Claude to confirm.
 6. **Words.** Claude names each change from its before and after crops, told the name of the box it sits
    in so the two agree. The sentence is a template filled with the measurements.
 7. **Map and next view.** The updated occupancy map changes only cells video B looked at. For each region it
@@ -229,8 +237,9 @@ key, everything runs locally.
   -m pytest -q`; CI runs them on every push). A synthetic room rendered by ray casting checks the brief's traps: a viewpoint change alone reports nothing, a removed box is *removed*, a
   box hidden behind a new obstacle is **not** called removed, a moved and turned box is *moved* with its
   distance and turn.
-  Also: COLMAP guards, the shared object set, the detector witness, the turn-in-place rule and Claude's
-  check (with a fake client), the scorecard, the one-command pipeline and the video's pose interpolation.
+  Also: COLMAP guards, the shared object set, the detector witness, the turn-in-place rule, the colour search
+  and Claude's check (with a fake client), the scorecard, the one-command pipeline and the video's pose
+  interpolation.
 - **Untouched repeat.** The protocol films a second pass with nothing moved (A2), which must report nothing;
   thresholds are calibrated on it and frozen to `config.frozen.json` before A vs B is run. The trial's
   untouched pair reported 0. The real pair was filmed without one and ran on the default thresholds.
@@ -250,8 +259,9 @@ key, everything runs locally.
 - **Small things need the detector.** On the real pair the smallest depth change it trusts is about 11 to
   13 cm at 1.5 to 2.2 m from the camera and 26 to 40 cm beyond 2.5 m; every run writes its own figure to
   `changes.json`. Smaller things are found only if the detector boxes them (the 10 cm speaker was).
-- **A move needs a box at both ends.** The speaker's new place behind the TV never got a box of its own,
-  so it was reported gone from the desk, not moved.
+- **A move needs both ends.** The far end comes from the detector or, for an object with one strong colour,
+  from that colour. A grey or black object that ends up hidden behind something is reported as no longer at
+  its old spot, not as moved.
 - **COLMAP's calibration is not always right.** In 2 of 3 builds of this pair, the after video's focal
   length came out 3 to 10% off; its depth then fitted its own points to 13 to 19% instead of 2%, and the
   result got worse (a false change, a wrong move). Every run warns when this happens; rebuild the room folder

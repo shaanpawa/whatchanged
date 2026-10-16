@@ -2,48 +2,6 @@
  "changes": [
   {
    "id": "c01",
-   "type": "removed",
-   "centre_m": [
-    1.142,
-    1.413,
-    0.869
-   ],
-   "size_m": [
-    0.119,
-    0.095,
-    0.198
-   ],
-   "yaw_deg": 140.0,
-   "bottom_m": 0.785,
-   "top_m": 0.953,
-   "label": "speaker",
-   "colour": "red",
-   "on_before": "desk",
-   "on_after": "",
-   "near_before": "remote control",
-   "near_after": "",
-   "evidence": {
-    "free_views": 7,
-    "free_share": 1.0,
-    "noise_margin": 0.0,
-    "by": "objects"
-   },
-   "frames": {
-    "A": "examples/bedroom/frames/A_001.jpg",
-    "B": "examples/bedroom/frames/B_003.jpg"
-   },
-   "times": {
-    "A": 3.0,
-    "B": 10.833
-   },
-   "crops": {
-    "before": "examples/bedroom/crops/c01_before.jpg",
-    "after": "examples/bedroom/crops/c01_after.jpg"
-   },
-   "sentence": "The red speaker is no longer on the desk next to the remote control; video B looked at that spot from 7 viewpoints and did not find it."
-  },
-  {
-   "id": "c02",
    "type": "moved",
    "centre_m": [
     -0.309,
@@ -118,13 +76,13 @@
     "B": 61.3
    },
    "crops": {
-    "before": "examples/bedroom/crops/c02_before.jpg",
-    "after": "examples/bedroom/crops/c02_after.jpg"
+    "before": "examples/bedroom/crops/c01_before.jpg",
+    "after": "examples/bedroom/crops/c01_after.jpg"
    },
    "sentence": "The black trash can moved about 0.9 m from beside the wall socket to beside the office chair."
   },
   {
-   "id": "c03",
+   "id": "c02",
    "type": "moved",
    "centre_m": [
     -0.342,
@@ -199,10 +157,91 @@
     "B": 6.6
    },
    "crops": {
+    "before": "examples/bedroom/crops/c02_before.jpg",
+    "after": "examples/bedroom/crops/c02_after.jpg"
+   },
+   "sentence": "The white air purifier moved about 0.2 m from the floor to the bedside table, 0.6 m up."
+  },
+  {
+   "id": "c03",
+   "type": "moved",
+   "centre_m": [
+    0.509,
+    0.63,
+    0.568
+   ],
+   "size_m": [
+    0.119,
+    0.095,
+    0.198
+   ],
+   "yaw_deg": 140.0,
+   "bottom_m": 0.484,
+   "top_m": 0.652,
+   "label": "speaker",
+   "colour": "red",
+   "on_before": "desk",
+   "on_after": "tv bench",
+   "near_before": "remote control",
+   "near_after": "tv",
+   "before": {
+    "centre_m": [
+     1.142,
+     1.413,
+     0.869
+    ],
+    "size_m": [
+     0.119,
+     0.095,
+     0.198
+    ],
+    "yaw_deg": 140.0,
+    "bottom_m": 0.785,
+    "top_m": 0.953
+   },
+   "after": {
+    "centre_m": [
+     0.509,
+     0.63,
+     0.568
+    ],
+    "size_m": [
+     0.119,
+     0.095,
+     0.198
+    ],
+    "yaw_deg": 140.0,
+    "bottom_m": 0.484,
+    "top_m": 0.652
+   },
+   "move": {
+    "distance_m": 1.01,
+    "height_change_m": -0.3,
+    "turn_deg": null,
+    "shape_fit": null,
+    "shape_rmse_m": null,
+    "match_cost": 0.05,
+    "in_place": false
+   },
+   "evidence": {
+    "free_views": 7,
+    "free_share": 1.0,
+    "noise_margin": 0.0,
+    "by": "objects"
+   },
+   "frames": {
+    "A": "examples/bedroom/frames/A_001.jpg",
+    "B": "examples/bedroom/frames/B_017.jpg"
+   },
+   "times": {
+    "A": 3.0,
+    "B": 52.867
+   },
+   "crops": {
     "before": "examples/bedroom/crops/c03_before.jpg",
     "after": "examples/bedroom/crops/c03_after.jpg"
    },
-   "sentence": "The white air purifier moved about 0.2 m from the floor to the bedside table, 0.6 m up."
+   "sentence": "The red speaker moved about 1.0 m from the desk to the tv bench, 0.3 m down."
   },
   {
    "id": "c04",
@@ -1564,13 +1603,13 @@
   },
   "claude_this_run": {
    "model": "claude-opus-5-5",
-   "calls": 0,
+   "calls": 2,
    "cached": 11,
    "refused": 0,
    "failed": 0,
-   "input_tokens": 0,
-   "output_tokens": 0,
-   "cost_usd_est": 0.0
+   "input_tokens": 2891,
+   "output_tokens": 143,
+   "cost_usd_est": 0.014
   }
  }
 }

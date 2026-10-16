@@ -952,5 +952,10 @@
   "object": true,
   "there": "absent",
   "name": "wooden chair"
+ },
+ "62abdf9825a83957b501bd614055139ecbcb9650": {
+  "object": true,
+  "there": "absent",
+  "name": "bluetooth speaker"
  }
 }

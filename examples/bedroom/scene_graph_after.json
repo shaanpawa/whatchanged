@@ -1395,7 +1395,7 @@
     ]
    },
    "state": "moved",
-   "change": "c02",
+   "change": "c01",
    "positions": {
     "A": {
      "centre_m": [
@@ -1496,7 +1496,7 @@
     ]
    },
    "state": "moved",
-   "change": "c03",
+   "change": "c02",
    "positions": {
     "A": {
      "centre_m": [
@@ -1707,6 +1707,114 @@
     ]
    },
    "state": "both"
+  },
+  {
+   "id": "o28",
+   "label": "speaker",
+   "score": 0.464,
+   "centre_m": [
+    0.609,
+    0.63,
+    0.483
+   ],
+   "size_m": [
+    0.356,
+    0.175,
+    0.172
+   ],
+   "yaw_deg": -24.0,
+   "frames": [
+    3,
+    4,
+    8,
+    13,
+    17,
+    18,
+    23,
+    24,
+    27
+   ],
+   "owl_label": "speaker",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "orange",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_29.jpg",
+   "note": "Orange cylindrical portable speaker (JBL-style) standing upright on desk corner; box hugs it well.",
+   "merged_from": [
+    "o53"
+   ],
+   "seen_by": {
+    "A": [
+     3,
+     4,
+     8,
+     13,
+     17,
+     18,
+     23,
+     24,
+     27
+    ]
+   },
+   "state": "moved",
+   "change": "c03",
+   "positions": {
+    "A": {
+     "centre_m": [
+      1.142,
+      1.413,
+      0.869
+     ],
+     "size_m": [
+      0.089,
+      0.065,
+      0.168
+     ],
+     "yaw_deg": -40.0
+    },
+    "B": {
+     "centre_m": [
+      0.609,
+      0.63,
+      0.483
+     ],
+     "size_m": [
+      0.356,
+      0.175,
+      0.172
+     ],
+     "yaw_deg": -24.0
+    }
+   },
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     1.133,
+     1.415,
+     0.882
+    ],
+    "iou": [
+     0.59,
+     0.74
+    ],
+    "from_size_m": [
+     0.072,
+     0.058,
+     0.142
+    ],
+    "recall": [
+     0.7,
+     0.96
+    ],
+    "precision": [
+     0.76,
+     0.74
+    ],
+    "views": 9,
+    "walls": 5
+   }
   },
   {
    "id": "o29",
@@ -2844,70 +2952,6 @@
    "state": "both"
   },
   {
-   "id": "o53",
-   "label": "wooden chair",
-   "score": 0.292,
-   "centre_m": [
-    0.609,
-    0.63,
-    0.483
-   ],
-   "size_m": [
-    0.356,
-    0.175,
-    0.172
-   ],
-   "yaw_deg": -24.0,
-   "frames": [
-    18,
-    44
-   ],
-   "owl_label": "chair",
-   "label_source": "claude",
-   "verified": true,
-   "colour": "brown",
-   "fit": "too_small",
-   "model": "claude-opus-5-5",
-   "crop": "object_crops/shared_65.jpg",
-   "note": "only part of the wooden chair was boxed: Box covers part of a wooden chair seat/stool top with a red speaker and black bag on it; mixed contents, not one object",
-   "seen_by": {
-    "A": [
-     18
-    ],
-    "B": [
-     16
-    ]
-   },
-   "state": "both",
-   "grown": {
-    "mode": "grow",
-    "from_centre_m": [
-     0.598,
-     0.605,
-     0.51
-    ],
-    "iou": [
-     0.59,
-     0.86
-    ],
-    "from_size_m": [
-     0.356,
-     0.121,
-     0.12
-    ],
-    "recall": [
-     0.62,
-     0.93
-    ],
-    "precision": [
-     0.92,
-     0.92
-    ],
-    "views": 2,
-    "walls": 1
-   }
-  },
-  {
    "id": "o56",
    "label": "wall socket",
    "score": 0.52,
@@ -2977,7 +3021,7 @@
   {
    "subject": "o00",
    "predicate": "near",
-   "object": "o43"
+   "object": "o28"
   },
   {
    "subject": "o01",
@@ -3067,7 +3111,7 @@
   {
    "subject": "o11",
    "predicate": "near",
-   "object": "o43"
+   "object": "o28"
   },
   {
    "subject": "o12",
@@ -3165,6 +3209,16 @@
    "object": "o24"
   },
   {
+   "subject": "o28",
+   "predicate": "on",
+   "object": "o11"
+  },
+  {
+   "subject": "o28",
+   "predicate": "near",
+   "object": "o00"
+  },
+  {
    "subject": "o29",
    "predicate": "on",
    "object": "o08"
@@ -3177,7 +3231,7 @@
   {
    "subject": "o30",
    "predicate": "on",
-   "object": "o43"
+   "object": "o28"
   },
   {
    "subject": "o32",
@@ -3313,16 +3367,6 @@
    "subject": "o50",
    "predicate": "on",
    "object": "floor"
-  },
-  {
-   "subject": "o53",
-   "predicate": "on",
-   "object": "o11"
-  },
-  {
-   "subject": "o53",
-   "predicate": "near",
-   "object": "o00"
   },
   {
    "subject": "o56",

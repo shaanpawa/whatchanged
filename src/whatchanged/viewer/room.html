@@ -882,7 +882,11 @@ function listObjects() {
 
 // ---------------------------------------------------------------- text
 const moveText = (d) => (d >= 1 ? `${d.toFixed(1)} m` : `${Math.round(d * 100)} cm`);
-const part = (c) => (c.type === "moved" ? `${c.label} moved ${moveText(V3(c.before.centre).distanceTo(V3(c.after.centre)))}` : `${c.label} ${c.type}`);
+const part = (c) => {
+  if (c.type !== "moved") return `${c.label} ${c.type}`;
+  const d = V3(c.before.centre).distanceTo(V3(c.after.centre));
+  return d < 0.05 ? `${c.label} turned in place` : `${c.label} moved ${moveText(d)}`;   // same spot: turned or shifted where it stands
+};
 const counts = names.map((n) => objectsOf[n].length);
 const nObjects = counts.every((k) => k === counts[0]) ? `${counts[0]} objects`
   : names.map((n, i) => `${counts[i]} objects ${(LABEL[n] ?? n).toLowerCase()}`).join(", ");

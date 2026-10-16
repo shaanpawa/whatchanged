@@ -79,5 +79,32 @@
   "same_object": null,
   "visible": true,
   "labeller": "claude"
+ },
+ "a14e4ccb5abb6ab4f0de6313a954adc16828e122": {
+  "label": "trash can",
+  "colour": "black",
+  "on_before": "floor",
+  "on_after": "floor",
+  "same_object": true,
+  "visible": true,
+  "labeller": "claude"
+ },
+ "538d64cd6e4928a63b3201f389f1a7a77e08cdc1": {
+  "label": "wooden chair",
+  "colour": "brown",
+  "on_before": "floor",
+  "on_after": "floor",
+  "same_object": true,
+  "visible": true,
+  "labeller": "claude"
+ },
+ "f7ca94ad6ca1c781e07550ddd42f9650bdb1c16c": {
+  "label": "office chair",
+  "colour": "black",
+  "on_before": "desk",
+  "on_after": "floor",
+  "same_object": true,
+  "visible": true,
+  "labeller": "claude"
  }
 }

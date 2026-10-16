@@ -17,7 +17,7 @@
   "predicted_visible": 0.43,
   "naive_visible": 0.12,
   "distance_m": 1.79,
-  "preview": "out/real/lookahead/view1.jpg"
+  "preview": "examples/bedroom/lookahead/view1.jpg"
  },
  {
   "id": "v2",
@@ -37,7 +37,7 @@
   "predicted_visible": 0.79,
   "naive_visible": 0.01,
   "distance_m": 2.85,
-  "preview": "out/real/lookahead/view2.jpg"
+  "preview": "examples/bedroom/lookahead/view2.jpg"
  },
  {
   "id": "v3",
@@ -57,7 +57,7 @@
   "predicted_visible": 0.09,
   "naive_visible": 0.0,
   "distance_m": 1.83,
-  "preview": "out/real/lookahead/view3.jpg"
+  "preview": "examples/bedroom/lookahead/view3.jpg"
  },
  {
   "id": "v4",
@@ -77,6 +77,6 @@
   "predicted_visible": 0.97,
   "naive_visible": 0.86,
   "distance_m": 1.28,
-  "preview": "out/real/lookahead/view4.jpg"
+  "preview": "examples/bedroom/lookahead/view4.jpg"
  }
 ]

@@ -756,7 +756,36 @@
      26
     ]
    },
-   "state": "both"
+   "state": "moved",
+   "change": "c05",
+   "positions": {
+    "A": {
+     "centre_m": [
+      0.359,
+      1.754,
+      0.57
+     ],
+     "size_m": [
+      1.026,
+      0.797,
+      1.141
+     ],
+     "yaw_deg": -20.0
+    },
+    "B": {
+     "centre_m": [
+      0.359,
+      1.754,
+      0.57
+     ],
+     "size_m": [
+      1.026,
+      0.797,
+      1.141
+     ],
+     "yaw_deg": -20.0
+    }
+   }
   },
   {
    "id": "o11",
@@ -1163,7 +1192,7 @@
     ]
    },
    "state": "merged",
-   "change": "c03"
+   "change": "c02"
   },
   {
    "id": "o17",
@@ -1300,7 +1329,8 @@
      27
     ]
    },
-   "state": "both"
+   "state": "merged",
+   "change": "c04"
   },
   {
    "id": "o19",
@@ -1461,7 +1491,7 @@
     ]
    },
    "state": "moved",
-   "change": "c03",
+   "change": "c02",
    "positions": {
     "A": {
      "centre_m": [
@@ -1562,7 +1592,7 @@
     ]
    },
    "state": "moved",
-   "change": "c04",
+   "change": "c03",
    "positions": {
     "A": {
      "centre_m": [
@@ -1911,7 +1941,7 @@
     ]
    },
    "state": "A",
-   "change": "c02",
+   "change": "c01",
    "grown": {
     "mode": "grow",
     "from_centre_m": [
@@ -2104,7 +2134,7 @@
     ]
    },
    "state": "merged",
-   "change": "c04"
+   "change": "c03"
   },
   {
    "id": "o32",
@@ -2725,6 +2755,9 @@
    "model": "claude-opus-5-5",
    "crop": "object_crops/shared_51.jpg",
    "note": "Wooden chair with dark seat; box extends far sideways into empty space and misses the lower legs.",
+   "merged_from": [
+    "o18"
+   ],
    "seen_by": {
     "A": [
      1,
@@ -2735,7 +2768,36 @@
      22
     ]
    },
-   "state": "both"
+   "state": "moved",
+   "change": "c04",
+   "positions": {
+    "A": {
+     "centre_m": [
+      1.004,
+      -1.754,
+      0.511
+     ],
+     "size_m": [
+      1.07,
+      0.486,
+      0.555
+     ],
+     "yaw_deg": 52.0
+    },
+    "B": {
+     "centre_m": [
+      2.108,
+      -0.357,
+      0.385
+     ],
+     "size_m": [
+      0.751,
+      0.507,
+      0.77
+     ],
+     "yaw_deg": -12.0
+    }
+   }
   },
   {
    "id": "o44",
@@ -4213,7 +4275,36 @@
       26
      ]
     },
-    "state": "both"
+    "state": "moved",
+    "change": "c05",
+    "positions": {
+     "A": {
+      "centre_m": [
+       0.359,
+       1.754,
+       0.57
+      ],
+      "size_m": [
+       1.026,
+       0.797,
+       1.141
+      ],
+      "yaw_deg": -20.0
+     },
+     "B": {
+      "centre_m": [
+       0.359,
+       1.754,
+       0.57
+      ],
+      "size_m": [
+       1.026,
+       0.797,
+       1.141
+      ],
+      "yaw_deg": -20.0
+     }
+    }
    },
    {
     "id": "o11",
@@ -4629,47 +4720,6 @@
     }
    },
    {
-    "id": "o18",
-    "label": "wooden chair",
-    "score": 0.569,
-    "centre_m": [
-     2.108,
-     -0.357,
-     0.385
-    ],
-    "size_m": [
-     0.751,
-     0.507,
-     0.77
-    ],
-    "yaw_deg": -12.0,
-    "frames": [
-     1
-    ],
-    "owl_label": "chair",
-    "label_source": "claude",
-    "verified": true,
-    "colour": "brown",
-    "fit": "good",
-    "model": "claude-opus-5-5",
-    "crop": "object_crops/shared_18.jpg",
-    "note": "Box encloses a single wooden chair with dark green seat; fits reasonably closely.",
-    "seen_by": {
-     "A": [
-      1
-     ],
-     "B": [
-      2,
-      9,
-      10,
-      19,
-      26,
-      27
-     ]
-    },
-    "state": "both"
-   },
-   {
     "id": "o19",
     "label": "book",
     "score": 0.552,
@@ -4818,7 +4868,7 @@
      ]
     },
     "state": "moved",
-    "change": "c03",
+    "change": "c02",
     "positions": {
      "A": {
       "centre_m": [
@@ -4918,7 +4968,7 @@
      ]
     },
     "state": "moved",
-    "change": "c04",
+    "change": "c03",
     "positions": {
      "A": {
       "centre_m": [
@@ -5166,7 +5216,7 @@
      ]
     },
     "state": "A",
-    "change": "c02",
+    "change": "c01",
     "grown": {
      "mode": "grow",
      "from_centre_m": [
@@ -5843,6 +5893,9 @@
     "model": "claude-opus-5-5",
     "crop": "object_crops/shared_51.jpg",
     "note": "Wooden chair with dark seat; box extends far sideways into empty space and misses the lower legs.",
+    "merged_from": [
+     "o18"
+    ],
     "seen_by": {
      "A": [
       1,
@@ -5853,7 +5906,36 @@
       22
      ]
     },
-    "state": "both"
+    "state": "moved",
+    "change": "c04",
+    "positions": {
+     "A": {
+      "centre_m": [
+       1.004,
+       -1.754,
+       0.511
+      ],
+      "size_m": [
+       1.07,
+       0.486,
+       0.555
+      ],
+      "yaw_deg": 52.0
+     },
+     "B": {
+      "centre_m": [
+       2.108,
+       -0.357,
+       0.385
+      ],
+      "size_m": [
+       0.751,
+       0.507,
+       0.77
+      ],
+      "yaw_deg": -12.0
+     }
+    }
    },
    {
     "id": "o44",
@@ -7027,7 +7109,36 @@
       26
      ]
     },
-    "state": "both"
+    "state": "moved",
+    "change": "c05",
+    "positions": {
+     "A": {
+      "centre_m": [
+       0.359,
+       1.754,
+       0.57
+      ],
+      "size_m": [
+       1.026,
+       0.797,
+       1.141
+      ],
+      "yaw_deg": -20.0
+     },
+     "B": {
+      "centre_m": [
+       0.359,
+       1.754,
+       0.57
+      ],
+      "size_m": [
+       1.026,
+       0.797,
+       1.141
+      ],
+      "yaw_deg": -20.0
+     }
+    }
    },
    {
     "id": "o11",
@@ -7440,52 +7551,6 @@
     }
    },
    {
-    "id": "o18",
-    "label": "wooden chair",
-    "score": 0.569,
-    "centre_m": [
-     2.108,
-     -0.357,
-     0.385
-    ],
-    "size_m": [
-     0.751,
-     0.507,
-     0.77
-    ],
-    "yaw_deg": -12.0,
-    "frames": [
-     2,
-     9,
-     10,
-     19,
-     26,
-     27
-    ],
-    "owl_label": "chair",
-    "label_source": "claude",
-    "verified": true,
-    "colour": "brown",
-    "fit": "good",
-    "model": "claude-opus-5-5",
-    "crop": "object_crops/shared_18.jpg",
-    "note": "Box encloses a single wooden chair with dark green seat; fits reasonably closely.",
-    "seen_by": {
-     "A": [
-      1
-     ],
-     "B": [
-      2,
-      9,
-      10,
-      19,
-      26,
-      27
-     ]
-    },
-    "state": "both"
-   },
-   {
     "id": "o19",
     "label": "book",
     "score": 0.552,
@@ -7625,7 +7690,7 @@
      ]
     },
     "state": "moved",
-    "change": "c03",
+    "change": "c02",
     "positions": {
      "A": {
       "centre_m": [
@@ -7722,7 +7787,7 @@
      ]
     },
     "state": "moved",
-    "change": "c04",
+    "change": "c03",
     "positions": {
      "A": {
       "centre_m": [
@@ -8536,16 +8601,16 @@
     "label": "wooden chair",
     "score": 0.516,
     "centre_m": [
-     1.004,
-     -1.754,
-     0.511
+     2.108,
+     -0.357,
+     0.385
     ],
     "size_m": [
-     1.07,
-     0.486,
-     0.555
+     0.751,
+     0.507,
+     0.77
     ],
-    "yaw_deg": 52.0,
+    "yaw_deg": -12.0,
     "frames": [],
     "owl_label": "chair",
     "label_source": "claude",
@@ -8555,6 +8620,9 @@
     "model": "claude-opus-5-5",
     "crop": "object_crops/shared_51.jpg",
     "note": "Wooden chair with dark seat; box extends far sideways into empty space and misses the lower legs.",
+    "merged_from": [
+     "o18"
+    ],
     "seen_by": {
      "A": [
       1,
@@ -8565,7 +8633,36 @@
       22
      ]
     },
-    "state": "both"
+    "state": "moved",
+    "change": "c04",
+    "positions": {
+     "A": {
+      "centre_m": [
+       1.004,
+       -1.754,
+       0.511
+      ],
+      "size_m": [
+       1.07,
+       0.486,
+       0.555
+      ],
+      "yaw_deg": 52.0
+     },
+     "B": {
+      "centre_m": [
+       2.108,
+       -0.357,
+       0.385
+      ],
+      "size_m": [
+       0.751,
+       0.507,
+       0.77
+      ],
+      "yaw_deg": -12.0
+     }
+    }
    },
    {
     "id": "o44",

@@ -15,15 +15,15 @@ Five rules run through it:
 3. **Nothing invented.** No generated pixels or shapes in anything a robot would read.
 4. **Runs on a laptop.** CPU or an Apple GPU, no CUDA needed, and only weights with commercial-use licences.
 5. **Settings are frozen before the real test.** Thresholds come from an untouched repeat, then the before and
-   after pair is run and scored against an answer key. The real pair broke this once, and section 5 says how.
+   after pair is run and scored against an answer key. The real pair broke this, and section 5 says how.
 
 ## 1. One COLMAP model for both videos; MapAnything only for depth
 
 **First version.** MapAnything ran once over keyframes from both videos and returned every camera in one
 metric frame. It worked: 0 false changes on the untouched trial, static surfaces 1.5 cm apart.
 
-**What went wrong.** On this footage MapAnything guesses the field of view about 2.3 times too wide (focal
-208 px against COLMAP's 471 px at 518 px wide). The Apache checkpoint ignores the intrinsics it is given,
+**What went wrong.** On this footage MapAnything guesses a focal length about 2.3 times too short (208 px
+against COLMAP's 471 px at 518 px wide), so its field of view is far too wide. The Apache checkpoint ignores the intrinsics it is given,
 so the guess bends its poses and makes its metric depth about 2 times too short: taken at face value, it
 put the phone 0.72 m above the floor. The photoreal splats need COLMAP poses anyway, and with two separate
 camera frames the object boxes landed 30 to 40 cm off the splats.
@@ -78,8 +78,8 @@ There is no fixed depth tolerance. Most of what both videos saw did not change, 
 It is measured in 6 distance bands, because depth error grows with distance, and the tolerance is 3 times it
 (never under 3 cm). Every room runs with the same settings, and every run writes the smallest change it can
 detect at each distance to `changes.json`. On the trial that was about 9 to 13 cm at 2 to 3 m and 25 to 31 cm
-in the nearest and farthest bands. A mouse moved on a desk is below it, and the answer key lists it as an
-expected miss.
+in the nearest and farthest bands. A mouse moved on a desk is below it; an answer key can mark such a change
+`expected: miss` so it is not counted against recall.
 
 `whatchanged calibrate` then searches the vote settings on the untouched repeat (A vs A2), takes the most
 sensitive setting that reports nothing, and steps one notch stricter. The result goes to
@@ -108,18 +108,27 @@ should show the box (in front of the camera, its outline in the picture, not hid
 how many have a detection of that kind of thing on it. An object found in at least 2 and half of one video's
 frames, and in at most 20% of at least 3 frames of the other, is not there in the other video. Two of the
 same name, one only before and one only after, at least 15 cm apart, are one move. The far end of a move is
-often filmed only once or twice (the floor beside a bedside table), so a box of the same name that only the
-first video ever detected, and that the other never detected where it looked, is taken as that end.
+often filmed only once or twice (the floor beside a bedside table), so a box of the same name at least 15 cm
+away, which the other video detects at least once and more often than this one (in at most 40% of this one's
+views), is taken as that end, for Claude to confirm.
 
 A detector miss looks exactly like a removal, so each candidate goes to Claude with its own video's view and
 the other video's view of the same spot, the same wireframe drawn in both. Is it one real object, and is it
-still there? Only "absent" is kept. On the first pass this turned 18 one-video objects into 7 candidates,
-all confirmed, and found 4 of the 5 things I moved with no false change. Each change's evidence says which
-witness found it (`by: depth` or `by: objects`).
+still there? Only "absent" is kept. On the real pair it proposed 11 candidates; Claude kept 7 (both ends of
+three moves, and the speaker's old place) and turned down 4: a window blind, books, a desk mat and a black
+box behind the TV that was there in both videos. Each change's evidence says which witness found it.
 
-This test was written after the first pass found nothing, so the real pair is not a held-out result for it;
-the unit tests and the trial are. It is only as good as the detector: an object the detector never boxes
-cannot be found this way, and a chair pulled out a few centimetres stays inside its own box.
+**Turned in place.** The office chair was turned around where it stood. The vote saw the space its back had
+filled go empty and called it removed, but the detector still finds the chair in that spot in both videos. A
+removal or addition that lies inside an object both videos still detect steadily where it is, and is a real
+part of it (at least a quarter of its longest side), is now reported as that object turned or shifted in
+place. Supports (desks, beds, tables, shelves) never count, so a mug gone from a desk stays a removal.
+
+Both rules were written after earlier passes over the real pair, so it is not a held-out result for them;
+the unit tests and the trial are. They are only as good as the detector: the speaker's new place behind the
+TV never got a box of its own (its sightings merged with the black box beside it), so it was reported gone
+from the desk, not moved. The same flakiness also shows in a fresh build: in 2 of 3 COLMAP builds of this
+pair the after video's focal length came out 3 to 10% off, and the result got worse. The warning catches it.
 
 ## 6. One object set for both videos
 
@@ -213,6 +222,17 @@ printed scale marker, an untouched repeat (A2) on a different route, and a check
 (`scripts/quickcheck.py`) before anything is moved. `scripts/ingest.py` copies the
 video stream only, so the Apple location, make, model and date tags never reach the repo.
 
+## Next
+
+- **Feed-forward splats for views off the filmed path.** Models such as InfiniSplat v2 and AnySplat turn a
+  few dozen photos into Gaussians in one pass and hold up better between and beyond the filmed views. They
+  need a CUDA GPU, so they would replace the Mac's per-room training on a Linux machine, for viewing only;
+  detection does not use the splats.
+- **One camera calibration for both videos** when they come from the same phone and lens, to stop the
+  flaky focal length above (`WHATCHANGED_ONE_CAMERA=1` switches it on; not yet tested enough to be the default).
+- **An untouched repeat (A2) for every pair,** to calibrate the thresholds before the real run, as the
+  protocol asks.
+
 ## What I tried and dropped
 
 | Tried | What happened | Decision |
@@ -236,7 +256,7 @@ video stream only, so the Apple location, make, model and date tags never reach 
 | Static surfaces, A against B | 0.8 cm median | 2.1 cm median |
 | Noise floor by distance band | 1.0 to 5.3% | 1.9 to 3.8% |
 | Changes reported (plain point difference) | 0 (40) | 5, no false alarms (50) |
-| Of the five real changes | | 3 found as moves, 2 found gone from their old place |
+| Of the five real changes | | 4 found as moves (one a turn in place), 1 found at its old spot |
 | Objects kept after Claude's check | 44 | 50 |
-| Claude cost | 85 calls, about $1.11 | about 120 calls, about $1.45 |
-| Unit tests | 89, about 15 s on every push, no models, no keys | |
+| Claude cost | 85 calls, about $1.11 | about 100 calls, about $1.20 per full run |
+| Unit tests | 93, about 15 s, on every push in CI, no models, no keys | |

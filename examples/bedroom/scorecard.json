@@ -1,18 +1,18 @@
 {
  "recall_95ci": [
-  0.23,
-  0.88
+  0.38,
+  0.96
  ],
  "precision_95ci": [
-  0.23,
-  0.88
+  0.57,
+  1.0
  ],
- "recall": 0.6,
- "precision": 0.6,
- "found": 3,
+ "recall": 0.8,
+ "precision": 1.0,
+ "found": 4,
  "of": 5,
  "type_only": 0,
- "one_end": 2,
+ "one_end": 1,
  "false_alarms": 0,
  "false_alarm_list": [],
  "traps": [],
@@ -22,35 +22,35 @@
    "truth": "moved waste bin",
    "result": "found",
    "detected": "moved trash can",
-   "change": "c03"
+   "change": "c02"
   },
   {
    "id": 2,
    "truth": "moved office chair",
-   "result": "one end of the move",
-   "detected": "removed office chair",
-   "change": "c01"
+   "result": "found",
+   "detected": "moved office chair",
+   "change": "c05"
   },
   {
    "id": 3,
    "truth": "moved wooden chair",
    "result": "found",
    "detected": "moved wooden chair",
-   "change": "c05"
+   "change": "c04"
   },
   {
    "id": 4,
    "truth": "moved air purifier",
    "result": "found",
    "detected": "moved air purifier",
-   "change": "c04"
+   "change": "c03"
   },
   {
    "id": 5,
    "truth": "moved speaker",
    "result": "one end of the move",
    "detected": "removed speaker",
-   "change": "c02"
+   "change": "c01"
   }
  ]
 }

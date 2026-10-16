@@ -1,8 +1,8 @@
-# What I changed between the two videos, from my note when I filmed them (before any run), checked by
-# looking at the before and after frames. Scored with `whatchanged score out/real examples/bedroom/ground_truth.yaml`.
+# What I changed between the two videos, from my note when I filmed them, checked against the before and
+# after frames. Scored with `whatchanged score examples/bedroom examples/bedroom/ground_truth.yaml`.
 changes:
   - {id: 1, type: moved, names: [waste bin, bin, wastebasket, trash can]}        # middle of the floor -> by the desk and door
-  - {id: 2, type: moved, names: [office chair, desk chair]}                      # pulled out from the desk and turned
+  - {id: 2, type: moved, names: [office chair, desk chair]}                      # turned around where it stood
   - {id: 3, type: moved, names: [wooden chair, dining chair, chair]}             # along the window wall, turned
   - {id: 4, type: moved, names: [air purifier, purifier, air filter]}            # floor -> top of the bedside table
-  - {id: 5, type: moved, names: [speaker, bluetooth speaker]}                    # desk -> TV bench
+  - {id: 5, type: moved, names: [speaker, bluetooth speaker]}                    # desk -> behind the TV, on the TV bench

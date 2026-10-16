@@ -45,7 +45,7 @@
   "p90": 0.1446
  },
  "colmap": {
-  "work": "out/pair/work",
+  "work": "examples/bedroom-3d/work",
   "to_levelled": [
    [
     0.02178998,

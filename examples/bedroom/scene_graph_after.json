@@ -756,7 +756,36 @@
      26
     ]
    },
-   "state": "both"
+   "state": "moved",
+   "change": "c05",
+   "positions": {
+    "A": {
+     "centre_m": [
+      0.359,
+      1.754,
+      0.57
+     ],
+     "size_m": [
+      1.026,
+      0.797,
+      1.141
+     ],
+     "yaw_deg": -20.0
+    },
+    "B": {
+     "centre_m": [
+      0.359,
+      1.754,
+      0.57
+     ],
+     "size_m": [
+      1.026,
+      0.797,
+      1.141
+     ],
+     "yaw_deg": -20.0
+    }
+   }
   },
   {
    "id": "o11",
@@ -1208,53 +1237,6 @@
    }
   },
   {
-   "id": "o18",
-   "label": "wooden chair",
-   "score": 0.569,
-   "centre_m": [
-    2.108,
-    -0.357,
-    0.385
-   ],
-   "size_m": [
-    0.751,
-    0.507,
-    0.77
-   ],
-   "yaw_deg": -12.0,
-   "frames": [
-    1,
-    30,
-    37,
-    38,
-    47,
-    54,
-    55
-   ],
-   "owl_label": "chair",
-   "label_source": "claude",
-   "verified": true,
-   "colour": "brown",
-   "fit": "good",
-   "model": "claude-opus-5-5",
-   "crop": "object_crops/shared_18.jpg",
-   "note": "Box encloses a single wooden chair with dark green seat; fits reasonably closely.",
-   "seen_by": {
-    "A": [
-     1
-    ],
-    "B": [
-     2,
-     9,
-     10,
-     19,
-     26,
-     27
-    ]
-   },
-   "state": "both"
-  },
-  {
    "id": "o19",
    "label": "book",
    "score": 0.552,
@@ -1413,7 +1395,7 @@
     ]
    },
    "state": "moved",
-   "change": "c03",
+   "change": "c02",
    "positions": {
     "A": {
      "centre_m": [
@@ -1514,7 +1496,7 @@
     ]
    },
    "state": "moved",
-   "change": "c04",
+   "change": "c03",
    "positions": {
     "A": {
      "centre_m": [
@@ -2386,16 +2368,16 @@
    "label": "wooden chair",
    "score": 0.516,
    "centre_m": [
-    1.004,
-    -1.754,
-    0.511
+    2.108,
+    -0.357,
+    0.385
    ],
    "size_m": [
-    1.07,
-    0.486,
-    0.555
+    0.751,
+    0.507,
+    0.77
    ],
-   "yaw_deg": 52.0,
+   "yaw_deg": -12.0,
    "frames": [
     1,
     2,
@@ -2412,6 +2394,9 @@
    "model": "claude-opus-5-5",
    "crop": "object_crops/shared_51.jpg",
    "note": "Wooden chair with dark seat; box extends far sideways into empty space and misses the lower legs.",
+   "merged_from": [
+    "o18"
+   ],
    "seen_by": {
     "A": [
      1,
@@ -2422,7 +2407,36 @@
      22
     ]
    },
-   "state": "both"
+   "state": "moved",
+   "change": "c04",
+   "positions": {
+    "A": {
+     "centre_m": [
+      1.004,
+      -1.754,
+      0.511
+     ],
+     "size_m": [
+      1.07,
+      0.486,
+      0.555
+     ],
+     "yaw_deg": 52.0
+    },
+    "B": {
+     "centre_m": [
+      2.108,
+      -0.357,
+      0.385
+     ],
+     "size_m": [
+      0.751,
+      0.507,
+      0.77
+     ],
+     "yaw_deg": -12.0
+    }
+   }
   },
   {
    "id": "o44",
@@ -2956,84 +2970,84 @@
  ],
  "relations": [
   {
-   "subject": "o0",
+   "subject": "o00",
    "predicate": "on",
    "object": "o11"
   },
   {
-   "subject": "o0",
+   "subject": "o00",
    "predicate": "near",
-   "object": "o17"
+   "object": "o43"
   },
   {
-   "subject": "o1",
+   "subject": "o01",
    "predicate": "on",
    "object": "floor"
   },
   {
-   "subject": "o1",
-   "predicate": "near",
-   "object": "o30"
-  },
-  {
-   "subject": "o2",
-   "predicate": "on",
-   "object": "floor"
-  },
-  {
-   "subject": "o2",
-   "predicate": "near",
-   "object": "o40"
-  },
-  {
-   "subject": "o3",
-   "predicate": "near",
-   "object": "o8"
-  },
-  {
-   "subject": "o4",
-   "predicate": "near",
-   "object": "o27"
-  },
-  {
-   "subject": "o5",
+   "subject": "o01",
    "predicate": "near",
    "object": "o35"
   },
   {
-   "subject": "o6",
-   "predicate": "on",
-   "object": "o19"
-  },
-  {
-   "subject": "o6",
-   "predicate": "near",
-   "object": "o22"
-  },
-  {
-   "subject": "o7",
-   "predicate": "near",
-   "object": "o35"
-  },
-  {
-   "subject": "o8",
+   "subject": "o02",
    "predicate": "on",
    "object": "floor"
   },
   {
-   "subject": "o8",
+   "subject": "o02",
+   "predicate": "near",
+   "object": "o46"
+  },
+  {
+   "subject": "o03",
+   "predicate": "near",
+   "object": "o08"
+  },
+  {
+   "subject": "o04",
+   "predicate": "near",
+   "object": "o32"
+  },
+  {
+   "subject": "o05",
+   "predicate": "near",
+   "object": "o41"
+  },
+  {
+   "subject": "o06",
+   "predicate": "on",
+   "object": "o20"
+  },
+  {
+   "subject": "o06",
+   "predicate": "near",
+   "object": "o24"
+  },
+  {
+   "subject": "o07",
+   "predicate": "near",
+   "object": "o41"
+  },
+  {
+   "subject": "o08",
+   "predicate": "on",
+   "object": "floor"
+  },
+  {
+   "subject": "o08",
    "predicate": "near",
    "object": "o10"
   },
   {
-   "subject": "o9",
+   "subject": "o09",
    "predicate": "on",
    "object": "floor"
   },
   {
-   "subject": "o9",
+   "subject": "o09",
    "predicate": "near",
-   "object": "o40"
+   "object": "o46"
   },
   {
    "subject": "o10",
@@ -3043,7 +3057,7 @@
   {
    "subject": "o10",
    "predicate": "near",
-   "object": "o8"
+   "object": "o08"
   },
   {
    "subject": "o11",
@@ -3053,7 +3067,7 @@
   {
    "subject": "o11",
    "predicate": "near",
-   "object": "o17"
+   "object": "o43"
   },
   {
    "subject": "o12",
@@ -3063,7 +3077,7 @@
   {
    "subject": "o12",
    "predicate": "near",
-   "object": "o42"
+   "object": "o48"
   },
   {
    "subject": "o13",
@@ -3073,257 +3087,247 @@
   {
    "subject": "o13",
    "predicate": "near",
-   "object": "o22"
+   "object": "o24"
   },
   {
    "subject": "o14",
    "predicate": "near",
-   "object": "o17"
+   "object": "o43"
   },
   {
    "subject": "o15",
    "predicate": "on",
-   "object": "o8"
+   "object": "o08"
   },
   {
    "subject": "o15",
    "predicate": "near",
-   "object": "o19"
-  },
-  {
-   "subject": "o16",
-   "predicate": "on",
-   "object": "o19"
-  },
-  {
-   "subject": "o16",
-   "predicate": "near",
-   "object": "o8"
+   "object": "o20"
   },
   {
    "subject": "o17",
    "predicate": "on",
-   "object": "floor"
+   "object": "o20"
   },
   {
    "subject": "o17",
    "predicate": "near",
-   "object": "o4"
-  },
-  {
-   "subject": "o18",
-   "predicate": "on",
-   "object": "o35"
-  },
-  {
-   "subject": "o18",
-   "predicate": "near",
-   "object": "o5"
+   "object": "o08"
   },
   {
    "subject": "o19",
-   "predicate": "near",
-   "object": "o22"
-  },
-  {
-   "subject": "o20",
-   "predicate": "on",
-   "object": "floor"
-  },
-  {
-   "subject": "o20",
-   "predicate": "near",
-   "object": "o10"
-  },
-  {
-   "subject": "o21",
-   "predicate": "on",
-   "object": "o2"
-  },
-  {
-   "subject": "o21",
-   "predicate": "near",
-   "object": "o22"
-  },
-  {
-   "subject": "o22",
-   "predicate": "near",
-   "object": "o8"
-  },
-  {
-   "subject": "o23",
-   "predicate": "near",
-   "object": "o3"
-  },
-  {
-   "subject": "o24",
-   "predicate": "near",
-   "object": "o22"
-  },
-  {
-   "subject": "o25",
-   "predicate": "on",
-   "object": "o8"
-  },
-  {
-   "subject": "o25",
-   "predicate": "near",
-   "object": "o31"
-  },
-  {
-   "subject": "o26",
-   "predicate": "on",
-   "object": "o17"
-  },
-  {
-   "subject": "o27",
-   "predicate": "on",
-   "object": "floor"
-  },
-  {
-   "subject": "o27",
-   "predicate": "near",
-   "object": "o34"
-  },
-  {
-   "subject": "o28",
-   "predicate": "on",
-   "object": "o2"
-  },
-  {
-   "subject": "o28",
-   "predicate": "near",
-   "object": "o5"
-  },
-  {
-   "subject": "o29",
-   "predicate": "on",
-   "object": "floor"
-  },
-  {
-   "subject": "o30",
    "predicate": "on",
    "object": "o41"
   },
   {
-   "subject": "o30",
+   "subject": "o19",
    "predicate": "near",
-   "object": "o1"
+   "object": "o05"
   },
   {
-   "subject": "o31",
-   "predicate": "on",
-   "object": "o8"
-  },
-  {
-   "subject": "o31",
+   "subject": "o20",
    "predicate": "near",
-   "object": "o25"
+   "object": "o24"
   },
   {
-   "subject": "o32",
+   "subject": "o21",
    "predicate": "on",
-   "object": "o19"
+   "object": "floor"
   },
   {
-   "subject": "o32",
+   "subject": "o21",
    "predicate": "near",
    "object": "o10"
   },
   {
+   "subject": "o22",
+   "predicate": "on",
+   "object": "o02"
+  },
+  {
+   "subject": "o22",
+   "predicate": "near",
+   "object": "o24"
+  },
+  {
+   "subject": "o24",
+   "predicate": "near",
+   "object": "o08"
+  },
+  {
+   "subject": "o25",
+   "predicate": "near",
+   "object": "o03"
+  },
+  {
+   "subject": "o27",
+   "predicate": "near",
+   "object": "o24"
+  },
+  {
+   "subject": "o29",
+   "predicate": "on",
+   "object": "o08"
+  },
+  {
+   "subject": "o29",
+   "predicate": "near",
+   "object": "o36"
+  },
+  {
+   "subject": "o30",
+   "predicate": "on",
+   "object": "o43"
+  },
+  {
+   "subject": "o32",
+   "predicate": "on",
+   "object": "floor"
+  },
+  {
+   "subject": "o32",
+   "predicate": "near",
+   "object": "o40"
+  },
+  {
    "subject": "o33",
    "predicate": "on",
-   "object": "o35"
+   "object": "o02"
   },
   {
    "subject": "o33",
    "predicate": "near",
-   "object": "o5"
+   "object": "o05"
   },
   {
    "subject": "o34",
    "predicate": "on",
-   "object": "o17"
-  },
-  {
-   "subject": "o34",
-   "predicate": "near",
-   "object": "o27"
+   "object": "floor"
   },
   {
    "subject": "o35",
    "predicate": "on",
-   "object": "floor"
+   "object": "o47"
+  },
+  {
+   "subject": "o35",
+   "predicate": "near",
+   "object": "o01"
+  },
+  {
+   "subject": "o36",
+   "predicate": "on",
+   "object": "o08"
   },
   {
    "subject": "o36",
    "predicate": "near",
-   "object": "o5"
+   "object": "o29"
+  },
+  {
+   "subject": "o37",
+   "predicate": "on",
+   "object": "o20"
   },
   {
    "subject": "o37",
    "predicate": "near",
-   "object": "o34"
+   "object": "o10"
   },
   {
-   "subject": "o38",
-   "predicate": "near",
-   "object": "o42"
+   "subject": "o39",
+   "predicate": "on",
+   "object": "o41"
   },
   {
    "subject": "o39",
    "predicate": "near",
-   "object": "o17"
+   "object": "o05"
   },
   {
    "subject": "o40",
    "predicate": "near",
-   "object": "o2"
+   "object": "o32"
   },
   {
    "subject": "o41",
    "predicate": "on",
    "object": "floor"
-  },
-  {
-   "subject": "o41",
-   "predicate": "near",
-   "object": "o1"
   },
   {
    "subject": "o42",
    "predicate": "near",
-   "object": "o9"
+   "object": "o05"
   },
   {
    "subject": "o43",
-   "predicate": "on",
-   "object": "o19"
-  },
-  {
-   "subject": "o43",
-   "predicate": "near",
-   "object": "o8"
-  },
-  {
-   "subject": "o44",
    "predicate": "on",
    "object": "floor"
   },
   {
-   "subject": "o45",
-   "predicate": "on",
-   "object": "o11"
+   "subject": "o43",
+   "predicate": "near",
+   "object": "o04"
+  },
+  {
+   "subject": "o44",
+   "predicate": "near",
+   "object": "o48"
   },
   {
    "subject": "o45",
    "predicate": "near",
-   "object": "o0"
+   "object": "o43"
   },
   {
    "subject": "o46",
    "predicate": "near",
-   "object": "o2"
+   "object": "o02"
+  },
+  {
+   "subject": "o47",
+   "predicate": "on",
+   "object": "floor"
+  },
+  {
+   "subject": "o47",
+   "predicate": "near",
+   "object": "o01"
+  },
+  {
+   "subject": "o48",
+   "predicate": "near",
+   "object": "o09"
+  },
+  {
+   "subject": "o49",
+   "predicate": "on",
+   "object": "o20"
+  },
+  {
+   "subject": "o49",
+   "predicate": "near",
+   "object": "o08"
+  },
+  {
+   "subject": "o50",
+   "predicate": "on",
+   "object": "floor"
+  },
+  {
+   "subject": "o53",
+   "predicate": "on",
+   "object": "o11"
+  },
+  {
+   "subject": "o53",
+   "predicate": "near",
+   "object": "o00"
+  },
+  {
+   "subject": "o56",
+   "predicate": "near",
+   "object": "o02"
   }
  ]
 }

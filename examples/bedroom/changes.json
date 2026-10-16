@@ -4,48 +4,6 @@
    "id": "c01",
    "type": "removed",
    "centre_m": [
-    0.405,
-    1.761,
-    0.993
-   ],
-   "size_m": [
-    0.456,
-    0.128,
-    0.246
-   ],
-   "yaw_deg": 141.9,
-   "bottom_m": 0.885,
-   "top_m": 1.101,
-   "label": "office chair",
-   "colour": "black",
-   "on_before": "floor",
-   "on_after": "",
-   "near_before": "desk",
-   "near_after": "",
-   "evidence": {
-    "free_views": 4,
-    "free_share": 0.98,
-    "noise_margin": 3.2,
-    "by": "depth"
-   },
-   "frames": {
-    "A": "out/real/frames/A_003.jpg",
-    "B": "out/real/frames/B_003.jpg"
-   },
-   "times": {
-    "A": 9.933,
-    "B": 10.833
-   },
-   "crops": {
-    "before": "out/real/crops/c01_before.jpg",
-    "after": "out/real/crops/c01_after.jpg"
-   },
-   "sentence": "The black office chair on the floor next to the desk is gone; video B saw that spot empty from 4 viewpoints."
-  },
-  {
-   "id": "c02",
-   "type": "removed",
-   "centre_m": [
     1.142,
     1.413,
     0.869
@@ -71,21 +29,21 @@
     "by": "objects"
    },
    "frames": {
-    "A": "out/real/frames/A_001.jpg",
-    "B": "out/real/frames/B_003.jpg"
+    "A": "examples/bedroom/frames/A_001.jpg",
+    "B": "examples/bedroom/frames/B_003.jpg"
    },
    "times": {
     "A": 3.0,
     "B": 10.833
    },
    "crops": {
-    "before": "out/real/crops/c02_before.jpg",
-    "after": "out/real/crops/c02_after.jpg"
+    "before": "examples/bedroom/crops/c01_before.jpg",
+    "after": "examples/bedroom/crops/c01_after.jpg"
    },
-   "sentence": "The red speaker on the desk next to the remote control is gone; video B looked at that spot from 7 viewpoints and did not find it."
+   "sentence": "The red speaker is no longer on the desk next to the remote control; video B looked at that spot from 7 viewpoints and did not find it."
   },
   {
-   "id": "c03",
+   "id": "c02",
    "type": "moved",
    "centre_m": [
     -0.309,
@@ -142,7 +100,8 @@
     "turn_deg": null,
     "shape_fit": null,
     "shape_rmse_m": null,
-    "match_cost": 0.26
+    "match_cost": 0.26,
+    "in_place": false
    },
    "evidence": {
     "free_views": 4,
@@ -151,21 +110,21 @@
     "by": "objects"
    },
    "frames": {
-    "A": "out/real/frames/A_017.jpg",
-    "B": "out/real/frames/B_020.jpg"
+    "A": "examples/bedroom/frames/A_017.jpg",
+    "B": "examples/bedroom/frames/B_020.jpg"
    },
    "times": {
     "A": 47.467,
     "B": 61.3
    },
    "crops": {
-    "before": "out/real/crops/c03_before.jpg",
-    "after": "out/real/crops/c03_after.jpg"
+    "before": "examples/bedroom/crops/c02_before.jpg",
+    "after": "examples/bedroom/crops/c02_after.jpg"
    },
    "sentence": "The black trash can moved about 0.9 m from beside the wall socket to beside the office chair."
   },
   {
-   "id": "c04",
+   "id": "c03",
    "type": "moved",
    "centre_m": [
     -0.342,
@@ -222,7 +181,8 @@
     "turn_deg": null,
     "shape_fit": null,
     "shape_rmse_m": null,
-    "match_cost": 0.22
+    "match_cost": 0.22,
+    "in_place": false
    },
    "evidence": {
     "free_views": 4,
@@ -231,21 +191,21 @@
     "by": "objects"
    },
    "frames": {
-    "A": "out/real/frames/A_019.jpg",
-    "B": "out/real/frames/B_002.jpg"
+    "A": "examples/bedroom/frames/A_019.jpg",
+    "B": "examples/bedroom/frames/B_002.jpg"
    },
    "times": {
     "A": 51.433,
     "B": 6.6
    },
    "crops": {
-    "before": "out/real/crops/c04_before.jpg",
-    "after": "out/real/crops/c04_after.jpg"
+    "before": "examples/bedroom/crops/c03_before.jpg",
+    "after": "examples/bedroom/crops/c03_after.jpg"
    },
-   "sentence": "The white air purifier moved about 0.2 m from the floor to the bedside table."
+   "sentence": "The white air purifier moved about 0.2 m from the floor to the bedside table, 0.6 m up."
   },
   {
-   "id": "c05",
+   "id": "c04",
    "type": "moved",
    "centre_m": [
     2.108,
@@ -302,7 +262,8 @@
     "turn_deg": null,
     "shape_fit": null,
     "shape_rmse_m": null,
-    "match_cost": 0.28
+    "match_cost": 0.28,
+    "in_place": false
    },
    "evidence": {
     "free_views": 4,
@@ -311,18 +272,99 @@
     "by": "objects"
    },
    "frames": {
-    "A": "out/real/frames/A_007.jpg",
-    "B": "out/real/frames/B_010.jpg"
+    "A": "examples/bedroom/frames/A_001.jpg",
+    "B": "examples/bedroom/frames/B_010.jpg"
    },
    "times": {
-    "A": 18.733,
+    "A": 3.0,
     "B": 29.633
    },
    "crops": {
-    "before": "out/real/crops/c05_before.jpg",
-    "after": "out/real/crops/c05_after.jpg"
+    "before": "examples/bedroom/crops/c04_before.jpg",
+    "after": "examples/bedroom/crops/c04_after.jpg"
    },
    "sentence": "The brown wooden chair moved about 1.8 m from beside the window blind to beside the radiator."
+  },
+  {
+   "id": "c05",
+   "type": "moved",
+   "centre_m": [
+    0.359,
+    1.754,
+    0.57
+   ],
+   "size_m": [
+    1.056,
+    0.827,
+    1.171
+   ],
+   "yaw_deg": 160.0,
+   "bottom_m": -0.001,
+   "top_m": 1.14,
+   "label": "office chair",
+   "colour": "black",
+   "on_before": "desk",
+   "on_after": "floor",
+   "near_before": "desk",
+   "near_after": "desk",
+   "before": {
+    "centre_m": [
+     0.359,
+     1.754,
+     0.57
+    ],
+    "size_m": [
+     1.056,
+     0.827,
+     1.171
+    ],
+    "yaw_deg": 160.0,
+    "bottom_m": -0.001,
+    "top_m": 1.14
+   },
+   "after": {
+    "centre_m": [
+     0.359,
+     1.754,
+     0.57
+    ],
+    "size_m": [
+     1.056,
+     0.827,
+     1.171
+    ],
+    "yaw_deg": 160.0,
+    "bottom_m": -0.001,
+    "top_m": 1.14
+   },
+   "move": {
+    "distance_m": 0.0,
+    "height_change_m": 0.0,
+    "turn_deg": null,
+    "shape_fit": null,
+    "shape_rmse_m": null,
+    "match_cost": 0.0,
+    "in_place": true
+   },
+   "evidence": {
+    "free_views": 4,
+    "free_share": 0.98,
+    "noise_margin": 3.2,
+    "by": "depth"
+   },
+   "frames": {
+    "A": "examples/bedroom/frames/A_003.jpg",
+    "B": "examples/bedroom/frames/B_016.jpg"
+   },
+   "times": {
+    "A": 9.933,
+    "B": 48.8
+   },
+   "crops": {
+    "before": "examples/bedroom/crops/c05_before.jpg",
+    "after": "examples/bedroom/crops/c05_after.jpg"
+   },
+   "sentence": "The black office chair next to the desk was turned or shifted in place: it is still there in both videos, but part of the space it filled has changed."
   }
  ],
  "cant_tell": [
@@ -471,7 +513,7 @@
    0.06,
    2.2
   ],
-  "newly_blocked_m2": 0.5,
+  "newly_blocked_m2": 1.36,
   "newly_free_m2": 0.12,
   "stale_m2": 1.15,
   "known_before_m2": 16.19,
@@ -503,7 +545,7 @@
    "predicted_visible": 0.43,
    "naive_visible": 0.12,
    "distance_m": 1.79,
-   "preview": "out/real/lookahead/view1.jpg"
+   "preview": "examples/bedroom/lookahead/view1.jpg"
   },
   {
    "id": "v2",
@@ -523,7 +565,7 @@
    "predicted_visible": 0.79,
    "naive_visible": 0.01,
    "distance_m": 2.85,
-   "preview": "out/real/lookahead/view2.jpg"
+   "preview": "examples/bedroom/lookahead/view2.jpg"
   },
   {
    "id": "v3",
@@ -543,7 +585,7 @@
    "predicted_visible": 0.09,
    "naive_visible": 0.0,
    "distance_m": 1.83,
-   "preview": "out/real/lookahead/view3.jpg"
+   "preview": "examples/bedroom/lookahead/view3.jpg"
   },
   {
    "id": "v4",
@@ -563,7 +605,7 @@
    "predicted_visible": 0.97,
    "naive_visible": 0.86,
    "distance_m": 1.28,
-   "preview": "out/real/lookahead/view4.jpg"
+   "preview": "examples/bedroom/lookahead/view4.jpg"
   }
  ],
  "baseline_naive": {
@@ -1219,7 +1261,7 @@
    "p90": 0.1446
   },
   "colmap": {
-   "work": "out/pair/work",
+   "work": "examples/bedroom-3d/work",
    "to_levelled": [
     [
      0.02178998,
@@ -1522,13 +1564,13 @@
   },
   "claude_this_run": {
    "model": "claude-opus-5-5",
-   "calls": 11,
-   "cached": 0,
+   "calls": 0,
+   "cached": 11,
    "refused": 0,
    "failed": 0,
-   "input_tokens": 28268,
-   "output_tokens": 515,
-   "cost_usd_est": 0.123
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd_est": 0.0
   }
  }
 }

@@ -1,6 +1,44 @@
+# Secrets: the Anthropic / Gemini keys live here and never leave the machine.
+.env
+.env.*
+
+# Python
 .venv/
 __pycache__/
 *.pyc
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Runs and raw footage. Phone clips carry location tags; only scripts/ingest.py output goes into data/raw/.
 out/
-.env
 data/raw/
+*.MOV
+*.mov
+/*.mp4
+/*.MP4
+*.HEIC
+*.heic
+
+# Big intermediates from the 3D steps (COLMAP databases, splat training, point clouds).
+# A curated example under examples/ may keep its small cache/*.npz and *.spz on purpose.
+**/work/
+**/colmap/
+*.db
+*.bin
+*.ply
+*.glb
+*.pt
+*.safetensors
+
+# Logs print local folder names (the user's home); CI keeps its own.
+*.log
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+*.swp

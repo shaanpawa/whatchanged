@@ -2131,6 +2131,18 @@ wheels = [
 ]
 
 [[package]]
+name = "msplat"
+version = "1.1.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" } },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/22/00/2b51ba9d4714362120213d7dda8ced59fb38bda1e257880abe81b9ea757e/msplat-1.1.4-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:ab15f991c12df7734956b2580ad2be8870fd47a78692bd5ad4294ca2bc283962", size = 754134, upload-time = "2026-08-25T21:57:00.802Z" },
+    { url = "https://files.pythonhosted.org/packages/4f/31/7083e9f2409d46e5a9ab8778200ce2fac3ec0d672dc9fd23a581a607feed/msplat-1.1.4-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:27dde15d5012838c02693f52eb03734000c6773d980a973830e07f4dfca4f425", size = 754089, upload-time = "2026-08-25T21:57:07.957Z" },
+]
+
+[[package]]
 name = "narwhals"
 version = "2.27.1"
 source = { registry = "https://pypi.org/simple" }
@@ -4626,12 +4638,16 @@ dev = [
 gemini = [
     { name = "google-genai" },
 ]
+room = [
+    { name = "msplat", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'" },
+]
 
 [package.metadata]
 requires-dist = [
     { name = "anthropic", marker = "extra == 'claude'", specifier = ">=1.0" },
     { name = "google-genai", marker = "extra == 'gemini'", specifier = ">=1.0" },
     { name = "mapanything", git = "https://github.com/facebookresearch/map-anything.git?rev=3d10cf7a3016fc0f9bb13a071ee66c47b10be0d9" },
+    { name = "msplat", marker = "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin' and extra == 'room'", specifier = ">=1.1.4" },
     { name = "numpy" },
     { name = "opencv-python-headless" },
     { name = "pillow" },
@@ -4642,4 +4658,4 @@ requires-dist = [
     { name = "torchvision" },
     { name = "transformers", specifier = ">=4.50" },
 ]
-provides-extras = ["claude", "gemini", "dev"]
+provides-extras = ["claude", "gemini", "dev", "room"]

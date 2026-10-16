@@ -1,10 +1,23 @@
 [project]
 name = "whatchanged"
 version = "0.1.0"
-description = "What changed in the room? Two phone videos in, a 3D change report out."
+description = "Two phone videos of a room in: what was moved, added or removed, in 3D and in words, plus the robot's map update."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
+authors = [{ name = "Shaan Pawa" }]
+keywords = ["change detection", "3d reconstruction", "robotics", "gaussian splatting", "colmap", "nav2", "scene graph"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
     "mapanything @ git+https://github.com/facebookresearch/map-anything.git@3d10cf7a3016fc0f9bb13a071ee66c47b10be0d9",
     "torch>=2.6",
@@ -21,7 +34,12 @@ dependencies = [
 claude = ["anthropic>=1.0"]
 gemini = ["google-genai>=1.0"]
 dev = ["pytest"]
-room = ["msplat>=1.1.4; sys_platform == 'darwin' and platform_machine == 'arm64'"]
+# msplat trains the splats on Apple's GPU (Metal) and ships for Python 3.12+ only.
+room = ["msplat>=1.1.4; sys_platform == 'darwin' and platform_machine == 'arm64' and python_version >= '3.12'"]
+
+[project.urls]
+Repository = "https://github.com/shaanpawa/whatchanged"
+Design = "https://github.com/shaanpawa/whatchanged/blob/main/docs/DESIGN.md"
 
 [project.scripts]
 whatchanged = "whatchanged.cli:main"

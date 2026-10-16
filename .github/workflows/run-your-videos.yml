@@ -1,8 +1,9 @@
 name: run on your own videos
 
 # Fork the repo, open Actions > "run on your own videos" > Run workflow, and paste two direct
-# links to phone videos. The full pipeline runs on a free CPU runner (no GPU, no API key) and
-# the report is attached to the run. A GEMINI_API_KEY repository secret, if set, improves labels.
+# links to phone videos. The full pipeline runs on a free CPU runner (no GPU; no API key needed) and
+# the report is attached to the run. An ANTHROPIC_API_KEY repository secret, if set, lets Claude check and
+# name every object box and change (about $1-2 per pair); without it the offline labels are used.
 on:
   workflow_dispatch:
     inputs:
@@ -27,10 +28,11 @@ jobs:
       BEFORE_URL: ${{ inputs.before_url }}
       AFTER_URL: ${{ inputs.after_url }}
       FRAMES: ${{ inputs.frames }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.0   # setup-uv publishes no moving v10 tag
       - name: Add swap (the 3D model peaks around 13 GB on 16 GB runners)
         run: |
           sudo fallocate -l 8G /swapfile && sudo chmod 600 /swapfile
@@ -39,7 +41,7 @@ jobs:
         run: |
           uv venv --python 3.12
           uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-          uv pip install -e ".[gemini]"
+          uv pip install -e ".[claude,gemini]"
       - name: Cache the 4.9 GB MapAnything weights
         uses: actions/cache@v6
         with:
@@ -57,7 +59,11 @@ jobs:
         run: |
           {
             echo "## What changed"
-            python3 -c "import json;d=json.load(open('out/yours/changes.json'));print('\n'.join('- **'+c['type']+'** '+c['sentence'] for c in d['changes']) or 'No changes found.')"
+            if [ -f out/yours/changes.json ]; then
+              python3 -c "import json;d=json.load(open('out/yours/changes.json'));print('\n'.join('- **'+c['type']+'** '+c['sentence'] for c in d['changes']) or 'No changes found.')"
+            else
+              echo "The run stopped before any changes were written; see the log of the step that failed."
+            fi
             echo; echo "Download the **report** artifact below and open report.html."
           } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v7
@@ -70,3 +76,7 @@ jobs:
             out/yours/scene.rrd
             out/yours/maps
             out/yours/viewpoints.json
+            out/yours/objects.json
+            out/yours/objects_*.txt
+            out/yours/scene_graph_*.json
+            out/yours/markers_*.json

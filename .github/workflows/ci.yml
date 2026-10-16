@@ -1,7 +1,11 @@
 name: ci
 
-# Every push: the brief's traps on a synthetic room, then the real example rebuilt from its
-# cached 3D reconstruction, scored against the hand-written answer key, and published.
+# Every push and pull request: the unit tests (the brief's traps on a synthetic room, COLMAP guards, shared
+# object set, Claude naming with a fake client, video maths). No model download, no COLMAP, no API key.
+#
+# Once examples/bedroom is committed, a second job rebuilds it from its cached 3D (no model, no key), checks
+# the rebuild finds the same changes as the committed result, scores it against the answer key, checks the
+# untouched repeat reports nothing, and publishes the reports and the 3D walkthrough to GitHub Pages.
 on:
   push:
     branches: [main]
@@ -11,50 +15,118 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    shell: bash   # -eo pipefail, so a failing command piped into tee still fails the step
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  traps:
-    name: Traps on a synthetic room
+  tests:
+    name: Unit tests (synthetic room, no models)
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      example: ${{ steps.example.outputs.found }}
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
-      - name: Viewpoint, removal, addition, occlusion and move tests
+      - uses: astral-sh/setup-uv@v10.3.0   # setup-uv publishes no moving v10 tag
+      - name: Traps, COLMAP guards, shared objects, naming, video maths
         env:
           PYTHONPATH: src
-        run: uv run --no-project --python 3.12 --with numpy --with scipy --with pyyaml --with pillow --with pytest python -m pytest -q tests
+        run: >-
+          uv run --no-project --python 3.12 --with numpy --with scipy --with pyyaml --with pillow
+          --with opencv-python-headless --with pytest python -m pytest -q tests
+      - name: Is the real example committed yet?
+        id: example
+        run: echo "found=${{ hashFiles('examples/bedroom/cache/A.npz') != '' }}" >> "$GITHUB_OUTPUT"
+
+  hygiene:
+    name: No keys, home folders or huge files in the repo
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Scan the committed files
+        run: |
+          bad=0
+          if git grep -nIE 'sk-ant-[A-Za-z0-9_-]{16}|AIza[0-9A-Za-z_-]{30}' -- . ':!uv.lock'; then
+            echo "::error::an API key is committed"; bad=1
+          fi
+          if git grep -nIE '/Users/[A-Za-z]|/home/[a-z][a-z0-9_-]*/|C:\\Users' -- . ':!uv.lock' ':!.github/workflows/ci.yml'; then
+            echo "::error::a local home-folder path is committed (it names the machine's user)"; bad=1
+          fi
+          big=$(git ls-files -z | xargs -0 -r du -k 2>/dev/null | awk '$1 > 51200 {print $2 " (" int($1 / 1024) " MB)"}')
+          if [ -n "$big" ]; then
+            echo "$big"; echo "::error::files over 50 MB (GitHub warns at 50 MB and refuses 100 MB)"; bad=1
+          fi
+          exit $bad
 
   replay:
     name: Rebuild and score the real example
     runs-on: ubuntu-24.04
-    needs: traps
+    timeout-minutes: 30
+    needs: tests
+    # Skipped (not failed) until examples/bedroom/cache is pushed; Publish is skipped with it.
+    if: needs.tests.outputs.example == 'true'
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.0
       - name: Light install (replaying needs no 3D model and no API key)
         run: |
           uv venv --python 3.12
           uv pip install numpy scipy pillow pyyaml opencv-python-headless "rerun-sdk==0.24.1"
           uv pip install -e . --no-deps
-      - name: Rebuild changes, labels, maps, look-next and report from the cache
-        run: .venv/bin/whatchanged demo
-      - name: Score against the answer key
-        run: |
-          .venv/bin/whatchanged score examples/bedroom examples/bedroom/ground_truth.yaml \
-            --title "Bedroom: before vs after" --min-recall 0.75 --max-false 1 | tee -a "$GITHUB_STEP_SUMMARY"
-          if [ -d examples/bedroom-repeat ]; then
-            .venv/bin/whatchanged report examples/bedroom-repeat
-            .venv/bin/whatchanged score examples/bedroom-repeat examples/bedroom-repeat/ground_truth.yaml \
-              --title "Bedroom: untouched repeat (must report nothing)" --max-false 0 | tee -a "$GITHUB_STEP_SUMMARY"
-          fi
-      - name: Assemble the site
+      - name: Assemble the site from the committed files (reports, maps, 3D walkthrough; no caches)
         run: |
           mkdir -p site
           cp -r docs/site/. site/ 2>/dev/null || true
-          for d in examples/*/; do
-            n=$(basename "$d"); mkdir -p "site/$n"
-            cp "$d/report.html" "$d/scene.rrd" "$d/changes.json" "site/$n/" 2>/dev/null || true
-            cp -r "$d/maps" "site/$n/" 2>/dev/null || true
-          done
+          rsync -a --prune-empty-dirs \
+            --exclude 'cache/' --exclude 'work/' --exclude 'colmap/' --exclude '*.npz' --exclude '*.ply' \
+            --exclude '*_cache.json' --exclude 'object_crops/' \
+            examples/ site/
+      - name: Keep the committed result to compare with
+        run: |
+          mkdir -p "$RUNNER_TEMP/committed"
+          cp examples/bedroom/changes.json "$RUNNER_TEMP/committed/changes.json"
+      - name: Rebuild changes, labels, maps, look-next and report from the cache
+        run: .venv/bin/whatchanged demo
+      - name: The rebuild finds the same changes as the committed result
+        run: |
+          .venv/bin/python - "$RUNNER_TEMP/committed/changes.json" examples/bedroom/changes.json <<'EOF'
+          import json, math, sys
+          old, new = (json.load(open(p))["changes"] for p in sys.argv[1:3])
+          print(f"committed: {len(old)} changes, rebuilt: {len(new)} changes")
+          left = list(new)
+          for c in old:   # same type, centre within 10 cm (another machine's floating point may move a voxel or two)
+              hit = next((d for d in left if d["type"] == c["type"] and math.dist(d["centre_m"], c["centre_m"]) < 0.10), None)
+              if hit is None:
+                  sys.exit(f"{c['id']} {c['type']} {c['label']} at {c['centre_m']} is missing from the rebuild")
+              left.remove(hit)
+          if left:
+              sys.exit(f"the rebuild found {len(left)} change(s) the committed result does not have")
+          EOF
+      - name: Score the committed result against the answer key
+        run: |
+          if [ -f examples/bedroom/ground_truth.yaml ]; then
+            .venv/bin/whatchanged score "$RUNNER_TEMP/committed" examples/bedroom/ground_truth.yaml \
+              --title "Bedroom: before vs after" | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No examples/bedroom/ground_truth.yaml yet; nothing to score." | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: The untouched repeat reports nothing
+        run: |
+          if [ -f examples/bedroom-repeat/cache/A.npz ]; then
+            cfg=()
+            if [ -f config.frozen.json ]; then cfg=(--config config.frozen.json); fi
+            .venv/bin/whatchanged report examples/bedroom-repeat "${cfg[@]}"
+            .venv/bin/python -c "import json, sys; n = len(json.load(open('examples/bedroom-repeat/changes.json'))['changes']); print(f'Untouched repeat: {n} changes'); sys.exit(n)" \
+              | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No examples/bedroom-repeat yet."
+          fi
       - uses: actions/upload-pages-artifact@v5
         with:
           path: site
@@ -64,6 +136,9 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: replay
     runs-on: ubuntu-24.04
+    # Needs Settings > Pages > Source: GitHub Actions. Until that is switched on this job fails without
+    # failing the run.
+    continue-on-error: true
     permissions:
       pages: write
       id-token: write

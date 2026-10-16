@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use whatchanged, please cite it as below."
+title: "whatchanged: 3D change detection from two phone videos of a room"
+abstract: >-
+  Two phone videos of a room in: what was moved, added or removed, in 3D and in words, plus the
+  update to a robot's occupancy map and where to look next for anything it could not see.
+type: software
+authors:
+  - given-names: Shaan
+    family-names: Pawa
+repository-code: "https://github.com/shaanpawa/whatchanged"
+license: MIT
+version: 0.1.0
+date-released: 2026-10-16
+keywords:
+  - change detection
+  - 3D reconstruction
+  - robotics
+  - gaussian splatting

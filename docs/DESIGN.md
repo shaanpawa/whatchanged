@@ -8,13 +8,14 @@ run on it during development (their outputs are too big for the repo), or from t
 
 Five rules run through it:
 
-1. **Geometry decides, models describe.** Cameras, depth, what changed, where and by how much are measured.
-   Neural models give depth and names, and are checked against the measurements.
+1. **Geometry measures, models describe.** Cameras, depth, where things are and how far they moved are
+   measured. Neural models give depth, names and a second witness to what changed, and are checked against
+   the measurements and each other: Claude can veto a change, never create one.
 2. **"Can't tell" is an answer.** Space the other video never saw is not reported as unchanged or as removed.
 3. **Nothing invented.** No generated pixels or shapes in anything a robot would read.
 4. **Runs on a laptop.** CPU or an Apple GPU, no CUDA needed, and only weights with commercial-use licences.
 5. **Settings are frozen before the real test.** Thresholds come from an untouched repeat, then the before and
-   after pair is run once and scored against an answer key written before the first run.
+   after pair is run and scored against an answer key. The real pair broke this once, and section 5 says how.
 
 ## 1. One COLMAP model for both videos; MapAnything only for depth
 
@@ -68,7 +69,7 @@ within 3.5 m. Too few votes is *can't tell*, split into *hidden* (the other vide
 *not filmed*. This follows Fehr et al. (ICRA 2017) and OctoMap: unknown is not free.
 
 *Can't tell* is used, not hidden away: it feeds the stale cells of the map update and the look-next
-viewpoints (section 9).
+viewpoints (section 10).
 
 ## 3. The room sets its own threshold
 
@@ -92,7 +93,35 @@ shape must land within 1.5 voxels of the other. Pairs are chosen by the Hungaria
 colour weighing in only lightly. The turn is reported only when the best fit clearly beats every fit more than
 45° away, so a round bin is not said to have turned. Moves under 15 cm without a turn are not moves.
 
-## 5. One object set for both videos
+## 5. A second witness: the object detector
+
+The vote rests on depth, and depth has one point of failure. On the first pass over the real pair, COLMAP's
+model came out subtly wrong for the after video: its focal length 3% off, and B's depth fitted B's own COLMAP
+points only to 19% (median) instead of about 2%. The noise floor rose to 16 to 39% of the distance and the
+vote found nothing at all. Even two halves of the same video disagreed by up to 29%, so the alignment was not
+the problem. Rebuilding the model fixed it (2.0% misfit, noise floor 1.9 to 3.8%), and every run now warns
+when a video's depth fits its own points worse than 8%. The vote also struggles with things whose depth is
+thin: a mesh bin you can see through, a speaker 10 cm across.
+
+The detector needs no depth of that quality. For every object box and each video, it counts the frames that
+should show the box (in front of the camera, its outline in the picture, not hidden behind nearer depth) and
+how many have a detection of that kind of thing on it. An object found in at least 2 and half of one video's
+frames, and in at most 20% of at least 3 frames of the other, is not there in the other video. Two of the
+same name, one only before and one only after, at least 15 cm apart, are one move. The far end of a move is
+often filmed only once or twice (the floor beside a bedside table), so a box of the same name that only the
+first video ever detected, and that the other never detected where it looked, is taken as that end.
+
+A detector miss looks exactly like a removal, so each candidate goes to Claude with its own video's view and
+the other video's view of the same spot, the same wireframe drawn in both. Is it one real object, and is it
+still there? Only "absent" is kept. On the first pass this turned 18 one-video objects into 7 candidates,
+all confirmed, and found 4 of the 5 things I moved with no false change. Each change's evidence says which
+witness found it (`by: depth` or `by: objects`).
+
+This test was written after the first pass found nothing, so the real pair is not a held-out result for it;
+the unit tests and the trial are. It is only as good as the detector: an object the detector never boxes
+cannot be found this way, and a chair pulled out a few centimetres stays inside its own box.
+
+## 6. One object set for both videos
 
 With a box set per video, each video boxed the room on its own (23 boxes in one clip of the untouched trial,
 22 in the other), so switching between Before and After made static boxes appear and vanish though nothing had
@@ -106,7 +135,7 @@ grows toward the outline of its 2D detections, each face only as far as raises i
 furniture is turned to line up with the walls when it is within 12°. On the trial, 75 boxes were checked:
 44 kept, 6 dropped, 15 merged into others.
 
-## 6. Claude as judge, not oracle
+## 7. Claude as judge, not oracle
 
 Vision-language models are good at "what is this" and poor at metric 3D. A robot's map also has to be
 reproducible. So Claude Opus 5.5 never draws a box or decides a change. It answers fixed JSON schemas about
@@ -119,6 +148,9 @@ pictures that already have the geometry drawn in:
   unoccluded, ideally at least 20° apart, wireframe drawn in. Keep or drop, name, part of what, colour, fit.
   Boxes called too small or too big are refitted by geometry and shown again; a worse second answer puts the
   old box back. Overlapping boxes that are one thing are merged by geometry.
+- **Detector-found changes** (one call each, effort medium): the object in its own video and the other
+  video's view of the same spot, wireframe drawn in both. Real object? Still there? Only "absent" is kept
+  (section 5).
 - **Change names**: before and after crops, plus the name of the box at that spot, so the change and the
   box say the same word.
 - **Video summary line** (effort low): thrown away if it contains any number not in the measured facts.
@@ -129,7 +161,7 @@ and turn, and the run fails if a sentence holds a number that is not in its chan
 Every answer is cached by image hash and prompt version, so a rerun is free and identical. The trial took 85
 calls, about $1.11. Without a key, boxes keep OWLv2's labels and changes are named by SigLIP 2 on the CPU.
 
-## 7. Splats for looking, geometry for detecting
+## 8. Splats for looking, geometry for detecting
 
 The brief asks for a clear, compelling presentation, and a room should look like the room, so each video
 gets a 3D Gaussian splat (msplat on the Mac GPU, about 12 min for 30k steps on 127 frames) in the shared
@@ -138,7 +170,7 @@ what changed is exactly where the two videos' views differ. Each video gets its 
 trained on both turns every moved object into a ghost. Floaters outside the filmed space are dropped and the
 result is written as compressed `.spz`, about 10 times smaller than PLY.
 
-## 8. A locked walkthrough, not free flight
+## 9. A locked walkthrough, not free flight
 
 The first viewer let you fly anywhere. It looked photoreal on the walked path and smeared everywhere else.
 Measured on the trial by rendering held-out frames:
@@ -163,7 +195,7 @@ The same cameras put the boxes on the real footage for the results video (Spatia
 COLMAP instead of ARKit). Extra frames are registered into the model. Only short, calm gaps between poses
 are interpolated; where the pose is unknown the boxes fade out rather than be drawn from a guessed camera.
 
-## 9. Robot outputs: stale, not free
+## 10. Robot outputs: stale, not free
 
 The updated occupancy map (Nav2 `map_server` format) changes only cells video B actually saw. Cells it never
 saw keep their old value and are listed as stale, instead of being overwritten as free or unknown. For each
@@ -172,7 +204,7 @@ free, and scores each by the share of the region a camera there would see past t
 trial, its best spot for a hidden region would see 71% of it; the nearest camera of video B turned toward it
 would see 1%.
 
-## 10. Capture is the biggest lever
+## 11. Capture is the biggest lever
 
 A what-if on the trial's own camera path showed the 0.5x ultra-wide lens would raise the well-covered floor
 from 29% to 59% and cut the never-framed wall from 34% to 3%. So the filming protocol asks for: the
@@ -185,7 +217,7 @@ video stream only, so the Apple location, make, model and date tags never reach 
 
 | Tried | What happened | Decision |
 |---|---|---|
-| Free-flying splat viewer | 17 dB a few centimetres off the filmed path, broken at 40 cm | Locked walkthrough (section 8) |
+| Free-flying splat viewer | 17 dB a few centimetres off the filmed path, broken at 40 cm | Locked walkthrough (section 9) |
 | AI-generated models of changed objects (Meshy and Tripo via Higgsfield, 48 credits) | The chair looked right and stayed sharp from any angle, but its outline matched held-out real frames at only 0.36 to 0.66 IoU, against 0.83 to 0.86 on the frames it was made from; cutting the real chair out of the splat left a hole | Dropped: shapes a robot would read must be measured |
 | Unreal Engine or Blender as the viewer | Unreal's splat plugins are Windows-only; neither is something a reviewer can run; neither adds detail the capture lacks | Browser viewer (three.js and Spark) |
 | Generative fixers and world models (Difix3D+, Marble) | They fill unfilmed views with invented pixels | Dropped for the same reason |
@@ -193,16 +225,18 @@ video stream only, so the Apple location, make, model and date tags never reach 
 | Plain point difference | 40 false changes on the untouched trial | Kept as the baseline every run reports |
 | A TSDF mesh fused from the depth | Median 1.3 cm from COLMAP's points (90% within 5.3 cm), but bumpy walls and holes where nothing was filmed | A prototype for a collision mesh, not in the pipeline yet |
 
-## Numbers at a glance (trial)
+## Numbers at a glance
 
-| Measure | Trial |
-|---|---|
-| Frames posed by COLMAP | 166 of 168 (A), 161 of 163 (B) |
-| Depth fitted to COLMAP points | 2.1% median misfit, 52% of pixels anchored |
-| Metric scale correction for the network's focal guess | 2.27 times |
-| Camera height after levelling | 1.39 m median |
-| Static surfaces, A against B | 0.8 cm median |
-| Changes on the untouched pair | 0 (plain point difference: 40) |
-| Objects kept after Claude's check | 44 |
-| Claude cost | 85 calls, about $1.11 |
-| Unit tests | about 10 s on every push, no models, no keys |
+| Measure | Trial (nothing moved) | Real pair (five things moved) |
+|---|---|---|
+| Frames posed by COLMAP | 166 of 168 (A), 161 of 163 (B) | 138 of 140 (A), 169 of 169 (B) |
+| Depth fitted to COLMAP points | 2.1% median misfit, 52% of pixels anchored | 2.1% (A) and 2.0% (B), 41 to 45% anchored |
+| Metric scale correction for the network's focal guess | 2.27 times | 1.19 times (0.5x lens) |
+| Camera height after levelling | 1.39 m median | 1.48 m median |
+| Static surfaces, A against B | 0.8 cm median | 2.1 cm median |
+| Noise floor by distance band | 1.0 to 5.3% | 1.9 to 3.8% |
+| Changes reported (plain point difference) | 0 (40) | 5, no false alarms (50) |
+| Of the five real changes | | 3 found as moves, 2 found gone from their old place |
+| Objects kept after Claude's check | 44 | 50 |
+| Claude cost | 85 calls, about $1.11 | about 120 calls, about $1.45 |
+| Unit tests | 89, about 15 s on every push, no models, no keys | |

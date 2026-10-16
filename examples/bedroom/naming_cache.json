@@ -897,5 +897,60 @@
   "object": true,
   "there": "present",
   "name": "speaker"
+ },
+ "7bcb44d76912f64713ddb2dc6d902f7776e4e07e": {
+  "object": true,
+  "there": "absent",
+  "name": "bluetooth speaker"
+ },
+ "c6609269f903db89bb5c57aced3038b3b058a7fa": {
+  "object": true,
+  "there": "absent",
+  "name": "wooden chair"
+ },
+ "6d2523ca0fcb7518744fdcb66b5ed84cceba9560": {
+  "object": true,
+  "there": "absent",
+  "name": "air purifier"
+ },
+ "2ec32a0d25bd97daccf30226e3bd4ab6b7e5f919": {
+  "object": true,
+  "there": "absent",
+  "name": "air purifier"
+ },
+ "2174332f549b6f409f5d3e412c0c3b07229f6499": {
+  "object": true,
+  "there": "present",
+  "name": "desk mat"
+ },
+ "fd0728c9435ce291fc0ed46114fc82e1481bc10a": {
+  "object": true,
+  "there": "absent",
+  "name": "trash can"
+ },
+ "747d34368da34129a44f0865123a7a3bcab7a576": {
+  "object": true,
+  "there": "present",
+  "name": "window blind"
+ },
+ "ca1e7fcd2d473b39d889fafef86274c7f3a28e37": {
+  "object": false,
+  "there": "present",
+  "name": "books"
+ },
+ "826f0ca62923c6cd5828881fbd2d8c93fda23abd": {
+  "object": true,
+  "there": "present",
+  "name": "speaker"
+ },
+ "a362812e32f1e4347551ba42f47e33250597a041": {
+  "object": true,
+  "there": "absent",
+  "name": "trash can"
+ },
+ "01501e5ce81a9f2012e439425ffdcf92b31a9c0b": {
+  "object": true,
+  "there": "absent",
+  "name": "wooden chair"
  }
 }

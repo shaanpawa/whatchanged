@@ -491,7 +491,11 @@ def confirm_changes(out_dir: str | Path, S: Session, spans: dict[str, tuple[int,
         ims = [view_crop(S, j, uv) for j, uv in mine + theirs]
         what = f"a {b.label} about {_m(b.size[0])} x {_m(b.size[1])} x {_m(b.size[2])}"
         text = GONE_PROMPT.format(n=len(mine), own=own, what=what, m=len(theirs), other=other)
-        jobs.append((c, ims, text, namer.cache.key(*ims, extra=f"{VERSION}|gone|{text}")))
+        # Keyed by what was asked (the box, to the millimetre, and the frames shown), not by the pixels: JPEG
+        # decoding differs a little between machines, and the CI replay on Linux must find the Mac's answers.
+        asked = (f"{VERSION}|gone|{text}|{np.round(b.centre, 3).tolist()}|{np.round(b.size, 3).tolist()}|"
+                 f"{round(float(b.yaw), 3)}|{[Path(S.paths[j]).name or j for j, _ in mine + theirs]}")
+        jobs.append((c, ims, text, namer.cache.key(extra=asked)))
     answers, todo = {}, []
     for job in jobs:
         if job[3] in namer.cache.data:

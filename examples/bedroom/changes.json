@@ -1522,13 +1522,13 @@
   },
   "claude_this_run": {
    "model": "claude-opus-5-5",
-   "calls": 12,
+   "calls": 11,
    "cached": 0,
    "refused": 0,
    "failed": 0,
-   "input_tokens": 29104,
-   "output_tokens": 559,
-   "cost_usd_est": 0.128
+   "input_tokens": 28268,
+   "output_tokens": 515,
+   "cost_usd_est": 0.123
   }
  }
 }

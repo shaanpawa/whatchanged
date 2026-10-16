@@ -403,6 +403,11 @@ def test_claude_keeps_only_the_detector_changes_it_sees_are_gone(tmp_path, monke
     again = Fake(lambda text: {"object": False, "there": "present", "name": ""})
     assert [c[1] for c in naming.confirm_changes(tmp_path, C, spans, found, log=lambda *_: None, client=again)] == ["removed"]
     assert again.calls == []
+    # another machine decodes the frames a shade differently: the answers are keyed by what was asked, not pixels
+    from dataclasses import replace
+    shifted = replace(C, images=np.clip(C.images.astype(int) + 1, 0, 255).astype(np.uint8))
+    assert [c[1] for c in naming.confirm_changes(tmp_path, shifted, spans, found, log=lambda *_: None, client=again)] == ["removed"]
+    assert again.calls == []
     # without a key the cached verdicts still hold (the CI replay); with nothing cached, every change is kept
     monkeypatch.setattr(naming, "available", lambda: False)
     assert [c[1] for c in naming.confirm_changes(tmp_path, C, spans, found, log=lambda *_: None)] == ["removed"]

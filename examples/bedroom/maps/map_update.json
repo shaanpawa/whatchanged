@@ -1,0 +1,24 @@
+{
+ "resolution_m": 0.05,
+ "origin_m": [
+  -3.227,
+  -2.43
+ ],
+ "robot_radius_m": 0.35,
+ "obstacle_band_m": [
+  0.06,
+  2.2
+ ],
+ "newly_blocked_m2": 0.5,
+ "newly_free_m2": 0.12,
+ "stale_m2": 1.15,
+ "known_before_m2": 16.19,
+ "known_after_m2": 16.51,
+ "files": [
+  "map_before.yaml",
+  "map_after.yaml",
+  "map_updated.yaml",
+  "costmap_updated.png",
+  "map_update.png"
+ ]
+}

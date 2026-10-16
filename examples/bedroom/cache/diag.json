@@ -1,0 +1,86 @@
+{
+ "device": "cpu",
+ "poses_from": "colmap",
+ "views": {
+  "A": 28,
+  "B": 29
+ },
+ "depth_from": "session",
+ "metric_scale": {
+  "m_per_colmap_unit": 0.555745,
+  "scale_from": "metric depth",
+  "metric_depth": 0.555745,
+  "uncorrected": 0.469727,
+  "network_focal_short_by": 1.188
+ },
+ "session_A_depth": {
+  "fits": {
+   "affine": 23,
+   "scale": 5,
+   "none": 0
+  },
+  "anchored_pixels": 0.407,
+  "residual_vs_colmap_median": 0.0215,
+  "residual_vs_colmap_p90": 0.0308,
+  "colmap_points_per_frame": 635
+ },
+ "session_B_depth": {
+  "fits": {
+   "affine": 27,
+   "scale": 2,
+   "none": 0
+  },
+  "anchored_pixels": 0.453,
+  "residual_vs_colmap_median": 0.0195,
+  "residual_vs_colmap_p90": 0.027,
+  "colmap_points_per_frame": 603
+ },
+ "camera_height_m": {
+  "median": 1.484,
+  "p10": 1.391,
+  "p90": 1.552
+ },
+ "alignment_B_to_A_m": {
+  "p50": 0.0205,
+  "p90": 0.1446
+ },
+ "colmap": {
+  "work": "out/pair/work",
+  "to_levelled": [
+   [
+    0.02178998,
+    0.30222165,
+    0.46587503,
+    0.0
+   ],
+   [
+    -0.54956588,
+    -0.05519289,
+    0.06150901,
+    0.0
+   ],
+   [
+    0.07971707,
+    -0.463107,
+    0.29669744,
+    1.46902895
+   ],
+   [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  ],
+  "metric_scale_m_per_unit": 0.555745,
+  "scale_from": "metric depth",
+  "registered": {
+   "A": "138/140",
+   "B": "169/169"
+  }
+ },
+ "inputs": {
+  "before": "data/raw/A.mov",
+  "after": "data/raw/B.mov"
+ }
+}

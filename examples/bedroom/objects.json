@@ -1,0 +1,9245 @@
+{
+ "frame": "levelled world: metres, z up, floor z=0; yaw about +z; size = (along yaw, across, height)",
+ "states": "state: both = in both videos; A or B = only there (follows a removed / added change); moved = positions per state; merged = folded into the moved object it was the other end of. In shared, frames count A's keyframes then B's; seen_by and the sessions lists use each video's own",
+ "shared": [
+  {
+   "id": "o00",
+   "label": "tv",
+   "score": 0.74,
+   "centre_m": [
+    0.597,
+    0.304,
+    0.743
+   ],
+   "size_m": [
+    0.837,
+    0.302,
+    0.587
+   ],
+   "yaw_deg": -38.0,
+   "frames": [
+    1,
+    2,
+    3,
+    4,
+    8,
+    11,
+    16,
+    17,
+    18,
+    24,
+    27,
+    30,
+    31,
+    35,
+    43,
+    44,
+    46,
+    48,
+    49,
+    53,
+    54
+   ],
+   "owl_label": "tv",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "black",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_00.jpg",
+   "note": "Black flat-screen TV on a stand, sitting on a small wooden table; the box roughly encloses it, though the screen edges stick out slightly.",
+   "merged_from": [
+    "tv",
+    "desk",
+    "tv bench"
+   ],
+   "seen_by": {
+    "A": [
+     1,
+     2,
+     3,
+     4,
+     8,
+     11,
+     16,
+     17,
+     18,
+     24,
+     27
+    ],
+    "B": [
+     2,
+     3,
+     7,
+     15,
+     16,
+     18,
+     20,
+     21,
+     25,
+     26
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o01",
+   "label": "laundry basket",
+   "score": 0.825,
+   "centre_m": [
+    -2.055,
+    0.573,
+    0.297
+   ],
+   "size_m": [
+    0.531,
+    0.428,
+    0.594
+   ],
+   "yaw_deg": 66.0,
+   "frames": [
+    0,
+    1,
+    5,
+    6,
+    16,
+    17,
+    18,
+    24,
+    25,
+    27,
+    28,
+    33,
+    34,
+    43,
+    44,
+    48,
+    49,
+    53
+   ],
+   "owl_label": "laundry basket",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "grey",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_01.jpg",
+   "note": "Striped fabric laundry basket full of clothes; box roughly encloses it.",
+   "seen_by": {
+    "A": [
+     0,
+     1,
+     5,
+     6,
+     16,
+     17,
+     18,
+     24,
+     25,
+     27
+    ],
+    "B": [
+     0,
+     5,
+     6,
+     15,
+     16,
+     20,
+     21,
+     25
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o02",
+   "label": "bedside table",
+   "score": 0.799,
+   "centre_m": [
+    -1.821,
+    -0.998,
+    0.285
+   ],
+   "size_m": [
+    0.424,
+    0.411,
+    0.571
+   ],
+   "yaw_deg": 52.0,
+   "frames": [
+    0,
+    1,
+    5,
+    6,
+    11,
+    12,
+    16,
+    25,
+    26,
+    28,
+    29,
+    30,
+    32,
+    33,
+    34,
+    38,
+    39,
+    43,
+    44,
+    48
+   ],
+   "owl_label": "bedside table",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "beige",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_02.jpg",
+   "note": "small wooden nightstand with rattan drawer and splayed legs, box encloses it fairly well",
+   "merged_from": [
+    "bedside table",
+    "chair"
+   ],
+   "seen_by": {
+    "A": [
+     0,
+     1,
+     5,
+     6,
+     11,
+     12,
+     16,
+     25,
+     26
+    ],
+    "B": [
+     0,
+     1,
+     2,
+     4,
+     5,
+     6,
+     10,
+     11,
+     15,
+     16,
+     20
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o03",
+   "label": "laptop",
+   "score": 0.686,
+   "centre_m": [
+    0.545,
+    2.305,
+    1.077
+   ],
+   "size_m": [
+    0.363,
+    0.277,
+    0.258
+   ],
+   "yaw_deg": -38.0,
+   "frames": [
+    3,
+    4,
+    8,
+    9,
+    10,
+    14,
+    17,
+    18,
+    24,
+    27,
+    31,
+    36,
+    42,
+    44,
+    48,
+    49,
+    53,
+    54
+   ],
+   "owl_label": "laptop",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "gray",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_03.jpg",
+   "note": "Box encloses an open laptop on a stand; it hugs the screen and keyboard, though it is slightly offset from the base.",
+   "seen_by": {
+    "A": [
+     3,
+     4,
+     8,
+     9,
+     10,
+     14,
+     17,
+     18,
+     24,
+     27
+    ],
+    "B": [
+     3,
+     8,
+     14,
+     16,
+     20,
+     21,
+     25,
+     26
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o04",
+   "label": "radiator",
+   "score": 0.82,
+   "centre_m": [
+    0.937,
+    -1.903,
+    0.34
+   ],
+   "size_m": [
+    0.61,
+    0.195,
+    0.368
+   ],
+   "yaw_deg": -2.0,
+   "frames": [
+    1,
+    2,
+    7,
+    11,
+    12,
+    16,
+    19,
+    20,
+    22,
+    28,
+    29,
+    30,
+    38,
+    43,
+    47,
+    55
+   ],
+   "owl_label": "radiator",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "white",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_04.jpg",
+   "note": "White column radiator under the window, mostly enclosed by the box; one end extends slightly past it.",
+   "seen_by": {
+    "A": [
+     1,
+     2,
+     7,
+     11,
+     12,
+     16,
+     19,
+     20,
+     22
+    ],
+    "B": [
+     0,
+     1,
+     2,
+     10,
+     15,
+     19,
+     27
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o05",
+   "label": "pillow",
+   "score": 0.503,
+   "centre_m": [
+    -1.165,
+    -1.404,
+    0.67
+   ],
+   "size_m": [
+    0.809,
+    0.361,
+    0.281
+   ],
+   "yaw_deg": -38.0,
+   "frames": [
+    0,
+    1,
+    7,
+    12,
+    16,
+    21,
+    25,
+    26,
+    29,
+    30,
+    32,
+    34,
+    38,
+    39,
+    43,
+    48,
+    51,
+    52,
+    56
+   ],
+   "owl_label": "pillow",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "grey",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_05.jpg",
+   "note": "grey pillow lying against the headboard on the bed, box encloses it reasonably",
+   "merged_from": [
+    "pillow",
+    "pillow"
+   ],
+   "seen_by": {
+    "A": [
+     0,
+     1,
+     7,
+     12,
+     16,
+     21,
+     25,
+     26
+    ],
+    "B": [
+     1,
+     2,
+     4,
+     6,
+     10,
+     11,
+     15,
+     20,
+     23,
+     24,
+     28
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o06",
+   "label": "monitor",
+   "score": 0.708,
+   "centre_m": [
+    0.927,
+    2.076,
+    0.891
+   ],
+   "size_m": [
+    0.326,
+    0.182,
+    0.213
+   ],
+   "yaw_deg": -38.0,
+   "frames": [
+    3,
+    4,
+    8,
+    9,
+    10,
+    13,
+    14,
+    15,
+    17,
+    23,
+    24,
+    27,
+    31,
+    36,
+    42,
+    44,
+    49,
+    53,
+    54
+   ],
+   "owl_label": "laptop",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "silver",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_06.jpg",
+   "note": "Box encloses a small portable monitor standing on the desk behind the keyboard, not a laptop; wireframe roughly covers the screen.",
+   "merged_from": [
+    "laptop",
+    "monitor"
+   ],
+   "seen_by": {
+    "A": [
+     3,
+     4,
+     8,
+     9,
+     10,
+     13,
+     14,
+     15,
+     17,
+     23,
+     24,
+     27
+    ],
+    "B": [
+     3,
+     8,
+     14,
+     16,
+     21,
+     25,
+     26
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o07",
+   "label": "pillow",
+   "score": 0.561,
+   "centre_m": [
+    -0.606,
+    -1.681,
+    0.765
+   ],
+   "size_m": [
+    0.611,
+    0.382,
+    0.204
+   ],
+   "yaw_deg": 16.0,
+   "frames": [
+    0,
+    1,
+    2,
+    7,
+    12,
+    16,
+    20,
+    21,
+    25,
+    29,
+    30,
+    32,
+    38,
+    43,
+    48,
+    51,
+    56
+   ],
+   "owl_label": "pillow",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "gray",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_07.jpg",
+   "note": "Grey pillow lying against the headboard on the bed; the box encloses it reasonably well.",
+   "seen_by": {
+    "A": [
+     0,
+     1,
+     2,
+     7,
+     12,
+     16,
+     20,
+     21,
+     25
+    ],
+    "B": [
+     1,
+     2,
+     4,
+     10,
+     15,
+     20,
+     23,
+     28
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o08",
+   "label": "desk",
+   "score": 0.666,
+   "centre_m": [
+    0.843,
+    1.971,
+    0.403
+   ],
+   "size_m": [
+    1.395,
+    0.637,
+    0.807
+   ],
+   "yaw_deg": -38.0,
+   "frames": [
+    1,
+    2,
+    3,
+    4,
+    8,
+    17,
+    18,
+    31,
+    35,
+    40,
+    42,
+    44,
+    49
+   ],
+   "owl_label": "desk",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "black",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_08.jpg",
+   "note": "Box encloses the black desk with wood-edged top and legs; items on top are separate objects.",
+   "seen_by": {
+    "A": [
+     1,
+     2,
+     3,
+     4,
+     8,
+     17,
+     18
+    ],
+    "B": [
+     3,
+     7,
+     12,
+     14,
+     16,
+     21
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o09",
+   "label": "door",
+   "score": 0.642,
+   "centre_m": [
+    -2.743,
+    -0.555,
+    0.922
+   ],
+   "size_m": [
+    0.845,
+    0.074,
+    1.844
+   ],
+   "yaw_deg": -38.0,
+   "frames": [
+    5,
+    6,
+    12,
+    16,
+    25,
+    26,
+    32,
+    33,
+    34,
+    43,
+    44,
+    48
+   ],
+   "owl_label": "door",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "brown",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_09.jpg",
+   "note": "Box covers the wooden interior door standing in its frame; the top edge sits slightly below the door top.",
+   "seen_by": {
+    "A": [
+     5,
+     6,
+     12,
+     16,
+     25,
+     26
+    ],
+    "B": [
+     4,
+     5,
+     6,
+     15,
+     16,
+     20
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o10",
+   "label": "office chair",
+   "score": 0.583,
+   "centre_m": [
+    0.359,
+    1.754,
+    0.57
+   ],
+   "size_m": [
+    1.026,
+    0.797,
+    1.141
+   ],
+   "yaw_deg": -20.0,
+   "frames": [
+    4,
+    8,
+    23,
+    31,
+    35,
+    40,
+    41,
+    42,
+    44,
+    48,
+    49,
+    53,
+    54
+   ],
+   "owl_label": "office chair",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "black",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_10.jpg",
+   "note": "Box encloses the black mesh office chair by the desk; only the headrest pokes slightly above the box.",
+   "merged_from": [
+    "office chair",
+    "office chair"
+   ],
+   "seen_by": {
+    "A": [
+     4,
+     8,
+     23
+    ],
+    "B": [
+     3,
+     7,
+     12,
+     13,
+     14,
+     16,
+     20,
+     21,
+     25,
+     26
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o11",
+   "label": "tv bench",
+   "score": 0.5,
+   "centre_m": [
+    0.611,
+    0.351,
+    0.268
+   ],
+   "size_m": [
+    0.893,
+    0.417,
+    0.536
+   ],
+   "yaw_deg": -38.0,
+   "frames": [
+    3,
+    4,
+    11,
+    17,
+    18,
+    27,
+    31,
+    35,
+    43,
+    45,
+    46,
+    49,
+    50,
+    53,
+    54
+   ],
+   "owl_label": "desk",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "brown",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_refit_02.jpg",
+   "note": "Low rustic wooden bench with TV on it; box covers the bench roughly",
+   "seen_by": {
+    "A": [
+     3,
+     4,
+     11,
+     17,
+     18,
+     27
+    ],
+    "B": [
+     3,
+     7,
+     15,
+     17,
+     18,
+     21,
+     22,
+     25,
+     26
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "shrunk",
+    "from_centre_m": [
+     0.557,
+     0.297,
+     0.356
+    ],
+    "from_size_m": [
+     0.933,
+     0.6,
+     0.711
+    ],
+    "iou": [
+     0.62,
+     0.82
+    ]
+   }
+  },
+  {
+   "id": "o12",
+   "label": "door",
+   "score": 0.593,
+   "centre_m": [
+    -0.293,
+    1.802,
+    0.956
+   ],
+   "size_m": [
+    0.663,
+    0.417,
+    1.741
+   ],
+   "yaw_deg": 74.0,
+   "frames": [
+    3,
+    4,
+    8,
+    17,
+    18,
+    24,
+    27,
+    41,
+    44,
+    48,
+    49,
+    53
+   ],
+   "owl_label": "door",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "brown",
+   "fit": "too_small",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_12.jpg",
+   "note": "Wooden door with handle; the box covers most of it, but the door extends above the box top and past its right side.",
+   "seen_by": {
+    "A": [
+     3,
+     4,
+     8,
+     17,
+     18,
+     24,
+     27
+    ],
+    "B": [
+     13,
+     16,
+     20,
+     21,
+     25
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o13",
+   "label": "bedside table",
+   "score": 0.827,
+   "centre_m": [
+    -0.35,
+    -2.073,
+    0.309
+   ],
+   "size_m": [
+    0.352,
+    0.317,
+    0.618
+   ],
+   "yaw_deg": -50.0,
+   "frames": [
+    16,
+    20,
+    21,
+    38,
+    43,
+    51,
+    52,
+    56
+   ],
+   "owl_label": "bedside table",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "beige",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_refit_00.jpg",
+   "note": "Box encloses the light wooden bedside table with drawer and legs, air purifier sits on top mostly outside.",
+   "merged_from": [
+    "bedside table",
+    "remote control"
+   ],
+   "seen_by": {
+    "A": [
+     16,
+     20,
+     21
+    ],
+    "B": [
+     10,
+     15,
+     23,
+     24,
+     28
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     -0.326,
+     -2.069,
+     0.507
+    ],
+    "iou": [
+     0.42,
+     0.51
+    ],
+    "from_size_m": [
+     0.298,
+     0.275,
+     0.222
+    ],
+    "recall": [
+     0.78,
+     1.0
+    ],
+    "precision": [
+     0.83,
+     0.72
+    ],
+    "views": 11,
+    "walls": 4
+   }
+  },
+  {
+   "id": "o14",
+   "label": "radiator",
+   "score": 0.744,
+   "centre_m": [
+    2.497,
+    -0.098,
+    0.327
+   ],
+   "size_m": [
+    0.466,
+    0.371,
+    0.331
+   ],
+   "yaw_deg": 52.0,
+   "frames": [
+    2,
+    8,
+    22,
+    23,
+    35,
+    38,
+    47,
+    54,
+    55
+   ],
+   "owl_label": "radiator",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "white",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_14.jpg",
+   "note": "White column radiator under window, box covers most of it",
+   "seen_by": {
+    "A": [
+     2,
+     8,
+     22,
+     23
+    ],
+    "B": [
+     7,
+     10,
+     19,
+     26,
+     27
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "placed",
+    "from_centre_m": [
+     2.323,
+     -0.191,
+     0.297
+    ],
+    "from_size_m": [
+     0.583,
+     0.464,
+     0.413
+    ],
+    "iou": [
+     0.38,
+     0.59
+    ],
+    "recall": [
+     1.0,
+     0.97
+    ],
+    "precision": [
+     0.42,
+     0.67
+    ],
+    "views": 9
+   }
+  },
+  {
+   "id": "o15",
+   "label": "potted plant",
+   "score": 0.569,
+   "centre_m": [
+    1.436,
+    1.77,
+    0.875
+   ],
+   "size_m": [
+    0.147,
+    0.125,
+    0.124
+   ],
+   "yaw_deg": -74.0,
+   "frames": [
+    2,
+    3,
+    4,
+    8,
+    9,
+    10,
+    13,
+    15,
+    24,
+    27,
+    31,
+    36,
+    37,
+    42,
+    53,
+    54
+   ],
+   "owl_label": "plant",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "green",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_15.jpg",
+   "note": "Box encloses a small green potted plant in a black pot on the desk; it roughly fits the foliage, though the pot base is slightly outside.",
+   "seen_by": {
+    "A": [
+     2,
+     3,
+     4,
+     8,
+     9,
+     10,
+     13,
+     15,
+     24,
+     27
+    ],
+    "B": [
+     3,
+     8,
+     9,
+     14,
+     25,
+     26
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o16",
+   "label": "trash can",
+   "score": 0.748,
+   "centre_m": [
+    -0.309,
+    1.645,
+    0.146
+   ],
+   "size_m": [
+    0.325,
+    0.206,
+    0.292
+   ],
+   "yaw_deg": -82.0,
+   "frames": [
+    31,
+    35,
+    43,
+    44,
+    48,
+    49,
+    53,
+    54
+   ],
+   "owl_label": "trash can",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "black",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_16.jpg",
+   "note": "Black mesh wastebasket on floor beside wall, box encloses it reasonably",
+   "seen_by": {
+    "B": [
+     3,
+     7,
+     15,
+     16,
+     20,
+     21,
+     25,
+     26
+    ]
+   },
+   "state": "merged",
+   "change": "c03"
+  },
+  {
+   "id": "o17",
+   "label": "mouse",
+   "score": 0.855,
+   "centre_m": [
+    1.064,
+    1.73,
+    0.807
+   ],
+   "size_m": [
+    0.093,
+    0.078,
+    0.031
+   ],
+   "yaw_deg": 26.0,
+   "frames": [
+    3,
+    4,
+    8,
+    9,
+    10,
+    13,
+    17,
+    18,
+    23,
+    36,
+    37,
+    40,
+    42,
+    44,
+    54
+   ],
+   "owl_label": "mouse",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "black",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_17.jpg",
+   "note": "Black Logitech mouse on desk mat, box encloses it closely.",
+   "seen_by": {
+    "A": [
+     3,
+     4,
+     8,
+     9,
+     10,
+     13,
+     17,
+     18,
+     23
+    ],
+    "B": [
+     8,
+     9,
+     12,
+     14,
+     16,
+     26
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     1.057,
+     1.732,
+     0.816
+    ],
+    "iou": [
+     0.47,
+     0.64
+    ],
+    "from_size_m": [
+     0.082,
+     0.058,
+     0.012
+    ],
+    "recall": [
+     0.55,
+     0.91
+    ],
+    "precision": [
+     0.84,
+     0.73
+    ],
+    "views": 15,
+    "walls": 2
+   }
+  },
+  {
+   "id": "o18",
+   "label": "wooden chair",
+   "score": 0.569,
+   "centre_m": [
+    2.108,
+    -0.357,
+    0.385
+   ],
+   "size_m": [
+    0.751,
+    0.507,
+    0.77
+   ],
+   "yaw_deg": -12.0,
+   "frames": [
+    1,
+    30,
+    37,
+    38,
+    47,
+    54,
+    55
+   ],
+   "owl_label": "chair",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "brown",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_18.jpg",
+   "note": "Box encloses a single wooden chair with dark green seat; fits reasonably closely.",
+   "seen_by": {
+    "A": [
+     1
+    ],
+    "B": [
+     2,
+     9,
+     10,
+     19,
+     26,
+     27
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o19",
+   "label": "book",
+   "score": 0.552,
+   "centre_m": [
+    -0.966,
+    -1.886,
+    1.207
+   ],
+   "size_m": [
+    0.388,
+    0.11,
+    0.2
+   ],
+   "yaw_deg": -38.0,
+   "frames": [
+    7,
+    12,
+    16,
+    25,
+    26,
+    29,
+    30,
+    32,
+    38,
+    43,
+    48,
+    52
+   ],
+   "owl_label": "book",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "black",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_22.jpg",
+   "note": "Fourth Wing book standing upright on headboard shelf; box hugs it",
+   "merged_from": [
+    "book",
+    "book"
+   ],
+   "seen_by": {
+    "A": [
+     7,
+     12,
+     16,
+     25,
+     26
+    ],
+    "B": [
+     1,
+     2,
+     4,
+     10,
+     15,
+     20,
+     24
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o20",
+   "label": "desk mat",
+   "score": 0.547,
+   "centre_m": [
+    0.99,
+    1.896,
+    0.59
+   ],
+   "size_m": [
+    0.662,
+    0.66,
+    0.475
+   ],
+   "yaw_deg": -72.0,
+   "frames": [
+    8,
+    9,
+    10,
+    23,
+    27,
+    31,
+    36,
+    37
+   ],
+   "owl_label": "desk mat",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "black",
+   "fit": "too_big",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_20.jpg",
+   "note": "Box spans the black desk mat on the desk top but extends well below the desk surface into empty space and reaches toward the keyboard and laptop stand.",
+   "seen_by": {
+    "A": [
+     8,
+     9,
+     10,
+     23,
+     27
+    ],
+    "B": [
+     3,
+     8,
+     9
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o21",
+   "label": "trash can",
+   "score": 0.754,
+   "centre_m": [
+    -0.75,
+    0.818,
+    0.144
+   ],
+   "size_m": [
+    0.213,
+    0.19,
+    0.23
+   ],
+   "yaw_deg": -32.0,
+   "frames": [
+    0,
+    1,
+    2,
+    11,
+    17,
+    18,
+    24,
+    27
+   ],
+   "owl_label": "trash can",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "black",
+   "fit": "too_small",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_21.jpg",
+   "note": "black mesh wastebasket; box covers it but appears shorter/offset than the full can height",
+   "merged_from": [
+    "o16"
+   ],
+   "seen_by": {
+    "A": [
+     0,
+     1,
+     2,
+     11,
+     17,
+     18,
+     24,
+     27
+    ]
+   },
+   "state": "moved",
+   "change": "c03",
+   "positions": {
+    "A": {
+     "centre_m": [
+      -0.75,
+      0.818,
+      0.144
+     ],
+     "size_m": [
+      0.213,
+      0.19,
+      0.23
+     ],
+     "yaw_deg": -32.0
+    },
+    "B": {
+     "centre_m": [
+      -0.309,
+      1.645,
+      0.146
+     ],
+     "size_m": [
+      0.325,
+      0.206,
+      0.292
+     ],
+     "yaw_deg": -82.0
+    }
+   },
+   "grown": {
+    "mode": "placed",
+    "from_centre_m": [
+     -0.794,
+     0.822,
+     0.144
+    ],
+    "from_size_m": [
+     0.266,
+     0.238,
+     0.287
+    ],
+    "iou": [
+     0.47,
+     0.66
+    ],
+    "recall": [
+     1.0,
+     0.97
+    ],
+    "precision": [
+     0.41,
+     0.65
+    ],
+    "views": 8
+   }
+  },
+  {
+   "id": "o22",
+   "label": "air purifier",
+   "score": 0.82,
+   "centre_m": [
+    -0.281,
+    -1.952,
+    0.131
+   ],
+   "size_m": [
+    0.328,
+    0.165,
+    0.263
+   ],
+   "yaw_deg": 52.0,
+   "frames": [
+    16,
+    19,
+    20,
+    21,
+    50
+   ],
+   "owl_label": "air purifier",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "white",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_23.jpg",
+   "note": "White cylindrical air purifier on floor under bedside table, box roughly encloses it",
+   "merged_from": [
+    "o31"
+   ],
+   "seen_by": {
+    "A": [
+     16,
+     19,
+     20,
+     21
+    ],
+    "B": [
+     22
+    ]
+   },
+   "state": "moved",
+   "change": "c04",
+   "positions": {
+    "A": {
+     "centre_m": [
+      -0.281,
+      -1.952,
+      0.131
+     ],
+     "size_m": [
+      0.328,
+      0.165,
+      0.263
+     ],
+     "yaw_deg": 52.0
+    },
+    "B": {
+     "centre_m": [
+      -0.342,
+      -2.097,
+      0.74
+     ],
+     "size_m": [
+      0.191,
+      0.107,
+      0.325
+     ],
+     "yaw_deg": -82.0
+    }
+   }
+  },
+  {
+   "id": "o23",
+   "label": "bed",
+   "score": 0.583,
+   "centre_m": [
+    -1.696,
+    -0.608,
+    0.535
+   ],
+   "size_m": [
+    3.228,
+    1.275,
+    1.069
+   ],
+   "yaw_deg": -38.0,
+   "frames": [
+    16,
+    25,
+    26,
+    34,
+    44,
+    48,
+    52,
+    56
+   ],
+   "owl_label": "bed",
+   "label_source": "claude",
+   "verified": false,
+   "colour": "grey",
+   "fit": "too_big",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_24.jpg",
+   "note": "Box covers the head end of the grey bed but extends well past it across empty floor to the far wall and laundry basket, so it is mostly empty space.",
+   "seen_by": {
+    "A": [
+     16,
+     25,
+     26
+    ],
+    "B": [
+     6,
+     16,
+     20,
+     24,
+     28
+    ]
+   }
+  },
+  {
+   "id": "o24",
+   "label": "wall socket",
+   "score": 0.719,
+   "centre_m": [
+    1.165,
+    2.147,
+    1.655
+   ],
+   "size_m": [
+    0.093,
+    0.014,
+    0.092
+   ],
+   "yaw_deg": -38.0,
+   "frames": [
+    8,
+    13,
+    14,
+    15,
+    23,
+    24,
+    27,
+    31,
+    36,
+    53,
+    54
+   ],
+   "owl_label": "light switch",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "white",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_25.jpg",
+   "note": "UK-style single switched socket with three pin holes and a switch, tightly boxed; not a light switch",
+   "seen_by": {
+    "A": [
+     8,
+     13,
+     14,
+     15,
+     23,
+     24,
+     27
+    ],
+    "B": [
+     3,
+     8,
+     25,
+     26
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     1.159,
+     2.152,
+     1.666
+    ],
+    "iou": [
+     0.61,
+     0.84
+    ],
+    "from_size_m": [
+     0.076,
+     0.014,
+     0.07
+    ],
+    "recall": [
+     0.61,
+     0.95
+    ],
+    "precision": [
+     0.92,
+     0.87
+    ],
+    "views": 11,
+    "walls": 9
+   }
+  },
+  {
+   "id": "o25",
+   "label": "wall socket",
+   "score": 0.684,
+   "centre_m": [
+    0.505,
+    2.578,
+    1.663
+   ],
+   "size_m": [
+    0.108,
+    0.056,
+    0.077
+   ],
+   "yaw_deg": 10.0,
+   "frames": [
+    8,
+    13,
+    14,
+    15,
+    31,
+    36,
+    44,
+    54
+   ],
+   "owl_label": "wall socket",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "white",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_26.jpg",
+   "note": "White wall socket with a black plug/charger inserted; the box roughly hugs the socket plate.",
+   "seen_by": {
+    "A": [
+     8,
+     13,
+     14,
+     15
+    ],
+    "B": [
+     3,
+     8,
+     16,
+     26
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o26",
+   "label": "empty space",
+   "score": 0.7,
+   "centre_m": [
+    1.405,
+    -0.848,
+    0.534
+   ],
+   "size_m": [
+    1.217,
+    1.184,
+    0.887
+   ],
+   "yaw_deg": -24.0,
+   "frames": [
+    3,
+    4,
+    28,
+    37,
+    38
+   ],
+   "owl_label": "radiator",
+   "label_source": "claude",
+   "verified": false,
+   "fit": "too_big",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_27.jpg",
+   "note": "Box sits in the room corner between two radiators. It mostly contains empty air and floor. The chair and radiators sit at or beyond its edges rather than fillin",
+   "seen_by": {
+    "A": [
+     3,
+     4
+    ],
+    "B": [
+     0,
+     9,
+     10
+    ]
+   }
+  },
+  {
+   "id": "o27",
+   "label": "potted plant",
+   "score": 0.59,
+   "centre_m": [
+    -0.686,
+    -2.136,
+    1.194
+   ],
+   "size_m": [
+    0.119,
+    0.116,
+    0.163
+   ],
+   "yaw_deg": -54.0,
+   "frames": [
+    7,
+    12,
+    16,
+    25,
+    26,
+    32,
+    38,
+    43,
+    52
+   ],
+   "owl_label": "plant",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "green",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_28.jpg",
+   "note": "Small green plant in black pot on shelf above bed; box encloses it well.",
+   "seen_by": {
+    "A": [
+     7,
+     12,
+     16,
+     25,
+     26
+    ],
+    "B": [
+     4,
+     10,
+     15,
+     24
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o28",
+   "label": "speaker",
+   "score": 0.464,
+   "centre_m": [
+    1.142,
+    1.413,
+    0.869
+   ],
+   "size_m": [
+    0.089,
+    0.065,
+    0.168
+   ],
+   "yaw_deg": -40.0,
+   "frames": [
+    3,
+    4,
+    8,
+    13,
+    17,
+    18,
+    23,
+    24,
+    27
+   ],
+   "owl_label": "speaker",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "orange",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_29.jpg",
+   "note": "Orange cylindrical portable speaker (JBL-style) standing upright on desk corner; box hugs it well.",
+   "seen_by": {
+    "A": [
+     3,
+     4,
+     8,
+     13,
+     17,
+     18,
+     23,
+     24,
+     27
+    ]
+   },
+   "state": "A",
+   "change": "c02",
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     1.133,
+     1.415,
+     0.882
+    ],
+    "iou": [
+     0.59,
+     0.74
+    ],
+    "from_size_m": [
+     0.072,
+     0.058,
+     0.142
+    ],
+    "recall": [
+     0.7,
+     0.96
+    ],
+    "precision": [
+     0.76,
+     0.74
+    ],
+    "views": 9,
+    "walls": 5
+   }
+  },
+  {
+   "id": "o29",
+   "label": "cup",
+   "score": 0.46,
+   "centre_m": [
+    0.462,
+    2.648,
+    0.849
+   ],
+   "size_m": [
+    0.109,
+    0.061,
+    0.128
+   ],
+   "yaw_deg": -70.0,
+   "frames": [
+    3,
+    4,
+    9,
+    10,
+    14,
+    36
+   ],
+   "owl_label": "cup",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "white",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_30.jpg",
+   "note": "White cylindrical cup-like object with printed text and dark rim, sitting on a black item on the desk; the box hugs it.",
+   "seen_by": {
+    "A": [
+     3,
+     4,
+     9,
+     10,
+     14
+    ],
+    "B": [
+     8
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "placed",
+    "from_centre_m": [
+     0.394,
+     2.601,
+     0.898
+    ],
+    "from_size_m": [
+     0.137,
+     0.076,
+     0.161
+    ],
+    "iou": [
+     0.43,
+     0.66
+    ],
+    "recall": [
+     1.0,
+     0.91
+    ],
+    "precision": [
+     0.46,
+     0.76
+    ],
+    "views": 6
+   }
+  },
+  {
+   "id": "o30",
+   "label": "speaker",
+   "score": 0.468,
+   "centre_m": [
+    0.659,
+    0.459,
+    0.544
+   ],
+   "size_m": [
+    0.274,
+    0.155,
+    0.18
+   ],
+   "yaw_deg": -34.0,
+   "frames": [
+    8,
+    17,
+    18,
+    31,
+    35,
+    43,
+    44,
+    45,
+    46
+   ],
+   "owl_label": "speaker",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "black",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_31.jpg",
+   "note": "Black box-shaped speaker sitting on the tv bench behind the TV, beside a red cylindrical speaker; the wireframe hugs it reasonably well.",
+   "merged_from": [
+    "speaker",
+    "cup"
+   ],
+   "seen_by": {
+    "A": [
+     8,
+     17,
+     18
+    ],
+    "B": [
+     3,
+     7,
+     15,
+     16,
+     17,
+     18
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o31",
+   "label": "air purifier",
+   "score": 0.844,
+   "centre_m": [
+    -0.342,
+    -2.097,
+    0.74
+   ],
+   "size_m": [
+    0.191,
+    0.107,
+    0.325
+   ],
+   "yaw_deg": -82.0,
+   "frames": [
+    32,
+    51,
+    52,
+    56
+   ],
+   "owl_label": "air purifier",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "white",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_32.jpg",
+   "note": "White cylindrical air purifier with top fan grille on bedside table; box roughly encloses it.",
+   "seen_by": {
+    "B": [
+     4,
+     23,
+     24,
+     28
+    ]
+   },
+   "state": "merged",
+   "change": "c04"
+  },
+  {
+   "id": "o32",
+   "label": "floor lamp",
+   "score": 0.441,
+   "centre_m": [
+    0.326,
+    -1.916,
+    0.609
+   ],
+   "size_m": [
+    0.252,
+    0.169,
+    1.217
+   ],
+   "yaw_deg": -6.0,
+   "frames": [
+    16,
+    20,
+    43,
+    50
+   ],
+   "owl_label": "lamp",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "black",
+   "fit": "too_small",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_33.jpg",
+   "note": "Thin black pole floor lamp with round base; box is offset and the pole extends above its top.",
+   "seen_by": {
+    "A": [
+     16,
+     20
+    ],
+    "B": [
+     15,
+     22
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o33",
+   "label": "remote control",
+   "score": 0.519,
+   "centre_m": [
+    -1.689,
+    -0.866,
+    0.503
+   ],
+   "size_m": [
+    0.082,
+    0.028,
+    0.074
+   ],
+   "yaw_deg": -52.0,
+   "frames": [
+    5,
+    6,
+    33
+   ],
+   "owl_label": "remote control",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "white",
+   "fit": "too_small",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_34.jpg",
+   "note": "White slim remote lying on the bedside table's rattan shelf; it extends beyond the small box.",
+   "seen_by": {
+    "A": [
+     5,
+     6
+    ],
+    "B": [
+     5
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o34",
+   "label": "wardrobe",
+   "score": 0.647,
+   "centre_m": [
+    1.787,
+    0.922,
+    1.131
+   ],
+   "size_m": [
+    1.441,
+    0.494,
+    2.262
+   ],
+   "yaw_deg": -38.0,
+   "frames": [
+    1,
+    4,
+    23,
+    45,
+    46,
+    54
+   ],
+   "owl_label": "door",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "white",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_48.jpg",
+   "note": "Box encloses the tall white double-door wardrobe; the door label is wrong, and the box sits slightly above the floor.",
+   "merged_from": [
+    "refrigerator",
+    "door"
+   ],
+   "seen_by": {
+    "A": [
+     1,
+     4,
+     23
+    ],
+    "B": [
+     17,
+     18,
+     26
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o35",
+   "label": "backpack",
+   "score": 0.537,
+   "centre_m": [
+    -2.427,
+    0.805,
+    0.346
+   ],
+   "size_m": [
+    0.426,
+    0.261,
+    0.296
+   ],
+   "yaw_deg": 80.0,
+   "frames": [
+    0,
+    5,
+    6,
+    28,
+    33
+   ],
+   "owl_label": "backpack",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "black",
+   "fit": "too_small",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_47.jpg",
+   "note": "Black backpack on the floor by the wall. The box covers its upper body but floats above the floor and misses the lower part and straps, and it clips the water b",
+   "merged_from": [
+    "bag",
+    "backpack"
+   ],
+   "seen_by": {
+    "A": [
+     0,
+     5,
+     6
+    ],
+    "B": [
+     0,
+     5
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o36",
+   "label": "spray bottle",
+   "score": 0.392,
+   "centre_m": [
+    0.404,
+    2.42,
+    0.853
+   ],
+   "size_m": [
+    0.159,
+    0.08,
+    0.086
+   ],
+   "yaw_deg": 38.0,
+   "frames": [
+    3,
+    4,
+    9,
+    10
+   ],
+   "owl_label": "cup",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "blue",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_40.jpg",
+   "note": "Box encloses a clear spray bottle with blue liquid on the desk beside the laptop, not a cup.",
+   "seen_by": {
+    "A": [
+     3,
+     4,
+     9,
+     10
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o37",
+   "label": "keyboard",
+   "score": 0.632,
+   "centre_m": [
+    0.834,
+    1.925,
+    0.788
+   ],
+   "size_m": [
+    0.26,
+    0.152,
+    0.037
+   ],
+   "yaw_deg": -68.0,
+   "frames": [
+    9,
+    10,
+    17,
+    18,
+    23,
+    24,
+    27,
+    35,
+    36,
+    40,
+    42,
+    44,
+    49,
+    53,
+    54
+   ],
+   "owl_label": "keyboard",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "grey",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_refit_04.jpg",
+   "note": "Compact dark grey keyboard on the desk mat; the box covers it closely, though slightly offset.",
+   "seen_by": {
+    "A": [
+     9,
+     10,
+     17,
+     18,
+     23,
+     24,
+     27
+    ],
+    "B": [
+     7,
+     8,
+     12,
+     14,
+     16,
+     21,
+     25,
+     26
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "shrunk",
+    "from_centre_m": [
+     0.838,
+     1.964,
+     0.805
+    ],
+    "from_size_m": [
+     0.328,
+     0.199,
+     0.071
+    ],
+    "iou": [
+     0.51,
+     0.7
+    ]
+   }
+  },
+  {
+   "id": "o38",
+   "label": "empty space",
+   "score": 0.622,
+   "centre_m": [
+    1.608,
+    -0.023,
+    0.648
+   ],
+   "size_m": [
+    0.435,
+    0.253,
+    0.265
+   ],
+   "yaw_deg": -22.0,
+   "frames": [
+    3,
+    4
+   ],
+   "owl_label": "radiator",
+   "label_source": "claude",
+   "verified": false,
+   "fit": "too_big",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_42.jpg",
+   "note": "Box floats in empty air beside the TV, in front of the wall and above the floor; the radiator sits off to the side and below, so it is barely inside the box.",
+   "seen_by": {
+    "A": [
+     3,
+     4
+    ]
+   },
+   "grown": {
+    "mode": "placed",
+    "from_centre_m": [
+     1.215,
+     0.071,
+     0.738
+    ],
+    "from_size_m": [
+     0.544,
+     0.211,
+     0.332
+    ],
+    "iou": [
+     0.36,
+     0.55
+    ],
+    "recall": [
+     0.92,
+     0.87
+    ],
+    "precision": [
+     0.37,
+     0.61
+    ],
+    "views": 2
+   }
+  },
+  {
+   "id": "o39",
+   "label": "potted plant",
+   "score": 0.606,
+   "centre_m": [
+    -1.376,
+    -1.578,
+    1.174
+   ],
+   "size_m": [
+    0.148,
+    0.043,
+    0.137
+   ],
+   "yaw_deg": -16.0,
+   "frames": [
+    1,
+    7,
+    25,
+    26,
+    29,
+    30,
+    32,
+    48
+   ],
+   "owl_label": "plant",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "green",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_refit_05.jpg",
+   "note": "small potted plant with black pot on bed headboard shelf; box roughly covers it",
+   "seen_by": {
+    "A": [
+     1,
+     7,
+     25,
+     26
+    ],
+    "B": [
+     1,
+     2,
+     4,
+     20
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "shrunk",
+    "from_centre_m": [
+     -1.436,
+     -1.573,
+     1.165
+    ],
+    "from_size_m": [
+     0.295,
+     0.071,
+     0.153
+    ],
+    "iou": [
+     0.4,
+     0.68
+    ]
+   }
+  },
+  {
+   "id": "o40",
+   "label": "window blind",
+   "score": 0.42,
+   "centre_m": [
+    0.907,
+    -1.971,
+    1.583
+   ],
+   "size_m": [
+    0.732,
+    0.178,
+    1.596
+   ],
+   "yaw_deg": 6.0,
+   "frames": [
+    7,
+    29,
+    30,
+    38
+   ],
+   "owl_label": "window",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "grey",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_45.jpg",
+   "note": "Box encloses a grey roller blind pulled down over a tall window above the radiator.",
+   "seen_by": {
+    "A": [
+     7
+    ],
+    "B": [
+     1,
+     2,
+     10
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     0.907,
+     -1.971,
+     1.598
+    ],
+    "iou": [
+     0.63,
+     0.7
+    ],
+    "from_size_m": [
+     0.732,
+     0.178,
+     1.367
+    ],
+    "recall": [
+     0.81,
+     0.94
+    ],
+    "precision": [
+     0.75,
+     0.73
+    ],
+    "views": 4,
+    "walls": 0
+   }
+  },
+  {
+   "id": "o41",
+   "label": "bed",
+   "score": 0.513,
+   "centre_m": [
+    -0.034,
+    -0.387,
+    0.34
+   ],
+   "size_m": [
+    1.587,
+    1.58,
+    0.68
+   ],
+   "yaw_deg": -38.0,
+   "frames": [
+    1,
+    2,
+    3,
+    4,
+    11,
+    28,
+    30,
+    49,
+    50,
+    53,
+    54
+   ],
+   "owl_label": "bed",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "grey",
+   "fit": "too_small",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_49.jpg",
+   "note": "only part of the bed was boxed: Low floor-level box covers only the bed's lower base and nearby floor; the grey bed extends well beyond it.",
+   "merged_from": [
+    "desk",
+    "bed"
+   ],
+   "seen_by": {
+    "A": [
+     1,
+     2,
+     3,
+     4,
+     11
+    ],
+    "B": [
+     0,
+     2,
+     21,
+     22,
+     25,
+     26
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o42",
+   "label": "bed",
+   "score": 0.344,
+   "centre_m": [
+    -1.197,
+    -1.721,
+    1.015
+   ],
+   "size_m": [
+    1.105,
+    0.134,
+    0.32
+   ],
+   "yaw_deg": -38.0,
+   "frames": [
+    7,
+    25,
+    30,
+    52
+   ],
+   "owl_label": "shelf",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "navy",
+   "fit": "too_small",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_50.jpg",
+   "note": "only part of the bed was boxed: Box covers the upper slatted part of the navy bed headboard below the wooden top shelf, only a portion of the bed's headboard.",
+   "seen_by": {
+    "A": [
+     7,
+     25
+    ],
+    "B": [
+     2,
+     24
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o43",
+   "label": "wooden chair",
+   "score": 0.516,
+   "centre_m": [
+    1.004,
+    -1.754,
+    0.511
+   ],
+   "size_m": [
+    1.07,
+    0.486,
+    0.555
+   ],
+   "yaw_deg": 52.0,
+   "frames": [
+    1,
+    2,
+    7,
+    16,
+    19,
+    22
+   ],
+   "owl_label": "chair",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "brown",
+   "fit": "too_big",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_51.jpg",
+   "note": "Wooden chair with dark seat; box extends far sideways into empty space and misses the lower legs.",
+   "seen_by": {
+    "A": [
+     1,
+     2,
+     7,
+     16,
+     19,
+     22
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o44",
+   "label": "wall socket",
+   "score": 0.471,
+   "centre_m": [
+    -0.925,
+    1.121,
+    1.661
+   ],
+   "size_m": [
+    0.149,
+    0.017,
+    0.105
+   ],
+   "yaw_deg": 50.0,
+   "frames": [
+    12,
+    24,
+    27,
+    31,
+    43,
+    44,
+    48,
+    49,
+    53
+   ],
+   "owl_label": "light switch",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "white",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_53.jpg",
+   "note": "UK double socket plate with pin holes and switch, box hugs plate",
+   "seen_by": {
+    "A": [
+     12,
+     24,
+     27
+    ],
+    "B": [
+     3,
+     15,
+     16,
+     20,
+     21,
+     25
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     -0.935,
+     1.109,
+     1.667
+    ],
+    "iou": [
+     0.65,
+     0.82
+    ],
+    "from_size_m": [
+     0.117,
+     0.017,
+     0.094
+    ],
+    "recall": [
+     0.71,
+     1.0
+    ],
+    "precision": [
+     0.84,
+     0.83
+    ],
+    "views": 9,
+    "walls": 8
+   }
+  },
+  {
+   "id": "o45",
+   "label": "window blind",
+   "score": 0.282,
+   "centre_m": [
+    2.504,
+    -0.052,
+    1.583
+   ],
+   "size_m": [
+    0.529,
+    0.528,
+    1.596
+   ],
+   "yaw_deg": 10.0,
+   "frames": [
+    1,
+    2,
+    23,
+    30
+   ],
+   "owl_label": "window",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "grey",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_54.jpg",
+   "note": "Box encloses a tall window recess fully covered by a pulled-down grey roller blind.",
+   "seen_by": {
+    "A": [
+     1,
+     2,
+     23
+    ],
+    "B": [
+     2
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     2.504,
+     -0.052,
+     1.602
+    ],
+    "iou": [
+     0.75,
+     0.84
+    ],
+    "from_size_m": [
+     0.529,
+     0.528,
+     1.368
+    ],
+    "recall": [
+     0.82,
+     0.95
+    ],
+    "precision": [
+     0.92,
+     0.9
+    ],
+    "views": 4,
+    "walls": 0
+   }
+  },
+  {
+   "id": "o46",
+   "label": "light switch",
+   "score": 0.745,
+   "centre_m": [
+    -2.265,
+    -0.951,
+    1.368
+   ],
+   "size_m": [
+    0.085,
+    0.013,
+    0.094
+   ],
+   "yaw_deg": -40.0,
+   "frames": [
+    12,
+    26,
+    29,
+    30,
+    32
+   ],
+   "owl_label": "light switch",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "white",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_56.jpg",
+   "note": "Small square switch plate on wall near door, box hugs it.",
+   "seen_by": {
+    "A": [
+     12,
+     26
+    ],
+    "B": [
+     1,
+     2,
+     4
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     -2.258,
+     -0.953,
+     1.379
+    ],
+    "iou": [
+     -1.0,
+     0.82
+    ],
+    "from_size_m": [
+     0.073,
+     0.008,
+     0.064
+    ],
+    "recall": [
+     0.57,
+     0.94
+    ],
+    "precision": [
+     0.98,
+     0.87
+    ],
+    "views": 5,
+    "walls": 3
+   }
+  },
+  {
+   "id": "o47",
+   "label": "water bottle pack",
+   "score": 0.366,
+   "centre_m": [
+    -2.507,
+    0.661,
+    0.173
+   ],
+   "size_m": [
+    0.212,
+    0.178,
+    0.346
+   ],
+   "yaw_deg": -70.0,
+   "frames": [
+    0,
+    6,
+    28,
+    33
+   ],
+   "owl_label": "bag",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "blue",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_58.jpg",
+   "note": "6-pack of Highland Spring bottles in shrink wrap on the floor; the box closely encloses it.",
+   "seen_by": {
+    "A": [
+     0,
+     6
+    ],
+    "B": [
+     0,
+     5
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o48",
+   "label": "door handle",
+   "score": 0.341,
+   "centre_m": [
+    -0.456,
+    1.652,
+    1.002
+   ],
+   "size_m": [
+    0.204,
+    0.02,
+    0.124
+   ],
+   "yaw_deg": 50.0,
+   "frames": [
+    3,
+    4
+   ],
+   "owl_label": "lamp",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "silver",
+   "part_of": "door",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_59.jpg",
+   "note": "Lever door handle with escutcheon and lock on wooden door; box hugs it.",
+   "seen_by": {
+    "A": [
+     3,
+     4
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o49",
+   "label": "remote control",
+   "score": 0.653,
+   "centre_m": [
+    1.381,
+    1.627,
+    0.759
+   ],
+   "size_m": [
+    0.192,
+    0.082,
+    0.037
+   ],
+   "yaw_deg": 2.0,
+   "frames": [
+    3,
+    4,
+    8,
+    9,
+    10,
+    13,
+    36,
+    37,
+    42
+   ],
+   "owl_label": "remote control",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "black",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_60.jpg",
+   "note": "Black TV remote lying on the desk next to the desk mat; the box roughly covers it.",
+   "seen_by": {
+    "A": [
+     3,
+     4,
+     8,
+     9,
+     10,
+     13
+    ],
+    "B": [
+     8,
+     9,
+     14
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "placed",
+    "from_centre_m": [
+     1.38,
+     1.647,
+     0.759
+    ],
+    "from_size_m": [
+     0.24,
+     0.103,
+     0.046
+    ],
+    "iou": [
+     0.4,
+     0.57
+    ],
+    "recall": [
+     1.0,
+     0.94
+    ],
+    "precision": [
+     0.42,
+     0.67
+    ],
+    "views": 9
+   }
+  },
+  {
+   "id": "o50",
+   "label": "door stopper",
+   "score": 0.327,
+   "centre_m": [
+    1.841,
+    0.818,
+    0.097
+   ],
+   "size_m": [
+    0.213,
+    0.128,
+    0.193
+   ],
+   "yaw_deg": -6.0,
+   "frames": [
+    31,
+    35
+   ],
+   "owl_label": "wall socket",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "white",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_61.jpg",
+   "note": "Small white wedge/stopper at the floor against the baseboard, not a wall socket.",
+   "seen_by": {
+    "B": [
+     3,
+     7
+    ]
+   },
+   "state": "both"
+  },
+  {
+   "id": "o51",
+   "label": "cables",
+   "score": 0.31,
+   "centre_m": [
+    0.316,
+    2.24,
+    0.848
+   ],
+   "size_m": [
+    0.398,
+    0.329,
+    0.126
+   ],
+   "yaw_deg": -66.0,
+   "frames": [
+    10,
+    17,
+    18,
+    41,
+    42,
+    44,
+    48
+   ],
+   "owl_label": "rug",
+   "label_source": "claude",
+   "verified": false,
+   "colour": "black",
+   "fit": "too_big",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_62.jpg",
+   "note": "Box covers a tangle of cables, a USB hub, camera, bottle and laptop corner on the desk; no rug, several separate items.",
+   "seen_by": {
+    "A": [
+     10,
+     17,
+     18
+    ],
+    "B": [
+     13,
+     14,
+     16,
+     20
+    ]
+   },
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     0.275,
+     2.239,
+     0.778
+    ],
+    "iou": [
+     0.33,
+     0.45
+    ],
+    "from_size_m": [
+     0.368,
+     0.252,
+     0.044
+    ],
+    "recall": [
+     0.31,
+     0.65
+    ],
+    "precision": [
+     0.61,
+     0.62
+    ],
+    "views": 7,
+    "walls": 1
+   }
+  },
+  {
+   "id": "o52",
+   "label": "empty space",
+   "score": 0.563,
+   "centre_m": [
+    -0.23,
+    1.587,
+    0.513
+   ],
+   "size_m": [
+    0.141,
+    0.13,
+    0.309
+   ],
+   "yaw_deg": 6.0,
+   "frames": [
+    41
+   ],
+   "owl_label": "trash can",
+   "label_source": "claude",
+   "verified": false,
+   "fit": "too_small",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_63.jpg",
+   "note": "Box floats in empty air above the black mesh trash can that stands on the floor; it does not enclose the can.",
+   "seen_by": {
+    "B": [
+     13
+    ]
+   },
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     -0.229,
+     1.587,
+     0.572
+    ],
+    "iou": [
+     0.64,
+     0.87
+    ],
+    "from_size_m": [
+     0.13,
+     0.106,
+     0.19
+    ],
+    "recall": [
+     0.69,
+     0.97
+    ],
+    "precision": [
+     0.9,
+     0.9
+    ],
+    "views": 1,
+    "walls": 0
+   }
+  },
+  {
+   "id": "o53",
+   "label": "wooden chair",
+   "score": 0.292,
+   "centre_m": [
+    0.609,
+    0.63,
+    0.483
+   ],
+   "size_m": [
+    0.356,
+    0.175,
+    0.172
+   ],
+   "yaw_deg": -24.0,
+   "frames": [
+    18,
+    44
+   ],
+   "owl_label": "chair",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "brown",
+   "fit": "too_small",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_65.jpg",
+   "note": "only part of the wooden chair was boxed: Box covers part of a wooden chair seat/stool top with a red speaker and black bag on it; mixed contents, not one object",
+   "seen_by": {
+    "A": [
+     18
+    ],
+    "B": [
+     16
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     0.598,
+     0.605,
+     0.51
+    ],
+    "iou": [
+     0.59,
+     0.86
+    ],
+    "from_size_m": [
+     0.356,
+     0.121,
+     0.12
+    ],
+    "recall": [
+     0.62,
+     0.93
+    ],
+    "precision": [
+     0.92,
+     0.92
+    ],
+    "views": 2,
+    "walls": 1
+   }
+  },
+  {
+   "id": "o54",
+   "label": "empty space",
+   "score": 0.556,
+   "centre_m": [
+    0.469,
+    0.549,
+    1.174
+   ],
+   "size_m": [
+    0.327,
+    0.163,
+    0.215
+   ],
+   "yaw_deg": -76.0,
+   "frames": [
+    37
+   ],
+   "owl_label": "tv",
+   "label_source": "claude",
+   "verified": false,
+   "fit": "too_big",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_66.jpg",
+   "note": "Box floats in air above the TV edge and in front of the wall, holding no object; the TV it was fitted around is much larger and only partly inside.",
+   "seen_by": {
+    "B": [
+     9
+    ]
+   },
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     0.515,
+     0.56,
+     1.17
+    ],
+    "iou": [
+     0.58,
+     0.82
+    ],
+    "from_size_m": [
+     0.327,
+     0.07,
+     0.222
+    ],
+    "recall": [
+     0.68,
+     1.0
+    ],
+    "precision": [
+     0.8,
+     0.82
+    ],
+    "views": 1,
+    "walls": 0
+   }
+  },
+  {
+   "id": "o55",
+   "label": "bedside table",
+   "score": 0.286,
+   "centre_m": [
+    -0.336,
+    -2.067,
+    0.136
+   ],
+   "size_m": [
+    0.576,
+    0.268,
+    0.273
+   ],
+   "yaw_deg": 38.0,
+   "frames": [
+    16,
+    43
+   ],
+   "owl_label": "chair",
+   "label_source": "claude",
+   "verified": false,
+   "fit": "too_big",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_67.jpg",
+   "note": "Box spans the bedside table's lower area, catching part of the air purifier, cables and floor; no single object fills it.",
+   "seen_by": {
+    "A": [
+     16
+    ],
+    "B": [
+     15
+    ]
+   }
+  },
+  {
+   "id": "o56",
+   "label": "wall socket",
+   "score": 0.52,
+   "centre_m": [
+    -0.525,
+    -2.308,
+    0.483
+   ],
+   "size_m": [
+    0.14,
+    0.106,
+    0.041
+   ],
+   "yaw_deg": -54.0,
+   "frames": [
+    21
+   ],
+   "owl_label": "wall socket",
+   "label_source": "claude",
+   "verified": true,
+   "colour": "brown",
+   "fit": "good",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_68.jpg",
+   "note": "Wall socket with plugged-in white plug and cable, just above bedside table.",
+   "seen_by": {
+    "A": [
+     21
+    ]
+   },
+   "state": "both",
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     -0.519,
+     -2.316,
+     0.49
+    ],
+    "iou": [
+     0.59,
+     0.86
+    ],
+    "from_size_m": [
+     0.106,
+     0.101,
+     0.027
+    ],
+    "recall": [
+     0.64,
+     0.99
+    ],
+    "precision": [
+     0.87,
+     0.87
+    ],
+    "views": 1,
+    "walls": 1
+   }
+  },
+  {
+   "id": "o57",
+   "label": "window sill",
+   "score": 0.514,
+   "centre_m": [
+    2.196,
+    -0.925,
+    0.671
+   ],
+   "size_m": [
+    0.602,
+    0.26,
+    0.244
+   ],
+   "yaw_deg": 32.0,
+   "frames": [
+    47
+   ],
+   "owl_label": "television",
+   "label_source": "claude",
+   "verified": false,
+   "fit": "too_big",
+   "model": "claude-opus-5-5",
+   "crop": "object_crops/shared_69.jpg",
+   "note": "Box floats over window sill and lower part of blind above radiator; no television, mostly empty space",
+   "seen_by": {
+    "B": [
+     19
+    ]
+   },
+   "grown": {
+    "mode": "grow",
+    "from_centre_m": [
+     2.156,
+     -0.861,
+     0.667
+    ],
+    "iou": [
+     0.57,
+     0.67
+    ],
+    "from_size_m": [
+     0.602,
+     0.11,
+     0.252
+    ],
+    "recall": [
+     0.82,
+     1.0
+    ],
+    "precision": [
+     0.64,
+     0.67
+    ],
+    "views": 1,
+    "walls": 0
+   }
+  }
+ ],
+ "sessions": {
+  "A": [
+   {
+    "id": "o00",
+    "label": "tv",
+    "score": 0.74,
+    "centre_m": [
+     0.597,
+     0.304,
+     0.743
+    ],
+    "size_m": [
+     0.837,
+     0.302,
+     0.587
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     1,
+     2,
+     3,
+     4,
+     8,
+     11,
+     16,
+     17,
+     18,
+     24,
+     27
+    ],
+    "owl_label": "tv",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_00.jpg",
+    "note": "Black flat-screen TV on a stand, sitting on a small wooden table; the box roughly encloses it, though the screen edges stick out slightly.",
+    "merged_from": [
+     "tv",
+     "desk",
+     "tv bench"
+    ],
+    "seen_by": {
+     "A": [
+      1,
+      2,
+      3,
+      4,
+      8,
+      11,
+      16,
+      17,
+      18,
+      24,
+      27
+     ],
+     "B": [
+      2,
+      3,
+      7,
+      15,
+      16,
+      18,
+      20,
+      21,
+      25,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o01",
+    "label": "laundry basket",
+    "score": 0.825,
+    "centre_m": [
+     -2.055,
+     0.573,
+     0.297
+    ],
+    "size_m": [
+     0.531,
+     0.428,
+     0.594
+    ],
+    "yaw_deg": 66.0,
+    "frames": [
+     0,
+     1,
+     5,
+     6,
+     16,
+     17,
+     18,
+     24,
+     25,
+     27
+    ],
+    "owl_label": "laundry basket",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "grey",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_01.jpg",
+    "note": "Striped fabric laundry basket full of clothes; box roughly encloses it.",
+    "seen_by": {
+     "A": [
+      0,
+      1,
+      5,
+      6,
+      16,
+      17,
+      18,
+      24,
+      25,
+      27
+     ],
+     "B": [
+      0,
+      5,
+      6,
+      15,
+      16,
+      20,
+      21,
+      25
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o02",
+    "label": "bedside table",
+    "score": 0.799,
+    "centre_m": [
+     -1.821,
+     -0.998,
+     0.285
+    ],
+    "size_m": [
+     0.424,
+     0.411,
+     0.571
+    ],
+    "yaw_deg": 52.0,
+    "frames": [
+     0,
+     1,
+     5,
+     6,
+     11,
+     12,
+     16,
+     25,
+     26
+    ],
+    "owl_label": "bedside table",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "beige",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_02.jpg",
+    "note": "small wooden nightstand with rattan drawer and splayed legs, box encloses it fairly well",
+    "merged_from": [
+     "bedside table",
+     "chair"
+    ],
+    "seen_by": {
+     "A": [
+      0,
+      1,
+      5,
+      6,
+      11,
+      12,
+      16,
+      25,
+      26
+     ],
+     "B": [
+      0,
+      1,
+      2,
+      4,
+      5,
+      6,
+      10,
+      11,
+      15,
+      16,
+      20
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o03",
+    "label": "laptop",
+    "score": 0.686,
+    "centre_m": [
+     0.545,
+     2.305,
+     1.077
+    ],
+    "size_m": [
+     0.363,
+     0.277,
+     0.258
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     3,
+     4,
+     8,
+     9,
+     10,
+     14,
+     17,
+     18,
+     24,
+     27
+    ],
+    "owl_label": "laptop",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "gray",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_03.jpg",
+    "note": "Box encloses an open laptop on a stand; it hugs the screen and keyboard, though it is slightly offset from the base.",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      8,
+      9,
+      10,
+      14,
+      17,
+      18,
+      24,
+      27
+     ],
+     "B": [
+      3,
+      8,
+      14,
+      16,
+      20,
+      21,
+      25,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o04",
+    "label": "radiator",
+    "score": 0.82,
+    "centre_m": [
+     0.937,
+     -1.903,
+     0.34
+    ],
+    "size_m": [
+     0.61,
+     0.195,
+     0.368
+    ],
+    "yaw_deg": -2.0,
+    "frames": [
+     1,
+     2,
+     7,
+     11,
+     12,
+     16,
+     19,
+     20,
+     22
+    ],
+    "owl_label": "radiator",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_04.jpg",
+    "note": "White column radiator under the window, mostly enclosed by the box; one end extends slightly past it.",
+    "seen_by": {
+     "A": [
+      1,
+      2,
+      7,
+      11,
+      12,
+      16,
+      19,
+      20,
+      22
+     ],
+     "B": [
+      0,
+      1,
+      2,
+      10,
+      15,
+      19,
+      27
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o05",
+    "label": "pillow",
+    "score": 0.503,
+    "centre_m": [
+     -1.165,
+     -1.404,
+     0.67
+    ],
+    "size_m": [
+     0.809,
+     0.361,
+     0.281
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     0,
+     1,
+     7,
+     12,
+     16,
+     21,
+     25,
+     26
+    ],
+    "owl_label": "pillow",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "grey",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_05.jpg",
+    "note": "grey pillow lying against the headboard on the bed, box encloses it reasonably",
+    "merged_from": [
+     "pillow",
+     "pillow"
+    ],
+    "seen_by": {
+     "A": [
+      0,
+      1,
+      7,
+      12,
+      16,
+      21,
+      25,
+      26
+     ],
+     "B": [
+      1,
+      2,
+      4,
+      6,
+      10,
+      11,
+      15,
+      20,
+      23,
+      24,
+      28
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o06",
+    "label": "monitor",
+    "score": 0.708,
+    "centre_m": [
+     0.927,
+     2.076,
+     0.891
+    ],
+    "size_m": [
+     0.326,
+     0.182,
+     0.213
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     3,
+     4,
+     8,
+     9,
+     10,
+     13,
+     14,
+     15,
+     17,
+     23,
+     24,
+     27
+    ],
+    "owl_label": "laptop",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "silver",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_06.jpg",
+    "note": "Box encloses a small portable monitor standing on the desk behind the keyboard, not a laptop; wireframe roughly covers the screen.",
+    "merged_from": [
+     "laptop",
+     "monitor"
+    ],
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      8,
+      9,
+      10,
+      13,
+      14,
+      15,
+      17,
+      23,
+      24,
+      27
+     ],
+     "B": [
+      3,
+      8,
+      14,
+      16,
+      21,
+      25,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o07",
+    "label": "pillow",
+    "score": 0.561,
+    "centre_m": [
+     -0.606,
+     -1.681,
+     0.765
+    ],
+    "size_m": [
+     0.611,
+     0.382,
+     0.204
+    ],
+    "yaw_deg": 16.0,
+    "frames": [
+     0,
+     1,
+     2,
+     7,
+     12,
+     16,
+     20,
+     21,
+     25
+    ],
+    "owl_label": "pillow",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "gray",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_07.jpg",
+    "note": "Grey pillow lying against the headboard on the bed; the box encloses it reasonably well.",
+    "seen_by": {
+     "A": [
+      0,
+      1,
+      2,
+      7,
+      12,
+      16,
+      20,
+      21,
+      25
+     ],
+     "B": [
+      1,
+      2,
+      4,
+      10,
+      15,
+      20,
+      23,
+      28
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o08",
+    "label": "desk",
+    "score": 0.666,
+    "centre_m": [
+     0.843,
+     1.971,
+     0.403
+    ],
+    "size_m": [
+     1.395,
+     0.637,
+     0.807
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     1,
+     2,
+     3,
+     4,
+     8,
+     17,
+     18
+    ],
+    "owl_label": "desk",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_08.jpg",
+    "note": "Box encloses the black desk with wood-edged top and legs; items on top are separate objects.",
+    "seen_by": {
+     "A": [
+      1,
+      2,
+      3,
+      4,
+      8,
+      17,
+      18
+     ],
+     "B": [
+      3,
+      7,
+      12,
+      14,
+      16,
+      21
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o09",
+    "label": "door",
+    "score": 0.642,
+    "centre_m": [
+     -2.743,
+     -0.555,
+     0.922
+    ],
+    "size_m": [
+     0.845,
+     0.074,
+     1.844
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     5,
+     6,
+     12,
+     16,
+     25,
+     26
+    ],
+    "owl_label": "door",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "brown",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_09.jpg",
+    "note": "Box covers the wooden interior door standing in its frame; the top edge sits slightly below the door top.",
+    "seen_by": {
+     "A": [
+      5,
+      6,
+      12,
+      16,
+      25,
+      26
+     ],
+     "B": [
+      4,
+      5,
+      6,
+      15,
+      16,
+      20
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o10",
+    "label": "office chair",
+    "score": 0.583,
+    "centre_m": [
+     0.359,
+     1.754,
+     0.57
+    ],
+    "size_m": [
+     1.026,
+     0.797,
+     1.141
+    ],
+    "yaw_deg": -20.0,
+    "frames": [
+     4,
+     8,
+     23
+    ],
+    "owl_label": "office chair",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_10.jpg",
+    "note": "Box encloses the black mesh office chair by the desk; only the headrest pokes slightly above the box.",
+    "merged_from": [
+     "office chair",
+     "office chair"
+    ],
+    "seen_by": {
+     "A": [
+      4,
+      8,
+      23
+     ],
+     "B": [
+      3,
+      7,
+      12,
+      13,
+      14,
+      16,
+      20,
+      21,
+      25,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o11",
+    "label": "tv bench",
+    "score": 0.5,
+    "centre_m": [
+     0.611,
+     0.351,
+     0.268
+    ],
+    "size_m": [
+     0.893,
+     0.417,
+     0.536
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     3,
+     4,
+     11,
+     17,
+     18,
+     27
+    ],
+    "owl_label": "desk",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "brown",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_refit_02.jpg",
+    "note": "Low rustic wooden bench with TV on it; box covers the bench roughly",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      11,
+      17,
+      18,
+      27
+     ],
+     "B": [
+      3,
+      7,
+      15,
+      17,
+      18,
+      21,
+      22,
+      25,
+      26
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "shrunk",
+     "from_centre_m": [
+      0.557,
+      0.297,
+      0.356
+     ],
+     "from_size_m": [
+      0.933,
+      0.6,
+      0.711
+     ],
+     "iou": [
+      0.62,
+      0.82
+     ]
+    }
+   },
+   {
+    "id": "o12",
+    "label": "door",
+    "score": 0.593,
+    "centre_m": [
+     -0.293,
+     1.802,
+     0.956
+    ],
+    "size_m": [
+     0.663,
+     0.417,
+     1.741
+    ],
+    "yaw_deg": 74.0,
+    "frames": [
+     3,
+     4,
+     8,
+     17,
+     18,
+     24,
+     27
+    ],
+    "owl_label": "door",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "brown",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_12.jpg",
+    "note": "Wooden door with handle; the box covers most of it, but the door extends above the box top and past its right side.",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      8,
+      17,
+      18,
+      24,
+      27
+     ],
+     "B": [
+      13,
+      16,
+      20,
+      21,
+      25
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o13",
+    "label": "bedside table",
+    "score": 0.827,
+    "centre_m": [
+     -0.35,
+     -2.073,
+     0.309
+    ],
+    "size_m": [
+     0.352,
+     0.317,
+     0.618
+    ],
+    "yaw_deg": -50.0,
+    "frames": [
+     16,
+     20,
+     21
+    ],
+    "owl_label": "bedside table",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "beige",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_refit_00.jpg",
+    "note": "Box encloses the light wooden bedside table with drawer and legs, air purifier sits on top mostly outside.",
+    "merged_from": [
+     "bedside table",
+     "remote control"
+    ],
+    "seen_by": {
+     "A": [
+      16,
+      20,
+      21
+     ],
+     "B": [
+      10,
+      15,
+      23,
+      24,
+      28
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      -0.326,
+      -2.069,
+      0.507
+     ],
+     "iou": [
+      0.42,
+      0.51
+     ],
+     "from_size_m": [
+      0.298,
+      0.275,
+      0.222
+     ],
+     "recall": [
+      0.78,
+      1.0
+     ],
+     "precision": [
+      0.83,
+      0.72
+     ],
+     "views": 11,
+     "walls": 4
+    }
+   },
+   {
+    "id": "o14",
+    "label": "radiator",
+    "score": 0.744,
+    "centre_m": [
+     2.497,
+     -0.098,
+     0.327
+    ],
+    "size_m": [
+     0.466,
+     0.371,
+     0.331
+    ],
+    "yaw_deg": 52.0,
+    "frames": [
+     2,
+     8,
+     22,
+     23
+    ],
+    "owl_label": "radiator",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_14.jpg",
+    "note": "White column radiator under window, box covers most of it",
+    "seen_by": {
+     "A": [
+      2,
+      8,
+      22,
+      23
+     ],
+     "B": [
+      7,
+      10,
+      19,
+      26,
+      27
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "placed",
+     "from_centre_m": [
+      2.323,
+      -0.191,
+      0.297
+     ],
+     "from_size_m": [
+      0.583,
+      0.464,
+      0.413
+     ],
+     "iou": [
+      0.38,
+      0.59
+     ],
+     "recall": [
+      1.0,
+      0.97
+     ],
+     "precision": [
+      0.42,
+      0.67
+     ],
+     "views": 9
+    }
+   },
+   {
+    "id": "o15",
+    "label": "potted plant",
+    "score": 0.569,
+    "centre_m": [
+     1.436,
+     1.77,
+     0.875
+    ],
+    "size_m": [
+     0.147,
+     0.125,
+     0.124
+    ],
+    "yaw_deg": -74.0,
+    "frames": [
+     2,
+     3,
+     4,
+     8,
+     9,
+     10,
+     13,
+     15,
+     24,
+     27
+    ],
+    "owl_label": "plant",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "green",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_15.jpg",
+    "note": "Box encloses a small green potted plant in a black pot on the desk; it roughly fits the foliage, though the pot base is slightly outside.",
+    "seen_by": {
+     "A": [
+      2,
+      3,
+      4,
+      8,
+      9,
+      10,
+      13,
+      15,
+      24,
+      27
+     ],
+     "B": [
+      3,
+      8,
+      9,
+      14,
+      25,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o17",
+    "label": "mouse",
+    "score": 0.855,
+    "centre_m": [
+     1.064,
+     1.73,
+     0.807
+    ],
+    "size_m": [
+     0.093,
+     0.078,
+     0.031
+    ],
+    "yaw_deg": 26.0,
+    "frames": [
+     3,
+     4,
+     8,
+     9,
+     10,
+     13,
+     17,
+     18,
+     23
+    ],
+    "owl_label": "mouse",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_17.jpg",
+    "note": "Black Logitech mouse on desk mat, box encloses it closely.",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      8,
+      9,
+      10,
+      13,
+      17,
+      18,
+      23
+     ],
+     "B": [
+      8,
+      9,
+      12,
+      14,
+      16,
+      26
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      1.057,
+      1.732,
+      0.816
+     ],
+     "iou": [
+      0.47,
+      0.64
+     ],
+     "from_size_m": [
+      0.082,
+      0.058,
+      0.012
+     ],
+     "recall": [
+      0.55,
+      0.91
+     ],
+     "precision": [
+      0.84,
+      0.73
+     ],
+     "views": 15,
+     "walls": 2
+    }
+   },
+   {
+    "id": "o18",
+    "label": "wooden chair",
+    "score": 0.569,
+    "centre_m": [
+     2.108,
+     -0.357,
+     0.385
+    ],
+    "size_m": [
+     0.751,
+     0.507,
+     0.77
+    ],
+    "yaw_deg": -12.0,
+    "frames": [
+     1
+    ],
+    "owl_label": "chair",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "brown",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_18.jpg",
+    "note": "Box encloses a single wooden chair with dark green seat; fits reasonably closely.",
+    "seen_by": {
+     "A": [
+      1
+     ],
+     "B": [
+      2,
+      9,
+      10,
+      19,
+      26,
+      27
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o19",
+    "label": "book",
+    "score": 0.552,
+    "centre_m": [
+     -0.966,
+     -1.886,
+     1.207
+    ],
+    "size_m": [
+     0.388,
+     0.11,
+     0.2
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     7,
+     12,
+     16,
+     25,
+     26
+    ],
+    "owl_label": "book",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_22.jpg",
+    "note": "Fourth Wing book standing upright on headboard shelf; box hugs it",
+    "merged_from": [
+     "book",
+     "book"
+    ],
+    "seen_by": {
+     "A": [
+      7,
+      12,
+      16,
+      25,
+      26
+     ],
+     "B": [
+      1,
+      2,
+      4,
+      10,
+      15,
+      20,
+      24
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o20",
+    "label": "desk mat",
+    "score": 0.547,
+    "centre_m": [
+     0.99,
+     1.896,
+     0.59
+    ],
+    "size_m": [
+     0.662,
+     0.66,
+     0.475
+    ],
+    "yaw_deg": -72.0,
+    "frames": [
+     8,
+     9,
+     10,
+     23,
+     27
+    ],
+    "owl_label": "desk mat",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "too_big",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_20.jpg",
+    "note": "Box spans the black desk mat on the desk top but extends well below the desk surface into empty space and reaches toward the keyboard and laptop stand.",
+    "seen_by": {
+     "A": [
+      8,
+      9,
+      10,
+      23,
+      27
+     ],
+     "B": [
+      3,
+      8,
+      9
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o21",
+    "label": "trash can",
+    "score": 0.754,
+    "centre_m": [
+     -0.75,
+     0.818,
+     0.144
+    ],
+    "size_m": [
+     0.213,
+     0.19,
+     0.23
+    ],
+    "yaw_deg": -32.0,
+    "frames": [
+     0,
+     1,
+     2,
+     11,
+     17,
+     18,
+     24,
+     27
+    ],
+    "owl_label": "trash can",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_21.jpg",
+    "note": "black mesh wastebasket; box covers it but appears shorter/offset than the full can height",
+    "merged_from": [
+     "o16"
+    ],
+    "seen_by": {
+     "A": [
+      0,
+      1,
+      2,
+      11,
+      17,
+      18,
+      24,
+      27
+     ]
+    },
+    "state": "moved",
+    "change": "c03",
+    "positions": {
+     "A": {
+      "centre_m": [
+       -0.75,
+       0.818,
+       0.144
+      ],
+      "size_m": [
+       0.213,
+       0.19,
+       0.23
+      ],
+      "yaw_deg": -32.0
+     },
+     "B": {
+      "centre_m": [
+       -0.309,
+       1.645,
+       0.146
+      ],
+      "size_m": [
+       0.325,
+       0.206,
+       0.292
+      ],
+      "yaw_deg": -82.0
+     }
+    },
+    "grown": {
+     "mode": "placed",
+     "from_centre_m": [
+      -0.794,
+      0.822,
+      0.144
+     ],
+     "from_size_m": [
+      0.266,
+      0.238,
+      0.287
+     ],
+     "iou": [
+      0.47,
+      0.66
+     ],
+     "recall": [
+      1.0,
+      0.97
+     ],
+     "precision": [
+      0.41,
+      0.65
+     ],
+     "views": 8
+    }
+   },
+   {
+    "id": "o22",
+    "label": "air purifier",
+    "score": 0.82,
+    "centre_m": [
+     -0.281,
+     -1.952,
+     0.131
+    ],
+    "size_m": [
+     0.328,
+     0.165,
+     0.263
+    ],
+    "yaw_deg": 52.0,
+    "frames": [
+     16,
+     19,
+     20,
+     21
+    ],
+    "owl_label": "air purifier",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_23.jpg",
+    "note": "White cylindrical air purifier on floor under bedside table, box roughly encloses it",
+    "merged_from": [
+     "o31"
+    ],
+    "seen_by": {
+     "A": [
+      16,
+      19,
+      20,
+      21
+     ],
+     "B": [
+      22
+     ]
+    },
+    "state": "moved",
+    "change": "c04",
+    "positions": {
+     "A": {
+      "centre_m": [
+       -0.281,
+       -1.952,
+       0.131
+      ],
+      "size_m": [
+       0.328,
+       0.165,
+       0.263
+      ],
+      "yaw_deg": 52.0
+     },
+     "B": {
+      "centre_m": [
+       -0.342,
+       -2.097,
+       0.74
+      ],
+      "size_m": [
+       0.191,
+       0.107,
+       0.325
+      ],
+      "yaw_deg": -82.0
+     }
+    }
+   },
+   {
+    "id": "o24",
+    "label": "wall socket",
+    "score": 0.719,
+    "centre_m": [
+     1.165,
+     2.147,
+     1.655
+    ],
+    "size_m": [
+     0.093,
+     0.014,
+     0.092
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     8,
+     13,
+     14,
+     15,
+     23,
+     24,
+     27
+    ],
+    "owl_label": "light switch",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_25.jpg",
+    "note": "UK-style single switched socket with three pin holes and a switch, tightly boxed; not a light switch",
+    "seen_by": {
+     "A": [
+      8,
+      13,
+      14,
+      15,
+      23,
+      24,
+      27
+     ],
+     "B": [
+      3,
+      8,
+      25,
+      26
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      1.159,
+      2.152,
+      1.666
+     ],
+     "iou": [
+      0.61,
+      0.84
+     ],
+     "from_size_m": [
+      0.076,
+      0.014,
+      0.07
+     ],
+     "recall": [
+      0.61,
+      0.95
+     ],
+     "precision": [
+      0.92,
+      0.87
+     ],
+     "views": 11,
+     "walls": 9
+    }
+   },
+   {
+    "id": "o25",
+    "label": "wall socket",
+    "score": 0.684,
+    "centre_m": [
+     0.505,
+     2.578,
+     1.663
+    ],
+    "size_m": [
+     0.108,
+     0.056,
+     0.077
+    ],
+    "yaw_deg": 10.0,
+    "frames": [
+     8,
+     13,
+     14,
+     15
+    ],
+    "owl_label": "wall socket",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_26.jpg",
+    "note": "White wall socket with a black plug/charger inserted; the box roughly hugs the socket plate.",
+    "seen_by": {
+     "A": [
+      8,
+      13,
+      14,
+      15
+     ],
+     "B": [
+      3,
+      8,
+      16,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o27",
+    "label": "potted plant",
+    "score": 0.59,
+    "centre_m": [
+     -0.686,
+     -2.136,
+     1.194
+    ],
+    "size_m": [
+     0.119,
+     0.116,
+     0.163
+    ],
+    "yaw_deg": -54.0,
+    "frames": [
+     7,
+     12,
+     16,
+     25,
+     26
+    ],
+    "owl_label": "plant",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "green",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_28.jpg",
+    "note": "Small green plant in black pot on shelf above bed; box encloses it well.",
+    "seen_by": {
+     "A": [
+      7,
+      12,
+      16,
+      25,
+      26
+     ],
+     "B": [
+      4,
+      10,
+      15,
+      24
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o28",
+    "label": "speaker",
+    "score": 0.464,
+    "centre_m": [
+     1.142,
+     1.413,
+     0.869
+    ],
+    "size_m": [
+     0.089,
+     0.065,
+     0.168
+    ],
+    "yaw_deg": -40.0,
+    "frames": [
+     3,
+     4,
+     8,
+     13,
+     17,
+     18,
+     23,
+     24,
+     27
+    ],
+    "owl_label": "speaker",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "orange",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_29.jpg",
+    "note": "Orange cylindrical portable speaker (JBL-style) standing upright on desk corner; box hugs it well.",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      8,
+      13,
+      17,
+      18,
+      23,
+      24,
+      27
+     ]
+    },
+    "state": "A",
+    "change": "c02",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      1.133,
+      1.415,
+      0.882
+     ],
+     "iou": [
+      0.59,
+      0.74
+     ],
+     "from_size_m": [
+      0.072,
+      0.058,
+      0.142
+     ],
+     "recall": [
+      0.7,
+      0.96
+     ],
+     "precision": [
+      0.76,
+      0.74
+     ],
+     "views": 9,
+     "walls": 5
+    }
+   },
+   {
+    "id": "o29",
+    "label": "cup",
+    "score": 0.46,
+    "centre_m": [
+     0.462,
+     2.648,
+     0.849
+    ],
+    "size_m": [
+     0.109,
+     0.061,
+     0.128
+    ],
+    "yaw_deg": -70.0,
+    "frames": [
+     3,
+     4,
+     9,
+     10,
+     14
+    ],
+    "owl_label": "cup",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_30.jpg",
+    "note": "White cylindrical cup-like object with printed text and dark rim, sitting on a black item on the desk; the box hugs it.",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      9,
+      10,
+      14
+     ],
+     "B": [
+      8
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "placed",
+     "from_centre_m": [
+      0.394,
+      2.601,
+      0.898
+     ],
+     "from_size_m": [
+      0.137,
+      0.076,
+      0.161
+     ],
+     "iou": [
+      0.43,
+      0.66
+     ],
+     "recall": [
+      1.0,
+      0.91
+     ],
+     "precision": [
+      0.46,
+      0.76
+     ],
+     "views": 6
+    }
+   },
+   {
+    "id": "o30",
+    "label": "speaker",
+    "score": 0.468,
+    "centre_m": [
+     0.659,
+     0.459,
+     0.544
+    ],
+    "size_m": [
+     0.274,
+     0.155,
+     0.18
+    ],
+    "yaw_deg": -34.0,
+    "frames": [
+     8,
+     17,
+     18
+    ],
+    "owl_label": "speaker",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_31.jpg",
+    "note": "Black box-shaped speaker sitting on the tv bench behind the TV, beside a red cylindrical speaker; the wireframe hugs it reasonably well.",
+    "merged_from": [
+     "speaker",
+     "cup"
+    ],
+    "seen_by": {
+     "A": [
+      8,
+      17,
+      18
+     ],
+     "B": [
+      3,
+      7,
+      15,
+      16,
+      17,
+      18
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o32",
+    "label": "floor lamp",
+    "score": 0.441,
+    "centre_m": [
+     0.326,
+     -1.916,
+     0.609
+    ],
+    "size_m": [
+     0.252,
+     0.169,
+     1.217
+    ],
+    "yaw_deg": -6.0,
+    "frames": [
+     16,
+     20
+    ],
+    "owl_label": "lamp",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_33.jpg",
+    "note": "Thin black pole floor lamp with round base; box is offset and the pole extends above its top.",
+    "seen_by": {
+     "A": [
+      16,
+      20
+     ],
+     "B": [
+      15,
+      22
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o33",
+    "label": "remote control",
+    "score": 0.519,
+    "centre_m": [
+     -1.689,
+     -0.866,
+     0.503
+    ],
+    "size_m": [
+     0.082,
+     0.028,
+     0.074
+    ],
+    "yaw_deg": -52.0,
+    "frames": [
+     5,
+     6
+    ],
+    "owl_label": "remote control",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_34.jpg",
+    "note": "White slim remote lying on the bedside table's rattan shelf; it extends beyond the small box.",
+    "seen_by": {
+     "A": [
+      5,
+      6
+     ],
+     "B": [
+      5
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o34",
+    "label": "wardrobe",
+    "score": 0.647,
+    "centre_m": [
+     1.787,
+     0.922,
+     1.131
+    ],
+    "size_m": [
+     1.441,
+     0.494,
+     2.262
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     1,
+     4,
+     23
+    ],
+    "owl_label": "door",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_48.jpg",
+    "note": "Box encloses the tall white double-door wardrobe; the door label is wrong, and the box sits slightly above the floor.",
+    "merged_from": [
+     "refrigerator",
+     "door"
+    ],
+    "seen_by": {
+     "A": [
+      1,
+      4,
+      23
+     ],
+     "B": [
+      17,
+      18,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o35",
+    "label": "backpack",
+    "score": 0.537,
+    "centre_m": [
+     -2.427,
+     0.805,
+     0.346
+    ],
+    "size_m": [
+     0.426,
+     0.261,
+     0.296
+    ],
+    "yaw_deg": 80.0,
+    "frames": [
+     0,
+     5,
+     6
+    ],
+    "owl_label": "backpack",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_47.jpg",
+    "note": "Black backpack on the floor by the wall. The box covers its upper body but floats above the floor and misses the lower part and straps, and it clips the water b",
+    "merged_from": [
+     "bag",
+     "backpack"
+    ],
+    "seen_by": {
+     "A": [
+      0,
+      5,
+      6
+     ],
+     "B": [
+      0,
+      5
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o36",
+    "label": "spray bottle",
+    "score": 0.392,
+    "centre_m": [
+     0.404,
+     2.42,
+     0.853
+    ],
+    "size_m": [
+     0.159,
+     0.08,
+     0.086
+    ],
+    "yaw_deg": 38.0,
+    "frames": [
+     3,
+     4,
+     9,
+     10
+    ],
+    "owl_label": "cup",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "blue",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_40.jpg",
+    "note": "Box encloses a clear spray bottle with blue liquid on the desk beside the laptop, not a cup.",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      9,
+      10
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o37",
+    "label": "keyboard",
+    "score": 0.632,
+    "centre_m": [
+     0.834,
+     1.925,
+     0.788
+    ],
+    "size_m": [
+     0.26,
+     0.152,
+     0.037
+    ],
+    "yaw_deg": -68.0,
+    "frames": [
+     9,
+     10,
+     17,
+     18,
+     23,
+     24,
+     27
+    ],
+    "owl_label": "keyboard",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "grey",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_refit_04.jpg",
+    "note": "Compact dark grey keyboard on the desk mat; the box covers it closely, though slightly offset.",
+    "seen_by": {
+     "A": [
+      9,
+      10,
+      17,
+      18,
+      23,
+      24,
+      27
+     ],
+     "B": [
+      7,
+      8,
+      12,
+      14,
+      16,
+      21,
+      25,
+      26
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "shrunk",
+     "from_centre_m": [
+      0.838,
+      1.964,
+      0.805
+     ],
+     "from_size_m": [
+      0.328,
+      0.199,
+      0.071
+     ],
+     "iou": [
+      0.51,
+      0.7
+     ]
+    }
+   },
+   {
+    "id": "o39",
+    "label": "potted plant",
+    "score": 0.606,
+    "centre_m": [
+     -1.376,
+     -1.578,
+     1.174
+    ],
+    "size_m": [
+     0.148,
+     0.043,
+     0.137
+    ],
+    "yaw_deg": -16.0,
+    "frames": [
+     1,
+     7,
+     25,
+     26
+    ],
+    "owl_label": "plant",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "green",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_refit_05.jpg",
+    "note": "small potted plant with black pot on bed headboard shelf; box roughly covers it",
+    "seen_by": {
+     "A": [
+      1,
+      7,
+      25,
+      26
+     ],
+     "B": [
+      1,
+      2,
+      4,
+      20
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "shrunk",
+     "from_centre_m": [
+      -1.436,
+      -1.573,
+      1.165
+     ],
+     "from_size_m": [
+      0.295,
+      0.071,
+      0.153
+     ],
+     "iou": [
+      0.4,
+      0.68
+     ]
+    }
+   },
+   {
+    "id": "o40",
+    "label": "window blind",
+    "score": 0.42,
+    "centre_m": [
+     0.907,
+     -1.971,
+     1.583
+    ],
+    "size_m": [
+     0.732,
+     0.178,
+     1.596
+    ],
+    "yaw_deg": 6.0,
+    "frames": [
+     7
+    ],
+    "owl_label": "window",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "grey",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_45.jpg",
+    "note": "Box encloses a grey roller blind pulled down over a tall window above the radiator.",
+    "seen_by": {
+     "A": [
+      7
+     ],
+     "B": [
+      1,
+      2,
+      10
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      0.907,
+      -1.971,
+      1.598
+     ],
+     "iou": [
+      0.63,
+      0.7
+     ],
+     "from_size_m": [
+      0.732,
+      0.178,
+      1.367
+     ],
+     "recall": [
+      0.81,
+      0.94
+     ],
+     "precision": [
+      0.75,
+      0.73
+     ],
+     "views": 4,
+     "walls": 0
+    }
+   },
+   {
+    "id": "o41",
+    "label": "bed",
+    "score": 0.513,
+    "centre_m": [
+     -0.034,
+     -0.387,
+     0.34
+    ],
+    "size_m": [
+     1.587,
+     1.58,
+     0.68
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     1,
+     2,
+     3,
+     4,
+     11
+    ],
+    "owl_label": "bed",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "grey",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_49.jpg",
+    "note": "only part of the bed was boxed: Low floor-level box covers only the bed's lower base and nearby floor; the grey bed extends well beyond it.",
+    "merged_from": [
+     "desk",
+     "bed"
+    ],
+    "seen_by": {
+     "A": [
+      1,
+      2,
+      3,
+      4,
+      11
+     ],
+     "B": [
+      0,
+      2,
+      21,
+      22,
+      25,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o42",
+    "label": "bed",
+    "score": 0.344,
+    "centre_m": [
+     -1.197,
+     -1.721,
+     1.015
+    ],
+    "size_m": [
+     1.105,
+     0.134,
+     0.32
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     7,
+     25
+    ],
+    "owl_label": "shelf",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "navy",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_50.jpg",
+    "note": "only part of the bed was boxed: Box covers the upper slatted part of the navy bed headboard below the wooden top shelf, only a portion of the bed's headboard.",
+    "seen_by": {
+     "A": [
+      7,
+      25
+     ],
+     "B": [
+      2,
+      24
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o43",
+    "label": "wooden chair",
+    "score": 0.516,
+    "centre_m": [
+     1.004,
+     -1.754,
+     0.511
+    ],
+    "size_m": [
+     1.07,
+     0.486,
+     0.555
+    ],
+    "yaw_deg": 52.0,
+    "frames": [
+     1,
+     2,
+     7,
+     16,
+     19,
+     22
+    ],
+    "owl_label": "chair",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "brown",
+    "fit": "too_big",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_51.jpg",
+    "note": "Wooden chair with dark seat; box extends far sideways into empty space and misses the lower legs.",
+    "seen_by": {
+     "A": [
+      1,
+      2,
+      7,
+      16,
+      19,
+      22
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o44",
+    "label": "wall socket",
+    "score": 0.471,
+    "centre_m": [
+     -0.925,
+     1.121,
+     1.661
+    ],
+    "size_m": [
+     0.149,
+     0.017,
+     0.105
+    ],
+    "yaw_deg": 50.0,
+    "frames": [
+     12,
+     24,
+     27
+    ],
+    "owl_label": "light switch",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_53.jpg",
+    "note": "UK double socket plate with pin holes and switch, box hugs plate",
+    "seen_by": {
+     "A": [
+      12,
+      24,
+      27
+     ],
+     "B": [
+      3,
+      15,
+      16,
+      20,
+      21,
+      25
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      -0.935,
+      1.109,
+      1.667
+     ],
+     "iou": [
+      0.65,
+      0.82
+     ],
+     "from_size_m": [
+      0.117,
+      0.017,
+      0.094
+     ],
+     "recall": [
+      0.71,
+      1.0
+     ],
+     "precision": [
+      0.84,
+      0.83
+     ],
+     "views": 9,
+     "walls": 8
+    }
+   },
+   {
+    "id": "o45",
+    "label": "window blind",
+    "score": 0.282,
+    "centre_m": [
+     2.504,
+     -0.052,
+     1.583
+    ],
+    "size_m": [
+     0.529,
+     0.528,
+     1.596
+    ],
+    "yaw_deg": 10.0,
+    "frames": [
+     1,
+     2,
+     23
+    ],
+    "owl_label": "window",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "grey",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_54.jpg",
+    "note": "Box encloses a tall window recess fully covered by a pulled-down grey roller blind.",
+    "seen_by": {
+     "A": [
+      1,
+      2,
+      23
+     ],
+     "B": [
+      2
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      2.504,
+      -0.052,
+      1.602
+     ],
+     "iou": [
+      0.75,
+      0.84
+     ],
+     "from_size_m": [
+      0.529,
+      0.528,
+      1.368
+     ],
+     "recall": [
+      0.82,
+      0.95
+     ],
+     "precision": [
+      0.92,
+      0.9
+     ],
+     "views": 4,
+     "walls": 0
+    }
+   },
+   {
+    "id": "o46",
+    "label": "light switch",
+    "score": 0.745,
+    "centre_m": [
+     -2.265,
+     -0.951,
+     1.368
+    ],
+    "size_m": [
+     0.085,
+     0.013,
+     0.094
+    ],
+    "yaw_deg": -40.0,
+    "frames": [
+     12,
+     26
+    ],
+    "owl_label": "light switch",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_56.jpg",
+    "note": "Small square switch plate on wall near door, box hugs it.",
+    "seen_by": {
+     "A": [
+      12,
+      26
+     ],
+     "B": [
+      1,
+      2,
+      4
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      -2.258,
+      -0.953,
+      1.379
+     ],
+     "iou": [
+      -1.0,
+      0.82
+     ],
+     "from_size_m": [
+      0.073,
+      0.008,
+      0.064
+     ],
+     "recall": [
+      0.57,
+      0.94
+     ],
+     "precision": [
+      0.98,
+      0.87
+     ],
+     "views": 5,
+     "walls": 3
+    }
+   },
+   {
+    "id": "o47",
+    "label": "water bottle pack",
+    "score": 0.366,
+    "centre_m": [
+     -2.507,
+     0.661,
+     0.173
+    ],
+    "size_m": [
+     0.212,
+     0.178,
+     0.346
+    ],
+    "yaw_deg": -70.0,
+    "frames": [
+     0,
+     6
+    ],
+    "owl_label": "bag",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "blue",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_58.jpg",
+    "note": "6-pack of Highland Spring bottles in shrink wrap on the floor; the box closely encloses it.",
+    "seen_by": {
+     "A": [
+      0,
+      6
+     ],
+     "B": [
+      0,
+      5
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o48",
+    "label": "door handle",
+    "score": 0.341,
+    "centre_m": [
+     -0.456,
+     1.652,
+     1.002
+    ],
+    "size_m": [
+     0.204,
+     0.02,
+     0.124
+    ],
+    "yaw_deg": 50.0,
+    "frames": [
+     3,
+     4
+    ],
+    "owl_label": "lamp",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "silver",
+    "part_of": "door",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_59.jpg",
+    "note": "Lever door handle with escutcheon and lock on wooden door; box hugs it.",
+    "seen_by": {
+     "A": [
+      3,
+      4
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o49",
+    "label": "remote control",
+    "score": 0.653,
+    "centre_m": [
+     1.381,
+     1.627,
+     0.759
+    ],
+    "size_m": [
+     0.192,
+     0.082,
+     0.037
+    ],
+    "yaw_deg": 2.0,
+    "frames": [
+     3,
+     4,
+     8,
+     9,
+     10,
+     13
+    ],
+    "owl_label": "remote control",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_60.jpg",
+    "note": "Black TV remote lying on the desk next to the desk mat; the box roughly covers it.",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      8,
+      9,
+      10,
+      13
+     ],
+     "B": [
+      8,
+      9,
+      14
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "placed",
+     "from_centre_m": [
+      1.38,
+      1.647,
+      0.759
+     ],
+     "from_size_m": [
+      0.24,
+      0.103,
+      0.046
+     ],
+     "iou": [
+      0.4,
+      0.57
+     ],
+     "recall": [
+      1.0,
+      0.94
+     ],
+     "precision": [
+      0.42,
+      0.67
+     ],
+     "views": 9
+    }
+   },
+   {
+    "id": "o50",
+    "label": "door stopper",
+    "score": 0.327,
+    "centre_m": [
+     1.841,
+     0.818,
+     0.097
+    ],
+    "size_m": [
+     0.213,
+     0.128,
+     0.193
+    ],
+    "yaw_deg": -6.0,
+    "frames": [],
+    "owl_label": "wall socket",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_61.jpg",
+    "note": "Small white wedge/stopper at the floor against the baseboard, not a wall socket.",
+    "seen_by": {
+     "B": [
+      3,
+      7
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o53",
+    "label": "wooden chair",
+    "score": 0.292,
+    "centre_m": [
+     0.609,
+     0.63,
+     0.483
+    ],
+    "size_m": [
+     0.356,
+     0.175,
+     0.172
+    ],
+    "yaw_deg": -24.0,
+    "frames": [
+     18
+    ],
+    "owl_label": "chair",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "brown",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_65.jpg",
+    "note": "only part of the wooden chair was boxed: Box covers part of a wooden chair seat/stool top with a red speaker and black bag on it; mixed contents, not one object",
+    "seen_by": {
+     "A": [
+      18
+     ],
+     "B": [
+      16
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      0.598,
+      0.605,
+      0.51
+     ],
+     "iou": [
+      0.59,
+      0.86
+     ],
+     "from_size_m": [
+      0.356,
+      0.121,
+      0.12
+     ],
+     "recall": [
+      0.62,
+      0.93
+     ],
+     "precision": [
+      0.92,
+      0.92
+     ],
+     "views": 2,
+     "walls": 1
+    }
+   },
+   {
+    "id": "o56",
+    "label": "wall socket",
+    "score": 0.52,
+    "centre_m": [
+     -0.525,
+     -2.308,
+     0.483
+    ],
+    "size_m": [
+     0.14,
+     0.106,
+     0.041
+    ],
+    "yaw_deg": -54.0,
+    "frames": [
+     21
+    ],
+    "owl_label": "wall socket",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "brown",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_68.jpg",
+    "note": "Wall socket with plugged-in white plug and cable, just above bedside table.",
+    "seen_by": {
+     "A": [
+      21
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      -0.519,
+      -2.316,
+      0.49
+     ],
+     "iou": [
+      0.59,
+      0.86
+     ],
+     "from_size_m": [
+      0.106,
+      0.101,
+      0.027
+     ],
+     "recall": [
+      0.64,
+      0.99
+     ],
+     "precision": [
+      0.87,
+      0.87
+     ],
+     "views": 1,
+     "walls": 1
+    }
+   }
+  ],
+  "B": [
+   {
+    "id": "o00",
+    "label": "tv",
+    "score": 0.74,
+    "centre_m": [
+     0.597,
+     0.304,
+     0.743
+    ],
+    "size_m": [
+     0.837,
+     0.302,
+     0.587
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     2,
+     3,
+     7,
+     15,
+     16,
+     18,
+     20,
+     21,
+     25,
+     26
+    ],
+    "owl_label": "tv",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_00.jpg",
+    "note": "Black flat-screen TV on a stand, sitting on a small wooden table; the box roughly encloses it, though the screen edges stick out slightly.",
+    "merged_from": [
+     "tv",
+     "desk",
+     "tv bench"
+    ],
+    "seen_by": {
+     "A": [
+      1,
+      2,
+      3,
+      4,
+      8,
+      11,
+      16,
+      17,
+      18,
+      24,
+      27
+     ],
+     "B": [
+      2,
+      3,
+      7,
+      15,
+      16,
+      18,
+      20,
+      21,
+      25,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o01",
+    "label": "laundry basket",
+    "score": 0.825,
+    "centre_m": [
+     -2.055,
+     0.573,
+     0.297
+    ],
+    "size_m": [
+     0.531,
+     0.428,
+     0.594
+    ],
+    "yaw_deg": 66.0,
+    "frames": [
+     0,
+     5,
+     6,
+     15,
+     16,
+     20,
+     21,
+     25
+    ],
+    "owl_label": "laundry basket",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "grey",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_01.jpg",
+    "note": "Striped fabric laundry basket full of clothes; box roughly encloses it.",
+    "seen_by": {
+     "A": [
+      0,
+      1,
+      5,
+      6,
+      16,
+      17,
+      18,
+      24,
+      25,
+      27
+     ],
+     "B": [
+      0,
+      5,
+      6,
+      15,
+      16,
+      20,
+      21,
+      25
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o02",
+    "label": "bedside table",
+    "score": 0.799,
+    "centre_m": [
+     -1.821,
+     -0.998,
+     0.285
+    ],
+    "size_m": [
+     0.424,
+     0.411,
+     0.571
+    ],
+    "yaw_deg": 52.0,
+    "frames": [
+     0,
+     1,
+     2,
+     4,
+     5,
+     6,
+     10,
+     11,
+     15,
+     16,
+     20
+    ],
+    "owl_label": "bedside table",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "beige",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_02.jpg",
+    "note": "small wooden nightstand with rattan drawer and splayed legs, box encloses it fairly well",
+    "merged_from": [
+     "bedside table",
+     "chair"
+    ],
+    "seen_by": {
+     "A": [
+      0,
+      1,
+      5,
+      6,
+      11,
+      12,
+      16,
+      25,
+      26
+     ],
+     "B": [
+      0,
+      1,
+      2,
+      4,
+      5,
+      6,
+      10,
+      11,
+      15,
+      16,
+      20
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o03",
+    "label": "laptop",
+    "score": 0.686,
+    "centre_m": [
+     0.545,
+     2.305,
+     1.077
+    ],
+    "size_m": [
+     0.363,
+     0.277,
+     0.258
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     3,
+     8,
+     14,
+     16,
+     20,
+     21,
+     25,
+     26
+    ],
+    "owl_label": "laptop",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "gray",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_03.jpg",
+    "note": "Box encloses an open laptop on a stand; it hugs the screen and keyboard, though it is slightly offset from the base.",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      8,
+      9,
+      10,
+      14,
+      17,
+      18,
+      24,
+      27
+     ],
+     "B": [
+      3,
+      8,
+      14,
+      16,
+      20,
+      21,
+      25,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o04",
+    "label": "radiator",
+    "score": 0.82,
+    "centre_m": [
+     0.937,
+     -1.903,
+     0.34
+    ],
+    "size_m": [
+     0.61,
+     0.195,
+     0.368
+    ],
+    "yaw_deg": -2.0,
+    "frames": [
+     0,
+     1,
+     2,
+     10,
+     15,
+     19,
+     27
+    ],
+    "owl_label": "radiator",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_04.jpg",
+    "note": "White column radiator under the window, mostly enclosed by the box; one end extends slightly past it.",
+    "seen_by": {
+     "A": [
+      1,
+      2,
+      7,
+      11,
+      12,
+      16,
+      19,
+      20,
+      22
+     ],
+     "B": [
+      0,
+      1,
+      2,
+      10,
+      15,
+      19,
+      27
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o05",
+    "label": "pillow",
+    "score": 0.503,
+    "centre_m": [
+     -1.165,
+     -1.404,
+     0.67
+    ],
+    "size_m": [
+     0.809,
+     0.361,
+     0.281
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     1,
+     2,
+     4,
+     6,
+     10,
+     11,
+     15,
+     20,
+     23,
+     24,
+     28
+    ],
+    "owl_label": "pillow",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "grey",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_05.jpg",
+    "note": "grey pillow lying against the headboard on the bed, box encloses it reasonably",
+    "merged_from": [
+     "pillow",
+     "pillow"
+    ],
+    "seen_by": {
+     "A": [
+      0,
+      1,
+      7,
+      12,
+      16,
+      21,
+      25,
+      26
+     ],
+     "B": [
+      1,
+      2,
+      4,
+      6,
+      10,
+      11,
+      15,
+      20,
+      23,
+      24,
+      28
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o06",
+    "label": "monitor",
+    "score": 0.708,
+    "centre_m": [
+     0.927,
+     2.076,
+     0.891
+    ],
+    "size_m": [
+     0.326,
+     0.182,
+     0.213
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     3,
+     8,
+     14,
+     16,
+     21,
+     25,
+     26
+    ],
+    "owl_label": "laptop",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "silver",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_06.jpg",
+    "note": "Box encloses a small portable monitor standing on the desk behind the keyboard, not a laptop; wireframe roughly covers the screen.",
+    "merged_from": [
+     "laptop",
+     "monitor"
+    ],
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      8,
+      9,
+      10,
+      13,
+      14,
+      15,
+      17,
+      23,
+      24,
+      27
+     ],
+     "B": [
+      3,
+      8,
+      14,
+      16,
+      21,
+      25,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o07",
+    "label": "pillow",
+    "score": 0.561,
+    "centre_m": [
+     -0.606,
+     -1.681,
+     0.765
+    ],
+    "size_m": [
+     0.611,
+     0.382,
+     0.204
+    ],
+    "yaw_deg": 16.0,
+    "frames": [
+     1,
+     2,
+     4,
+     10,
+     15,
+     20,
+     23,
+     28
+    ],
+    "owl_label": "pillow",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "gray",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_07.jpg",
+    "note": "Grey pillow lying against the headboard on the bed; the box encloses it reasonably well.",
+    "seen_by": {
+     "A": [
+      0,
+      1,
+      2,
+      7,
+      12,
+      16,
+      20,
+      21,
+      25
+     ],
+     "B": [
+      1,
+      2,
+      4,
+      10,
+      15,
+      20,
+      23,
+      28
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o08",
+    "label": "desk",
+    "score": 0.666,
+    "centre_m": [
+     0.843,
+     1.971,
+     0.403
+    ],
+    "size_m": [
+     1.395,
+     0.637,
+     0.807
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     3,
+     7,
+     12,
+     14,
+     16,
+     21
+    ],
+    "owl_label": "desk",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_08.jpg",
+    "note": "Box encloses the black desk with wood-edged top and legs; items on top are separate objects.",
+    "seen_by": {
+     "A": [
+      1,
+      2,
+      3,
+      4,
+      8,
+      17,
+      18
+     ],
+     "B": [
+      3,
+      7,
+      12,
+      14,
+      16,
+      21
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o09",
+    "label": "door",
+    "score": 0.642,
+    "centre_m": [
+     -2.743,
+     -0.555,
+     0.922
+    ],
+    "size_m": [
+     0.845,
+     0.074,
+     1.844
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     4,
+     5,
+     6,
+     15,
+     16,
+     20
+    ],
+    "owl_label": "door",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "brown",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_09.jpg",
+    "note": "Box covers the wooden interior door standing in its frame; the top edge sits slightly below the door top.",
+    "seen_by": {
+     "A": [
+      5,
+      6,
+      12,
+      16,
+      25,
+      26
+     ],
+     "B": [
+      4,
+      5,
+      6,
+      15,
+      16,
+      20
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o10",
+    "label": "office chair",
+    "score": 0.583,
+    "centre_m": [
+     0.359,
+     1.754,
+     0.57
+    ],
+    "size_m": [
+     1.026,
+     0.797,
+     1.141
+    ],
+    "yaw_deg": -20.0,
+    "frames": [
+     3,
+     7,
+     12,
+     13,
+     14,
+     16,
+     20,
+     21,
+     25,
+     26
+    ],
+    "owl_label": "office chair",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_10.jpg",
+    "note": "Box encloses the black mesh office chair by the desk; only the headrest pokes slightly above the box.",
+    "merged_from": [
+     "office chair",
+     "office chair"
+    ],
+    "seen_by": {
+     "A": [
+      4,
+      8,
+      23
+     ],
+     "B": [
+      3,
+      7,
+      12,
+      13,
+      14,
+      16,
+      20,
+      21,
+      25,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o11",
+    "label": "tv bench",
+    "score": 0.5,
+    "centre_m": [
+     0.611,
+     0.351,
+     0.268
+    ],
+    "size_m": [
+     0.893,
+     0.417,
+     0.536
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     3,
+     7,
+     15,
+     17,
+     18,
+     21,
+     22,
+     25,
+     26
+    ],
+    "owl_label": "desk",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "brown",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_refit_02.jpg",
+    "note": "Low rustic wooden bench with TV on it; box covers the bench roughly",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      11,
+      17,
+      18,
+      27
+     ],
+     "B": [
+      3,
+      7,
+      15,
+      17,
+      18,
+      21,
+      22,
+      25,
+      26
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "shrunk",
+     "from_centre_m": [
+      0.557,
+      0.297,
+      0.356
+     ],
+     "from_size_m": [
+      0.933,
+      0.6,
+      0.711
+     ],
+     "iou": [
+      0.62,
+      0.82
+     ]
+    }
+   },
+   {
+    "id": "o12",
+    "label": "door",
+    "score": 0.593,
+    "centre_m": [
+     -0.293,
+     1.802,
+     0.956
+    ],
+    "size_m": [
+     0.663,
+     0.417,
+     1.741
+    ],
+    "yaw_deg": 74.0,
+    "frames": [
+     13,
+     16,
+     20,
+     21,
+     25
+    ],
+    "owl_label": "door",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "brown",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_12.jpg",
+    "note": "Wooden door with handle; the box covers most of it, but the door extends above the box top and past its right side.",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      8,
+      17,
+      18,
+      24,
+      27
+     ],
+     "B": [
+      13,
+      16,
+      20,
+      21,
+      25
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o13",
+    "label": "bedside table",
+    "score": 0.827,
+    "centre_m": [
+     -0.35,
+     -2.073,
+     0.309
+    ],
+    "size_m": [
+     0.352,
+     0.317,
+     0.618
+    ],
+    "yaw_deg": -50.0,
+    "frames": [
+     10,
+     15,
+     23,
+     24,
+     28
+    ],
+    "owl_label": "bedside table",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "beige",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_refit_00.jpg",
+    "note": "Box encloses the light wooden bedside table with drawer and legs, air purifier sits on top mostly outside.",
+    "merged_from": [
+     "bedside table",
+     "remote control"
+    ],
+    "seen_by": {
+     "A": [
+      16,
+      20,
+      21
+     ],
+     "B": [
+      10,
+      15,
+      23,
+      24,
+      28
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      -0.326,
+      -2.069,
+      0.507
+     ],
+     "iou": [
+      0.42,
+      0.51
+     ],
+     "from_size_m": [
+      0.298,
+      0.275,
+      0.222
+     ],
+     "recall": [
+      0.78,
+      1.0
+     ],
+     "precision": [
+      0.83,
+      0.72
+     ],
+     "views": 11,
+     "walls": 4
+    }
+   },
+   {
+    "id": "o14",
+    "label": "radiator",
+    "score": 0.744,
+    "centre_m": [
+     2.497,
+     -0.098,
+     0.327
+    ],
+    "size_m": [
+     0.466,
+     0.371,
+     0.331
+    ],
+    "yaw_deg": 52.0,
+    "frames": [
+     7,
+     10,
+     19,
+     26,
+     27
+    ],
+    "owl_label": "radiator",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_14.jpg",
+    "note": "White column radiator under window, box covers most of it",
+    "seen_by": {
+     "A": [
+      2,
+      8,
+      22,
+      23
+     ],
+     "B": [
+      7,
+      10,
+      19,
+      26,
+      27
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "placed",
+     "from_centre_m": [
+      2.323,
+      -0.191,
+      0.297
+     ],
+     "from_size_m": [
+      0.583,
+      0.464,
+      0.413
+     ],
+     "iou": [
+      0.38,
+      0.59
+     ],
+     "recall": [
+      1.0,
+      0.97
+     ],
+     "precision": [
+      0.42,
+      0.67
+     ],
+     "views": 9
+    }
+   },
+   {
+    "id": "o15",
+    "label": "potted plant",
+    "score": 0.569,
+    "centre_m": [
+     1.436,
+     1.77,
+     0.875
+    ],
+    "size_m": [
+     0.147,
+     0.125,
+     0.124
+    ],
+    "yaw_deg": -74.0,
+    "frames": [
+     3,
+     8,
+     9,
+     14,
+     25,
+     26
+    ],
+    "owl_label": "plant",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "green",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_15.jpg",
+    "note": "Box encloses a small green potted plant in a black pot on the desk; it roughly fits the foliage, though the pot base is slightly outside.",
+    "seen_by": {
+     "A": [
+      2,
+      3,
+      4,
+      8,
+      9,
+      10,
+      13,
+      15,
+      24,
+      27
+     ],
+     "B": [
+      3,
+      8,
+      9,
+      14,
+      25,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o17",
+    "label": "mouse",
+    "score": 0.855,
+    "centre_m": [
+     1.064,
+     1.73,
+     0.807
+    ],
+    "size_m": [
+     0.093,
+     0.078,
+     0.031
+    ],
+    "yaw_deg": 26.0,
+    "frames": [
+     8,
+     9,
+     12,
+     14,
+     16,
+     26
+    ],
+    "owl_label": "mouse",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_17.jpg",
+    "note": "Black Logitech mouse on desk mat, box encloses it closely.",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      8,
+      9,
+      10,
+      13,
+      17,
+      18,
+      23
+     ],
+     "B": [
+      8,
+      9,
+      12,
+      14,
+      16,
+      26
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      1.057,
+      1.732,
+      0.816
+     ],
+     "iou": [
+      0.47,
+      0.64
+     ],
+     "from_size_m": [
+      0.082,
+      0.058,
+      0.012
+     ],
+     "recall": [
+      0.55,
+      0.91
+     ],
+     "precision": [
+      0.84,
+      0.73
+     ],
+     "views": 15,
+     "walls": 2
+    }
+   },
+   {
+    "id": "o18",
+    "label": "wooden chair",
+    "score": 0.569,
+    "centre_m": [
+     2.108,
+     -0.357,
+     0.385
+    ],
+    "size_m": [
+     0.751,
+     0.507,
+     0.77
+    ],
+    "yaw_deg": -12.0,
+    "frames": [
+     2,
+     9,
+     10,
+     19,
+     26,
+     27
+    ],
+    "owl_label": "chair",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "brown",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_18.jpg",
+    "note": "Box encloses a single wooden chair with dark green seat; fits reasonably closely.",
+    "seen_by": {
+     "A": [
+      1
+     ],
+     "B": [
+      2,
+      9,
+      10,
+      19,
+      26,
+      27
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o19",
+    "label": "book",
+    "score": 0.552,
+    "centre_m": [
+     -0.966,
+     -1.886,
+     1.207
+    ],
+    "size_m": [
+     0.388,
+     0.11,
+     0.2
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     1,
+     2,
+     4,
+     10,
+     15,
+     20,
+     24
+    ],
+    "owl_label": "book",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_22.jpg",
+    "note": "Fourth Wing book standing upright on headboard shelf; box hugs it",
+    "merged_from": [
+     "book",
+     "book"
+    ],
+    "seen_by": {
+     "A": [
+      7,
+      12,
+      16,
+      25,
+      26
+     ],
+     "B": [
+      1,
+      2,
+      4,
+      10,
+      15,
+      20,
+      24
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o20",
+    "label": "desk mat",
+    "score": 0.547,
+    "centre_m": [
+     0.99,
+     1.896,
+     0.59
+    ],
+    "size_m": [
+     0.662,
+     0.66,
+     0.475
+    ],
+    "yaw_deg": -72.0,
+    "frames": [
+     3,
+     8,
+     9
+    ],
+    "owl_label": "desk mat",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "too_big",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_20.jpg",
+    "note": "Box spans the black desk mat on the desk top but extends well below the desk surface into empty space and reaches toward the keyboard and laptop stand.",
+    "seen_by": {
+     "A": [
+      8,
+      9,
+      10,
+      23,
+      27
+     ],
+     "B": [
+      3,
+      8,
+      9
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o21",
+    "label": "trash can",
+    "score": 0.754,
+    "centre_m": [
+     -0.309,
+     1.645,
+     0.146
+    ],
+    "size_m": [
+     0.325,
+     0.206,
+     0.292
+    ],
+    "yaw_deg": -82.0,
+    "frames": [],
+    "owl_label": "trash can",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_21.jpg",
+    "note": "black mesh wastebasket; box covers it but appears shorter/offset than the full can height",
+    "merged_from": [
+     "o16"
+    ],
+    "seen_by": {
+     "A": [
+      0,
+      1,
+      2,
+      11,
+      17,
+      18,
+      24,
+      27
+     ]
+    },
+    "state": "moved",
+    "change": "c03",
+    "positions": {
+     "A": {
+      "centre_m": [
+       -0.75,
+       0.818,
+       0.144
+      ],
+      "size_m": [
+       0.213,
+       0.19,
+       0.23
+      ],
+      "yaw_deg": -32.0
+     },
+     "B": {
+      "centre_m": [
+       -0.309,
+       1.645,
+       0.146
+      ],
+      "size_m": [
+       0.325,
+       0.206,
+       0.292
+      ],
+      "yaw_deg": -82.0
+     }
+    },
+    "grown": {
+     "mode": "placed",
+     "from_centre_m": [
+      -0.794,
+      0.822,
+      0.144
+     ],
+     "from_size_m": [
+      0.266,
+      0.238,
+      0.287
+     ],
+     "iou": [
+      0.47,
+      0.66
+     ],
+     "recall": [
+      1.0,
+      0.97
+     ],
+     "precision": [
+      0.41,
+      0.65
+     ],
+     "views": 8
+    }
+   },
+   {
+    "id": "o22",
+    "label": "air purifier",
+    "score": 0.82,
+    "centre_m": [
+     -0.342,
+     -2.097,
+     0.74
+    ],
+    "size_m": [
+     0.191,
+     0.107,
+     0.325
+    ],
+    "yaw_deg": -82.0,
+    "frames": [
+     22
+    ],
+    "owl_label": "air purifier",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_23.jpg",
+    "note": "White cylindrical air purifier on floor under bedside table, box roughly encloses it",
+    "merged_from": [
+     "o31"
+    ],
+    "seen_by": {
+     "A": [
+      16,
+      19,
+      20,
+      21
+     ],
+     "B": [
+      22
+     ]
+    },
+    "state": "moved",
+    "change": "c04",
+    "positions": {
+     "A": {
+      "centre_m": [
+       -0.281,
+       -1.952,
+       0.131
+      ],
+      "size_m": [
+       0.328,
+       0.165,
+       0.263
+      ],
+      "yaw_deg": 52.0
+     },
+     "B": {
+      "centre_m": [
+       -0.342,
+       -2.097,
+       0.74
+      ],
+      "size_m": [
+       0.191,
+       0.107,
+       0.325
+      ],
+      "yaw_deg": -82.0
+     }
+    }
+   },
+   {
+    "id": "o24",
+    "label": "wall socket",
+    "score": 0.719,
+    "centre_m": [
+     1.165,
+     2.147,
+     1.655
+    ],
+    "size_m": [
+     0.093,
+     0.014,
+     0.092
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     3,
+     8,
+     25,
+     26
+    ],
+    "owl_label": "light switch",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_25.jpg",
+    "note": "UK-style single switched socket with three pin holes and a switch, tightly boxed; not a light switch",
+    "seen_by": {
+     "A": [
+      8,
+      13,
+      14,
+      15,
+      23,
+      24,
+      27
+     ],
+     "B": [
+      3,
+      8,
+      25,
+      26
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      1.159,
+      2.152,
+      1.666
+     ],
+     "iou": [
+      0.61,
+      0.84
+     ],
+     "from_size_m": [
+      0.076,
+      0.014,
+      0.07
+     ],
+     "recall": [
+      0.61,
+      0.95
+     ],
+     "precision": [
+      0.92,
+      0.87
+     ],
+     "views": 11,
+     "walls": 9
+    }
+   },
+   {
+    "id": "o25",
+    "label": "wall socket",
+    "score": 0.684,
+    "centre_m": [
+     0.505,
+     2.578,
+     1.663
+    ],
+    "size_m": [
+     0.108,
+     0.056,
+     0.077
+    ],
+    "yaw_deg": 10.0,
+    "frames": [
+     3,
+     8,
+     16,
+     26
+    ],
+    "owl_label": "wall socket",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_26.jpg",
+    "note": "White wall socket with a black plug/charger inserted; the box roughly hugs the socket plate.",
+    "seen_by": {
+     "A": [
+      8,
+      13,
+      14,
+      15
+     ],
+     "B": [
+      3,
+      8,
+      16,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o27",
+    "label": "potted plant",
+    "score": 0.59,
+    "centre_m": [
+     -0.686,
+     -2.136,
+     1.194
+    ],
+    "size_m": [
+     0.119,
+     0.116,
+     0.163
+    ],
+    "yaw_deg": -54.0,
+    "frames": [
+     4,
+     10,
+     15,
+     24
+    ],
+    "owl_label": "plant",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "green",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_28.jpg",
+    "note": "Small green plant in black pot on shelf above bed; box encloses it well.",
+    "seen_by": {
+     "A": [
+      7,
+      12,
+      16,
+      25,
+      26
+     ],
+     "B": [
+      4,
+      10,
+      15,
+      24
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o29",
+    "label": "cup",
+    "score": 0.46,
+    "centre_m": [
+     0.462,
+     2.648,
+     0.849
+    ],
+    "size_m": [
+     0.109,
+     0.061,
+     0.128
+    ],
+    "yaw_deg": -70.0,
+    "frames": [
+     8
+    ],
+    "owl_label": "cup",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_30.jpg",
+    "note": "White cylindrical cup-like object with printed text and dark rim, sitting on a black item on the desk; the box hugs it.",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      9,
+      10,
+      14
+     ],
+     "B": [
+      8
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "placed",
+     "from_centre_m": [
+      0.394,
+      2.601,
+      0.898
+     ],
+     "from_size_m": [
+      0.137,
+      0.076,
+      0.161
+     ],
+     "iou": [
+      0.43,
+      0.66
+     ],
+     "recall": [
+      1.0,
+      0.91
+     ],
+     "precision": [
+      0.46,
+      0.76
+     ],
+     "views": 6
+    }
+   },
+   {
+    "id": "o30",
+    "label": "speaker",
+    "score": 0.468,
+    "centre_m": [
+     0.659,
+     0.459,
+     0.544
+    ],
+    "size_m": [
+     0.274,
+     0.155,
+     0.18
+    ],
+    "yaw_deg": -34.0,
+    "frames": [
+     3,
+     7,
+     15,
+     16,
+     17,
+     18
+    ],
+    "owl_label": "speaker",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_31.jpg",
+    "note": "Black box-shaped speaker sitting on the tv bench behind the TV, beside a red cylindrical speaker; the wireframe hugs it reasonably well.",
+    "merged_from": [
+     "speaker",
+     "cup"
+    ],
+    "seen_by": {
+     "A": [
+      8,
+      17,
+      18
+     ],
+     "B": [
+      3,
+      7,
+      15,
+      16,
+      17,
+      18
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o32",
+    "label": "floor lamp",
+    "score": 0.441,
+    "centre_m": [
+     0.326,
+     -1.916,
+     0.609
+    ],
+    "size_m": [
+     0.252,
+     0.169,
+     1.217
+    ],
+    "yaw_deg": -6.0,
+    "frames": [
+     15,
+     22
+    ],
+    "owl_label": "lamp",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_33.jpg",
+    "note": "Thin black pole floor lamp with round base; box is offset and the pole extends above its top.",
+    "seen_by": {
+     "A": [
+      16,
+      20
+     ],
+     "B": [
+      15,
+      22
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o33",
+    "label": "remote control",
+    "score": 0.519,
+    "centre_m": [
+     -1.689,
+     -0.866,
+     0.503
+    ],
+    "size_m": [
+     0.082,
+     0.028,
+     0.074
+    ],
+    "yaw_deg": -52.0,
+    "frames": [
+     5
+    ],
+    "owl_label": "remote control",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_34.jpg",
+    "note": "White slim remote lying on the bedside table's rattan shelf; it extends beyond the small box.",
+    "seen_by": {
+     "A": [
+      5,
+      6
+     ],
+     "B": [
+      5
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o34",
+    "label": "wardrobe",
+    "score": 0.647,
+    "centre_m": [
+     1.787,
+     0.922,
+     1.131
+    ],
+    "size_m": [
+     1.441,
+     0.494,
+     2.262
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     17,
+     18,
+     26
+    ],
+    "owl_label": "door",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_48.jpg",
+    "note": "Box encloses the tall white double-door wardrobe; the door label is wrong, and the box sits slightly above the floor.",
+    "merged_from": [
+     "refrigerator",
+     "door"
+    ],
+    "seen_by": {
+     "A": [
+      1,
+      4,
+      23
+     ],
+     "B": [
+      17,
+      18,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o35",
+    "label": "backpack",
+    "score": 0.537,
+    "centre_m": [
+     -2.427,
+     0.805,
+     0.346
+    ],
+    "size_m": [
+     0.426,
+     0.261,
+     0.296
+    ],
+    "yaw_deg": 80.0,
+    "frames": [
+     0,
+     5
+    ],
+    "owl_label": "backpack",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_47.jpg",
+    "note": "Black backpack on the floor by the wall. The box covers its upper body but floats above the floor and misses the lower part and straps, and it clips the water b",
+    "merged_from": [
+     "bag",
+     "backpack"
+    ],
+    "seen_by": {
+     "A": [
+      0,
+      5,
+      6
+     ],
+     "B": [
+      0,
+      5
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o36",
+    "label": "spray bottle",
+    "score": 0.392,
+    "centre_m": [
+     0.404,
+     2.42,
+     0.853
+    ],
+    "size_m": [
+     0.159,
+     0.08,
+     0.086
+    ],
+    "yaw_deg": 38.0,
+    "frames": [],
+    "owl_label": "cup",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "blue",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_40.jpg",
+    "note": "Box encloses a clear spray bottle with blue liquid on the desk beside the laptop, not a cup.",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      9,
+      10
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o37",
+    "label": "keyboard",
+    "score": 0.632,
+    "centre_m": [
+     0.834,
+     1.925,
+     0.788
+    ],
+    "size_m": [
+     0.26,
+     0.152,
+     0.037
+    ],
+    "yaw_deg": -68.0,
+    "frames": [
+     7,
+     8,
+     12,
+     14,
+     16,
+     21,
+     25,
+     26
+    ],
+    "owl_label": "keyboard",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "grey",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_refit_04.jpg",
+    "note": "Compact dark grey keyboard on the desk mat; the box covers it closely, though slightly offset.",
+    "seen_by": {
+     "A": [
+      9,
+      10,
+      17,
+      18,
+      23,
+      24,
+      27
+     ],
+     "B": [
+      7,
+      8,
+      12,
+      14,
+      16,
+      21,
+      25,
+      26
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "shrunk",
+     "from_centre_m": [
+      0.838,
+      1.964,
+      0.805
+     ],
+     "from_size_m": [
+      0.328,
+      0.199,
+      0.071
+     ],
+     "iou": [
+      0.51,
+      0.7
+     ]
+    }
+   },
+   {
+    "id": "o39",
+    "label": "potted plant",
+    "score": 0.606,
+    "centre_m": [
+     -1.376,
+     -1.578,
+     1.174
+    ],
+    "size_m": [
+     0.148,
+     0.043,
+     0.137
+    ],
+    "yaw_deg": -16.0,
+    "frames": [
+     1,
+     2,
+     4,
+     20
+    ],
+    "owl_label": "plant",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "green",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_refit_05.jpg",
+    "note": "small potted plant with black pot on bed headboard shelf; box roughly covers it",
+    "seen_by": {
+     "A": [
+      1,
+      7,
+      25,
+      26
+     ],
+     "B": [
+      1,
+      2,
+      4,
+      20
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "shrunk",
+     "from_centre_m": [
+      -1.436,
+      -1.573,
+      1.165
+     ],
+     "from_size_m": [
+      0.295,
+      0.071,
+      0.153
+     ],
+     "iou": [
+      0.4,
+      0.68
+     ]
+    }
+   },
+   {
+    "id": "o40",
+    "label": "window blind",
+    "score": 0.42,
+    "centre_m": [
+     0.907,
+     -1.971,
+     1.583
+    ],
+    "size_m": [
+     0.732,
+     0.178,
+     1.596
+    ],
+    "yaw_deg": 6.0,
+    "frames": [
+     1,
+     2,
+     10
+    ],
+    "owl_label": "window",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "grey",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_45.jpg",
+    "note": "Box encloses a grey roller blind pulled down over a tall window above the radiator.",
+    "seen_by": {
+     "A": [
+      7
+     ],
+     "B": [
+      1,
+      2,
+      10
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      0.907,
+      -1.971,
+      1.598
+     ],
+     "iou": [
+      0.63,
+      0.7
+     ],
+     "from_size_m": [
+      0.732,
+      0.178,
+      1.367
+     ],
+     "recall": [
+      0.81,
+      0.94
+     ],
+     "precision": [
+      0.75,
+      0.73
+     ],
+     "views": 4,
+     "walls": 0
+    }
+   },
+   {
+    "id": "o41",
+    "label": "bed",
+    "score": 0.513,
+    "centre_m": [
+     -0.034,
+     -0.387,
+     0.34
+    ],
+    "size_m": [
+     1.587,
+     1.58,
+     0.68
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     0,
+     2,
+     21,
+     22,
+     25,
+     26
+    ],
+    "owl_label": "bed",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "grey",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_49.jpg",
+    "note": "only part of the bed was boxed: Low floor-level box covers only the bed's lower base and nearby floor; the grey bed extends well beyond it.",
+    "merged_from": [
+     "desk",
+     "bed"
+    ],
+    "seen_by": {
+     "A": [
+      1,
+      2,
+      3,
+      4,
+      11
+     ],
+     "B": [
+      0,
+      2,
+      21,
+      22,
+      25,
+      26
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o42",
+    "label": "bed",
+    "score": 0.344,
+    "centre_m": [
+     -1.197,
+     -1.721,
+     1.015
+    ],
+    "size_m": [
+     1.105,
+     0.134,
+     0.32
+    ],
+    "yaw_deg": -38.0,
+    "frames": [
+     2,
+     24
+    ],
+    "owl_label": "shelf",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "navy",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_50.jpg",
+    "note": "only part of the bed was boxed: Box covers the upper slatted part of the navy bed headboard below the wooden top shelf, only a portion of the bed's headboard.",
+    "seen_by": {
+     "A": [
+      7,
+      25
+     ],
+     "B": [
+      2,
+      24
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o43",
+    "label": "wooden chair",
+    "score": 0.516,
+    "centre_m": [
+     1.004,
+     -1.754,
+     0.511
+    ],
+    "size_m": [
+     1.07,
+     0.486,
+     0.555
+    ],
+    "yaw_deg": 52.0,
+    "frames": [],
+    "owl_label": "chair",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "brown",
+    "fit": "too_big",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_51.jpg",
+    "note": "Wooden chair with dark seat; box extends far sideways into empty space and misses the lower legs.",
+    "seen_by": {
+     "A": [
+      1,
+      2,
+      7,
+      16,
+      19,
+      22
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o44",
+    "label": "wall socket",
+    "score": 0.471,
+    "centre_m": [
+     -0.925,
+     1.121,
+     1.661
+    ],
+    "size_m": [
+     0.149,
+     0.017,
+     0.105
+    ],
+    "yaw_deg": 50.0,
+    "frames": [
+     3,
+     15,
+     16,
+     20,
+     21,
+     25
+    ],
+    "owl_label": "light switch",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_53.jpg",
+    "note": "UK double socket plate with pin holes and switch, box hugs plate",
+    "seen_by": {
+     "A": [
+      12,
+      24,
+      27
+     ],
+     "B": [
+      3,
+      15,
+      16,
+      20,
+      21,
+      25
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      -0.935,
+      1.109,
+      1.667
+     ],
+     "iou": [
+      0.65,
+      0.82
+     ],
+     "from_size_m": [
+      0.117,
+      0.017,
+      0.094
+     ],
+     "recall": [
+      0.71,
+      1.0
+     ],
+     "precision": [
+      0.84,
+      0.83
+     ],
+     "views": 9,
+     "walls": 8
+    }
+   },
+   {
+    "id": "o45",
+    "label": "window blind",
+    "score": 0.282,
+    "centre_m": [
+     2.504,
+     -0.052,
+     1.583
+    ],
+    "size_m": [
+     0.529,
+     0.528,
+     1.596
+    ],
+    "yaw_deg": 10.0,
+    "frames": [
+     2
+    ],
+    "owl_label": "window",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "grey",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_54.jpg",
+    "note": "Box encloses a tall window recess fully covered by a pulled-down grey roller blind.",
+    "seen_by": {
+     "A": [
+      1,
+      2,
+      23
+     ],
+     "B": [
+      2
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      2.504,
+      -0.052,
+      1.602
+     ],
+     "iou": [
+      0.75,
+      0.84
+     ],
+     "from_size_m": [
+      0.529,
+      0.528,
+      1.368
+     ],
+     "recall": [
+      0.82,
+      0.95
+     ],
+     "precision": [
+      0.92,
+      0.9
+     ],
+     "views": 4,
+     "walls": 0
+    }
+   },
+   {
+    "id": "o46",
+    "label": "light switch",
+    "score": 0.745,
+    "centre_m": [
+     -2.265,
+     -0.951,
+     1.368
+    ],
+    "size_m": [
+     0.085,
+     0.013,
+     0.094
+    ],
+    "yaw_deg": -40.0,
+    "frames": [
+     1,
+     2,
+     4
+    ],
+    "owl_label": "light switch",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_56.jpg",
+    "note": "Small square switch plate on wall near door, box hugs it.",
+    "seen_by": {
+     "A": [
+      12,
+      26
+     ],
+     "B": [
+      1,
+      2,
+      4
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      -2.258,
+      -0.953,
+      1.379
+     ],
+     "iou": [
+      -1.0,
+      0.82
+     ],
+     "from_size_m": [
+      0.073,
+      0.008,
+      0.064
+     ],
+     "recall": [
+      0.57,
+      0.94
+     ],
+     "precision": [
+      0.98,
+      0.87
+     ],
+     "views": 5,
+     "walls": 3
+    }
+   },
+   {
+    "id": "o47",
+    "label": "water bottle pack",
+    "score": 0.366,
+    "centre_m": [
+     -2.507,
+     0.661,
+     0.173
+    ],
+    "size_m": [
+     0.212,
+     0.178,
+     0.346
+    ],
+    "yaw_deg": -70.0,
+    "frames": [
+     0,
+     5
+    ],
+    "owl_label": "bag",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "blue",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_58.jpg",
+    "note": "6-pack of Highland Spring bottles in shrink wrap on the floor; the box closely encloses it.",
+    "seen_by": {
+     "A": [
+      0,
+      6
+     ],
+     "B": [
+      0,
+      5
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o48",
+    "label": "door handle",
+    "score": 0.341,
+    "centre_m": [
+     -0.456,
+     1.652,
+     1.002
+    ],
+    "size_m": [
+     0.204,
+     0.02,
+     0.124
+    ],
+    "yaw_deg": 50.0,
+    "frames": [],
+    "owl_label": "lamp",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "silver",
+    "part_of": "door",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_59.jpg",
+    "note": "Lever door handle with escutcheon and lock on wooden door; box hugs it.",
+    "seen_by": {
+     "A": [
+      3,
+      4
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o49",
+    "label": "remote control",
+    "score": 0.653,
+    "centre_m": [
+     1.381,
+     1.627,
+     0.759
+    ],
+    "size_m": [
+     0.192,
+     0.082,
+     0.037
+    ],
+    "yaw_deg": 2.0,
+    "frames": [
+     8,
+     9,
+     14
+    ],
+    "owl_label": "remote control",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "black",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_60.jpg",
+    "note": "Black TV remote lying on the desk next to the desk mat; the box roughly covers it.",
+    "seen_by": {
+     "A": [
+      3,
+      4,
+      8,
+      9,
+      10,
+      13
+     ],
+     "B": [
+      8,
+      9,
+      14
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "placed",
+     "from_centre_m": [
+      1.38,
+      1.647,
+      0.759
+     ],
+     "from_size_m": [
+      0.24,
+      0.103,
+      0.046
+     ],
+     "iou": [
+      0.4,
+      0.57
+     ],
+     "recall": [
+      1.0,
+      0.94
+     ],
+     "precision": [
+      0.42,
+      0.67
+     ],
+     "views": 9
+    }
+   },
+   {
+    "id": "o50",
+    "label": "door stopper",
+    "score": 0.327,
+    "centre_m": [
+     1.841,
+     0.818,
+     0.097
+    ],
+    "size_m": [
+     0.213,
+     0.128,
+     0.193
+    ],
+    "yaw_deg": -6.0,
+    "frames": [
+     3,
+     7
+    ],
+    "owl_label": "wall socket",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "white",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_61.jpg",
+    "note": "Small white wedge/stopper at the floor against the baseboard, not a wall socket.",
+    "seen_by": {
+     "B": [
+      3,
+      7
+     ]
+    },
+    "state": "both"
+   },
+   {
+    "id": "o53",
+    "label": "wooden chair",
+    "score": 0.292,
+    "centre_m": [
+     0.609,
+     0.63,
+     0.483
+    ],
+    "size_m": [
+     0.356,
+     0.175,
+     0.172
+    ],
+    "yaw_deg": -24.0,
+    "frames": [
+     16
+    ],
+    "owl_label": "chair",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "brown",
+    "fit": "too_small",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_65.jpg",
+    "note": "only part of the wooden chair was boxed: Box covers part of a wooden chair seat/stool top with a red speaker and black bag on it; mixed contents, not one object",
+    "seen_by": {
+     "A": [
+      18
+     ],
+     "B": [
+      16
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      0.598,
+      0.605,
+      0.51
+     ],
+     "iou": [
+      0.59,
+      0.86
+     ],
+     "from_size_m": [
+      0.356,
+      0.121,
+      0.12
+     ],
+     "recall": [
+      0.62,
+      0.93
+     ],
+     "precision": [
+      0.92,
+      0.92
+     ],
+     "views": 2,
+     "walls": 1
+    }
+   },
+   {
+    "id": "o56",
+    "label": "wall socket",
+    "score": 0.52,
+    "centre_m": [
+     -0.525,
+     -2.308,
+     0.483
+    ],
+    "size_m": [
+     0.14,
+     0.106,
+     0.041
+    ],
+    "yaw_deg": -54.0,
+    "frames": [],
+    "owl_label": "wall socket",
+    "label_source": "claude",
+    "verified": true,
+    "colour": "brown",
+    "fit": "good",
+    "model": "claude-opus-5-5",
+    "crop": "object_crops/shared_68.jpg",
+    "note": "Wall socket with plugged-in white plug and cable, just above bedside table.",
+    "seen_by": {
+     "A": [
+      21
+     ]
+    },
+    "state": "both",
+    "grown": {
+     "mode": "grow",
+     "from_centre_m": [
+      -0.519,
+      -2.316,
+      0.49
+     ],
+     "iou": [
+      0.59,
+      0.86
+     ],
+     "from_size_m": [
+      0.106,
+      0.101,
+      0.027
+     ],
+     "recall": [
+      0.64,
+      0.99
+     ],
+     "precision": [
+      0.87,
+      0.87
+     ],
+     "views": 1,
+     "walls": 1
+    }
+   }
+  ]
+ },
+ "stats": {
+  "detector": {
+   "shared": {
+    "detector": "owlv2",
+    "device": "mps",
+    "frames": 57,
+    "s_per_frame": 0.324,
+    "first_frame_s": 0.435,
+    "dets_2d": 861,
+    "lifted_3d": 647,
+    "tracks": 168,
+    "boxes": 70,
+    "frames_per_session": {
+     "A": 28,
+     "B": 29
+    },
+    "joined_2d": 133,
+    "room_yaw_deg": 52.0,
+    "snapped": 19,
+    "grown": 29,
+    "seen_by_both": 54,
+    "support_heights_m": [
+     -0.01,
+     0.63,
+     0.78
+    ],
+    "total_s": 35.96,
+    "twins_dropped": 0
+   }
+  },
+  "naming": {
+   "label_source": "claude",
+   "prompt_version": "n1",
+   "vocabulary": [
+    {
+     "name": "bed",
+     "kind": "surface"
+    },
+    {
+     "name": "desk",
+     "kind": "surface"
+    },
+    {
+     "name": "office chair",
+     "kind": "object"
+    },
+    {
+     "name": "wardrobe",
+     "kind": "object"
+    },
+    {
+     "name": "door",
+     "kind": "object"
+    },
+    {
+     "name": "bedside table",
+     "kind": "surface"
+    },
+    {
+     "name": "laundry basket",
+     "kind": "object"
+    },
+    {
+     "name": "tv",
+     "kind": "object"
+    },
+    {
+     "name": "tv bench",
+     "kind": "surface"
+    },
+    {
+     "name": "monitor",
+     "kind": "object"
+    },
+    {
+     "name": "laptop",
+     "kind": "object"
+    },
+    {
+     "name": "keyboard",
+     "kind": "object"
+    },
+    {
+     "name": "mouse",
+     "kind": "object"
+    },
+    {
+     "name": "desk mat",
+     "kind": "object"
+    },
+    {
+     "name": "backpack",
+     "kind": "object"
+    },
+    {
+     "name": "water bottle pack",
+     "kind": "object"
+    },
+    {
+     "name": "trash can",
+     "kind": "object"
+    },
+    {
+     "name": "air purifier",
+     "kind": "object"
+    },
+    {
+     "name": "pillow",
+     "kind": "object"
+    },
+    {
+     "name": "book",
+     "kind": "object"
+    },
+    {
+     "name": "potted plant",
+     "kind": "object"
+    },
+    {
+     "name": "power strip",
+     "kind": "object"
+    },
+    {
+     "name": "radiator",
+     "kind": "object"
+    },
+    {
+     "name": "speaker",
+     "kind": "object"
+    },
+    {
+     "name": "cup",
+     "kind": "object"
+    },
+    {
+     "name": "light switch",
+     "kind": "object"
+    },
+    {
+     "name": "wall socket",
+     "kind": "object"
+    },
+    {
+     "name": "cushion",
+     "kind": "object"
+    },
+    {
+     "name": "spray bottle",
+     "kind": "object"
+    }
+   ],
+   "checked": 79,
+   "no_view": 1,
+   "kept": 50,
+   "dropped": 8,
+   "merged": 11,
+   "model": "claude-opus-5-5",
+   "calls": 0,
+   "cached": 80,
+   "refused": 0,
+   "failed": 0,
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd_est": 0.0
+  }
+ }
+}

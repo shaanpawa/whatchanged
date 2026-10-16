@@ -12,10 +12,10 @@ From the repo root, after `scripts/morning.sh` (pick `-ss` so the clip starts on
 
 ```bash
 cp out/pair/whatchanged.mp4 docs/media/whatchanged.mp4
-ffmpeg -y -ss 2 -t 8 -i out/pair/whatchanged_parts/02_footage.mp4 \
+ffmpeg -y -ss 15 -t 8 -i out/pair/whatchanged_parts/02_footage.mp4 \
   -vf "fps=10,scale=800:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle" \
   -loop 0 docs/media/hero.gif
-ffmpeg -y -ss 6 -i out/pair/whatchanged_parts/03_tour.mp4 -frames:v 1 docs/media/walkthrough.png
+ffmpeg -y -ss 19 -i out/pair/whatchanged_parts/03_tour.mp4 -frames:v 1 docs/media/walkthrough.png
 ls -la docs/media    # keep each file under 50 MB, and the GIF under 10 MB
 ```
 

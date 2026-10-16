@@ -1,0 +1,401 @@
+[
+ {
+  "session": "A",
+  "index": 0,
+  "path": "out/real/frames/A_000.jpg",
+  "t": 0.033,
+  "sharpness": 564.0
+ },
+ {
+  "session": "A",
+  "index": 1,
+  "path": "out/real/frames/A_001.jpg",
+  "t": 3.0,
+  "sharpness": 338.5
+ },
+ {
+  "session": "A",
+  "index": 2,
+  "path": "out/real/frames/A_002.jpg",
+  "t": 7.1,
+  "sharpness": 203.9
+ },
+ {
+  "session": "A",
+  "index": 3,
+  "path": "out/real/frames/A_003.jpg",
+  "t": 9.933,
+  "sharpness": 293.6
+ },
+ {
+  "session": "A",
+  "index": 4,
+  "path": "out/real/frames/A_004.jpg",
+  "t": 10.4,
+  "sharpness": 374.0
+ },
+ {
+  "session": "A",
+  "index": 5,
+  "path": "out/real/frames/A_005.jpg",
+  "t": 14.967,
+  "sharpness": 565.2
+ },
+ {
+  "session": "A",
+  "index": 6,
+  "path": "out/real/frames/A_006.jpg",
+  "t": 15.1,
+  "sharpness": 630.0
+ },
+ {
+  "session": "A",
+  "index": 7,
+  "path": "out/real/frames/A_007.jpg",
+  "t": 18.733,
+  "sharpness": 118.7
+ },
+ {
+  "session": "A",
+  "index": 8,
+  "path": "out/real/frames/A_008.jpg",
+  "t": 21.3,
+  "sharpness": 284.2
+ },
+ {
+  "session": "A",
+  "index": 9,
+  "path": "out/real/frames/A_009.jpg",
+  "t": 24.967,
+  "sharpness": 550.1
+ },
+ {
+  "session": "A",
+  "index": 10,
+  "path": "out/real/frames/A_010.jpg",
+  "t": 25.233,
+  "sharpness": 547.3
+ },
+ {
+  "session": "A",
+  "index": 11,
+  "path": "out/real/frames/A_011.jpg",
+  "t": 30.0,
+  "sharpness": 177.7
+ },
+ {
+  "session": "A",
+  "index": 12,
+  "path": "out/real/frames/A_012.jpg",
+  "t": 31.533,
+  "sharpness": 177.9
+ },
+ {
+  "session": "A",
+  "index": 13,
+  "path": "out/real/frames/A_013.jpg",
+  "t": 34.933,
+  "sharpness": 111.4
+ },
+ {
+  "session": "A",
+  "index": 14,
+  "path": "out/real/frames/A_014.jpg",
+  "t": 35.867,
+  "sharpness": 140.7
+ },
+ {
+  "session": "A",
+  "index": 15,
+  "path": "out/real/frames/A_015.jpg",
+  "t": 38.0,
+  "sharpness": 70.1
+ },
+ {
+  "session": "A",
+  "index": 16,
+  "path": "out/real/frames/A_016.jpg",
+  "t": 44.133,
+  "sharpness": 192.4
+ },
+ {
+  "session": "A",
+  "index": 17,
+  "path": "out/real/frames/A_017.jpg",
+  "t": 47.467,
+  "sharpness": 352.2
+ },
+ {
+  "session": "A",
+  "index": 18,
+  "path": "out/real/frames/A_018.jpg",
+  "t": 48.033,
+  "sharpness": 407.8
+ },
+ {
+  "session": "A",
+  "index": 19,
+  "path": "out/real/frames/A_019.jpg",
+  "t": 51.433,
+  "sharpness": 181.9
+ },
+ {
+  "session": "A",
+  "index": 20,
+  "path": "out/real/frames/A_020.jpg",
+  "t": 54.467,
+  "sharpness": 198.4
+ },
+ {
+  "session": "A",
+  "index": 21,
+  "path": "out/real/frames/A_021.jpg",
+  "t": 55.6,
+  "sharpness": 237.4
+ },
+ {
+  "session": "A",
+  "index": 22,
+  "path": "out/real/frames/A_022.jpg",
+  "t": 60.033,
+  "sharpness": 207.1
+ },
+ {
+  "session": "A",
+  "index": 23,
+  "path": "out/real/frames/A_023.jpg",
+  "t": 62.433,
+  "sharpness": 83.8
+ },
+ {
+  "session": "A",
+  "index": 24,
+  "path": "out/real/frames/A_024.jpg",
+  "t": 64.1,
+  "sharpness": 283.9
+ },
+ {
+  "session": "A",
+  "index": 25,
+  "path": "out/real/frames/A_025.jpg",
+  "t": 66.667,
+  "sharpness": 323.6
+ },
+ {
+  "session": "A",
+  "index": 26,
+  "path": "out/real/frames/A_026.jpg",
+  "t": 67.667,
+  "sharpness": 266.7
+ },
+ {
+  "session": "A",
+  "index": 27,
+  "path": "out/real/frames/A_027.jpg",
+  "t": 70.4,
+  "sharpness": 348.7
+ },
+ {
+  "session": "B",
+  "index": 0,
+  "path": "out/real/frames/B_000.jpg",
+  "t": 0.333,
+  "sharpness": 489.4
+ },
+ {
+  "session": "B",
+  "index": 1,
+  "path": "out/real/frames/B_001.jpg",
+  "t": 6.0,
+  "sharpness": 260.3
+ },
+ {
+  "session": "B",
+  "index": 2,
+  "path": "out/real/frames/B_002.jpg",
+  "t": 6.6,
+  "sharpness": 120.1
+ },
+ {
+  "session": "B",
+  "index": 3,
+  "path": "out/real/frames/B_003.jpg",
+  "t": 10.833,
+  "sharpness": 226.3
+ },
+ {
+  "session": "B",
+  "index": 4,
+  "path": "out/real/frames/B_004.jpg",
+  "t": 14.4,
+  "sharpness": 100.7
+ },
+ {
+  "session": "B",
+  "index": 5,
+  "path": "out/real/frames/B_005.jpg",
+  "t": 16.667,
+  "sharpness": 721.2
+ },
+ {
+  "session": "B",
+  "index": 6,
+  "path": "out/real/frames/B_006.jpg",
+  "t": 18.033,
+  "sharpness": 322.6
+ },
+ {
+  "session": "B",
+  "index": 7,
+  "path": "out/real/frames/B_007.jpg",
+  "t": 22.533,
+  "sharpness": 338.9
+ },
+ {
+  "session": "B",
+  "index": 8,
+  "path": "out/real/frames/B_008.jpg",
+  "t": 25.933,
+  "sharpness": 385.6
+ },
+ {
+  "session": "B",
+  "index": 9,
+  "path": "out/real/frames/B_009.jpg",
+  "t": 27.933,
+  "sharpness": 174.0
+ },
+ {
+  "session": "B",
+  "index": 10,
+  "path": "out/real/frames/B_010.jpg",
+  "t": 29.633,
+  "sharpness": 156.4
+ },
+ {
+  "session": "B",
+  "index": 11,
+  "path": "out/real/frames/B_011.jpg",
+  "t": 33.633,
+  "sharpness": 119.3
+ },
+ {
+  "session": "B",
+  "index": 12,
+  "path": "out/real/frames/B_012.jpg",
+  "t": 37.4,
+  "sharpness": 266.7
+ },
+ {
+  "session": "B",
+  "index": 13,
+  "path": "out/real/frames/B_013.jpg",
+  "t": 40.267,
+  "sharpness": 237.8
+ },
+ {
+  "session": "B",
+  "index": 14,
+  "path": "out/real/frames/B_014.jpg",
+  "t": 41.367,
+  "sharpness": 219.0
+ },
+ {
+  "session": "B",
+  "index": 15,
+  "path": "out/real/frames/B_015.jpg",
+  "t": 47.167,
+  "sharpness": 229.2
+ },
+ {
+  "session": "B",
+  "index": 16,
+  "path": "out/real/frames/B_016.jpg",
+  "t": 48.8,
+  "sharpness": 311.3
+ },
+ {
+  "session": "B",
+  "index": 17,
+  "path": "out/real/frames/B_017.jpg",
+  "t": 52.867,
+  "sharpness": 177.9
+ },
+ {
+  "session": "B",
+  "index": 18,
+  "path": "out/real/frames/B_018.jpg",
+  "t": 53.1,
+  "sharpness": 191.9
+ },
+ {
+  "session": "B",
+  "index": 19,
+  "path": "out/real/frames/B_019.jpg",
+  "t": 57.033,
+  "sharpness": 164.4
+ },
+ {
+  "session": "B",
+  "index": 20,
+  "path": "out/real/frames/B_020.jpg",
+  "t": 61.3,
+  "sharpness": 147.9
+ },
+ {
+  "session": "B",
+  "index": 21,
+  "path": "out/real/frames/B_021.jpg",
+  "t": 62.3,
+  "sharpness": 266.9
+ },
+ {
+  "session": "B",
+  "index": 22,
+  "path": "out/real/frames/B_022.jpg",
+  "t": 66.967,
+  "sharpness": 154.5
+ },
+ {
+  "session": "B",
+  "index": 23,
+  "path": "out/real/frames/B_023.jpg",
+  "t": 70.467,
+  "sharpness": 168.8
+ },
+ {
+  "session": "B",
+  "index": 24,
+  "path": "out/real/frames/B_024.jpg",
+  "t": 71.967,
+  "sharpness": 539.7
+ },
+ {
+  "session": "B",
+  "index": 25,
+  "path": "out/real/frames/B_025.jpg",
+  "t": 75.467,
+  "sharpness": 344.1
+ },
+ {
+  "session": "B",
+  "index": 26,
+  "path": "out/real/frames/B_026.jpg",
+  "t": 76.8,
+  "sharpness": 196.6
+ },
+ {
+  "session": "B",
+  "index": 27,
+  "path": "out/real/frames/B_027.jpg",
+  "t": 79.7,
+  "sharpness": 109.2
+ },
+ {
+  "session": "B",
+  "index": 28,
+  "path": "out/real/frames/B_028.jpg",
+  "t": 85.267,
+  "sharpness": 452.1
+ }
+]

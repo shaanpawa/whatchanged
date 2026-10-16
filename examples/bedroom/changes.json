@@ -1,0 +1,1534 @@
+{
+ "changes": [
+  {
+   "id": "c01",
+   "type": "removed",
+   "centre_m": [
+    0.405,
+    1.761,
+    0.993
+   ],
+   "size_m": [
+    0.456,
+    0.128,
+    0.246
+   ],
+   "yaw_deg": 141.9,
+   "bottom_m": 0.885,
+   "top_m": 1.101,
+   "label": "office chair",
+   "colour": "black",
+   "on_before": "floor",
+   "on_after": "",
+   "near_before": "desk",
+   "near_after": "",
+   "evidence": {
+    "free_views": 4,
+    "free_share": 0.98,
+    "noise_margin": 3.2,
+    "by": "depth"
+   },
+   "frames": {
+    "A": "out/real/frames/A_003.jpg",
+    "B": "out/real/frames/B_003.jpg"
+   },
+   "times": {
+    "A": 9.933,
+    "B": 10.833
+   },
+   "crops": {
+    "before": "out/real/crops/c01_before.jpg",
+    "after": "out/real/crops/c01_after.jpg"
+   },
+   "sentence": "The black office chair on the floor next to the desk is gone; video B saw that spot empty from 4 viewpoints."
+  },
+  {
+   "id": "c02",
+   "type": "removed",
+   "centre_m": [
+    1.142,
+    1.413,
+    0.869
+   ],
+   "size_m": [
+    0.119,
+    0.095,
+    0.198
+   ],
+   "yaw_deg": 140.0,
+   "bottom_m": 0.785,
+   "top_m": 0.953,
+   "label": "speaker",
+   "colour": "red",
+   "on_before": "desk",
+   "on_after": "",
+   "near_before": "remote control",
+   "near_after": "",
+   "evidence": {
+    "free_views": 7,
+    "free_share": 1.0,
+    "noise_margin": 0.0,
+    "by": "objects"
+   },
+   "frames": {
+    "A": "out/real/frames/A_001.jpg",
+    "B": "out/real/frames/B_003.jpg"
+   },
+   "times": {
+    "A": 3.0,
+    "B": 10.833
+   },
+   "crops": {
+    "before": "out/real/crops/c02_before.jpg",
+    "after": "out/real/crops/c02_after.jpg"
+   },
+   "sentence": "The red speaker on the desk next to the remote control is gone; video B looked at that spot from 7 viewpoints and did not find it."
+  },
+  {
+   "id": "c03",
+   "type": "moved",
+   "centre_m": [
+    -0.309,
+    1.645,
+    0.146
+   ],
+   "size_m": [
+    0.355,
+    0.236,
+    0.322
+   ],
+   "yaw_deg": 98.0,
+   "bottom_m": 0.0,
+   "top_m": 0.292,
+   "label": "trash can",
+   "colour": "black",
+   "on_before": "floor",
+   "on_after": "floor",
+   "near_before": "wall socket",
+   "near_after": "office chair",
+   "before": {
+    "centre_m": [
+     -0.75,
+     0.818,
+     0.144
+    ],
+    "size_m": [
+     0.243,
+     0.22,
+     0.26
+    ],
+    "yaw_deg": 148.0,
+    "bottom_m": 0.029,
+    "top_m": 0.259
+   },
+   "after": {
+    "centre_m": [
+     -0.309,
+     1.645,
+     0.146
+    ],
+    "size_m": [
+     0.355,
+     0.236,
+     0.322
+    ],
+    "yaw_deg": 98.0,
+    "bottom_m": 0.0,
+    "top_m": 0.292
+   },
+   "move": {
+    "distance_m": 0.94,
+    "height_change_m": -0.03,
+    "turn_deg": null,
+    "shape_fit": null,
+    "shape_rmse_m": null,
+    "match_cost": 0.26
+   },
+   "evidence": {
+    "free_views": 4,
+    "free_share": 1.0,
+    "noise_margin": 0.0,
+    "by": "objects"
+   },
+   "frames": {
+    "A": "out/real/frames/A_017.jpg",
+    "B": "out/real/frames/B_020.jpg"
+   },
+   "times": {
+    "A": 47.467,
+    "B": 61.3
+   },
+   "crops": {
+    "before": "out/real/crops/c03_before.jpg",
+    "after": "out/real/crops/c03_after.jpg"
+   },
+   "sentence": "The black trash can moved about 0.9 m from beside the wall socket to beside the office chair."
+  },
+  {
+   "id": "c04",
+   "type": "moved",
+   "centre_m": [
+    -0.342,
+    -2.097,
+    0.74
+   ],
+   "size_m": [
+    0.221,
+    0.137,
+    0.355
+   ],
+   "yaw_deg": 98.0,
+   "bottom_m": 0.578,
+   "top_m": 0.902,
+   "label": "air purifier",
+   "colour": "white",
+   "on_before": "floor",
+   "on_after": "bedside table",
+   "near_before": "pillow",
+   "near_after": "wall socket",
+   "before": {
+    "centre_m": [
+     -0.281,
+     -1.952,
+     0.131
+    ],
+    "size_m": [
+     0.358,
+     0.195,
+     0.293
+    ],
+    "yaw_deg": 52.0,
+    "bottom_m": -0.001,
+    "top_m": 0.263
+   },
+   "after": {
+    "centre_m": [
+     -0.342,
+     -2.097,
+     0.74
+    ],
+    "size_m": [
+     0.221,
+     0.137,
+     0.355
+    ],
+    "yaw_deg": 98.0,
+    "bottom_m": 0.578,
+    "top_m": 0.902
+   },
+   "move": {
+    "distance_m": 0.16,
+    "height_change_m": 0.58,
+    "turn_deg": null,
+    "shape_fit": null,
+    "shape_rmse_m": null,
+    "match_cost": 0.22
+   },
+   "evidence": {
+    "free_views": 4,
+    "free_share": 1.0,
+    "noise_margin": 0.0,
+    "by": "objects"
+   },
+   "frames": {
+    "A": "out/real/frames/A_019.jpg",
+    "B": "out/real/frames/B_002.jpg"
+   },
+   "times": {
+    "A": 51.433,
+    "B": 6.6
+   },
+   "crops": {
+    "before": "out/real/crops/c04_before.jpg",
+    "after": "out/real/crops/c04_after.jpg"
+   },
+   "sentence": "The white air purifier moved about 0.2 m from the floor to the bedside table."
+  },
+  {
+   "id": "c05",
+   "type": "moved",
+   "centre_m": [
+    2.108,
+    -0.357,
+    0.385
+   ],
+   "size_m": [
+    0.781,
+    0.537,
+    0.8
+   ],
+   "yaw_deg": 168.0,
+   "bottom_m": 0.0,
+   "top_m": 0.77,
+   "label": "wooden chair",
+   "colour": "brown",
+   "on_before": "floor",
+   "on_after": "floor",
+   "near_before": "window blind",
+   "near_after": "radiator",
+   "before": {
+    "centre_m": [
+     1.004,
+     -1.754,
+     0.511
+    ],
+    "size_m": [
+     1.1,
+     0.516,
+     0.585
+    ],
+    "yaw_deg": 52.0,
+    "bottom_m": 0.233,
+    "top_m": 0.788
+   },
+   "after": {
+    "centre_m": [
+     2.108,
+     -0.357,
+     0.385
+    ],
+    "size_m": [
+     0.781,
+     0.537,
+     0.8
+    ],
+    "yaw_deg": 168.0,
+    "bottom_m": 0.0,
+    "top_m": 0.77
+   },
+   "move": {
+    "distance_m": 1.78,
+    "height_change_m": -0.23,
+    "turn_deg": null,
+    "shape_fit": null,
+    "shape_rmse_m": null,
+    "match_cost": 0.28
+   },
+   "evidence": {
+    "free_views": 4,
+    "free_share": 1.0,
+    "noise_margin": 0.0,
+    "by": "objects"
+   },
+   "frames": {
+    "A": "out/real/frames/A_007.jpg",
+    "B": "out/real/frames/B_010.jpg"
+   },
+   "times": {
+    "A": 18.733,
+    "B": 29.633
+   },
+   "crops": {
+    "before": "out/real/crops/c05_before.jpg",
+    "after": "out/real/crops/c05_after.jpg"
+   },
+   "sentence": "The brown wooden chair moved about 1.8 m from beside the window blind to beside the radiator."
+  }
+ ],
+ "cant_tell": [
+  {
+   "reason": "hidden",
+   "centre_m": [
+    -0.26,
+    -0.2,
+    0.25
+   ],
+   "min_m": [
+    -1.63,
+    -1.49,
+    0.04
+   ],
+   "max_m": [
+    0.82,
+    0.41,
+    0.55
+   ],
+   "voxels": 1749
+  },
+  {
+   "reason": "hidden",
+   "centre_m": [
+    1.46,
+    1.78,
+    0.31
+   ],
+   "min_m": [
+    1.19,
+    1.42,
+    0.04
+   ],
+   "max_m": [
+    1.57,
+    1.97,
+    0.67
+   ],
+   "voxels": 383
+  },
+  {
+   "reason": "hidden",
+   "centre_m": [
+    -0.92,
+    0.48,
+    0.09
+   ],
+   "min_m": [
+    -1.21,
+    0.22,
+    0.04
+   ],
+   "max_m": [
+    -0.55,
+    0.86,
+    0.18
+   ],
+   "voxels": 263
+  },
+  {
+   "reason": "hidden",
+   "centre_m": [
+    0.63,
+    -1.52,
+    0.06
+   ],
+   "min_m": [
+    0.46,
+    -1.7,
+    0.04
+   ],
+   "max_m": [
+    0.82,
+    -1.29,
+    0.09
+   ],
+   "voxels": 72
+  },
+  {
+   "reason": "hidden",
+   "centre_m": [
+    0.69,
+    1.86,
+    0.1
+   ],
+   "min_m": [
+    0.49,
+    1.67,
+    0.04
+   ],
+   "max_m": [
+    0.96,
+    1.94,
+    0.19
+   ],
+   "voxels": 62
+  },
+  {
+   "reason": "unfilmed",
+   "centre_m": [
+    -0.17,
+    0.2,
+    0.78
+   ],
+   "min_m": [
+    -3.39,
+    -2.51,
+    0.04
+   ],
+   "max_m": [
+    3.05,
+    2.76,
+    2.0
+   ],
+   "voxels": 26720
+  },
+  {
+   "reason": "unfilmed",
+   "centre_m": [
+    0.59,
+    0.38,
+    0.65
+   ],
+   "min_m": [
+    0.08,
+    -0.09,
+    0.04
+   ],
+   "max_m": [
+    1.21,
+    0.8,
+    1.06
+   ],
+   "voxels": 1696
+  }
+ ],
+ "floor_map": {
+  "resolution_m": 0.05,
+  "origin_m": [
+   -3.227,
+   -2.43
+  ],
+  "robot_radius_m": 0.35,
+  "obstacle_band_m": [
+   0.06,
+   2.2
+  ],
+  "newly_blocked_m2": 0.5,
+  "newly_free_m2": 0.12,
+  "stale_m2": 1.15,
+  "known_before_m2": 16.19,
+  "known_after_m2": 16.51,
+  "files": [
+   "map_before.yaml",
+   "map_after.yaml",
+   "map_updated.yaml",
+   "costmap_updated.png",
+   "map_update.png"
+  ]
+ },
+ "look_next": [
+  {
+   "id": "v1",
+   "reason": "hidden",
+   "region_centre_m": [
+    -0.24,
+    -0.2,
+    0.25
+   ],
+   "stand_at_m": [
+    -0.2,
+    1.1
+   ],
+   "camera_height_m": 1.48,
+   "face_yaw_deg": -92,
+   "tilt_deg": -44,
+   "predicted_visible": 0.43,
+   "naive_visible": 0.12,
+   "distance_m": 1.79,
+   "preview": "out/real/lookahead/view1.jpg"
+  },
+  {
+   "id": "v2",
+   "reason": "hidden",
+   "region_centre_m": [
+    1.46,
+    1.79,
+    0.31
+   ],
+   "stand_at_m": [
+    -0.7,
+    0.35
+   ],
+   "camera_height_m": 1.48,
+   "face_yaw_deg": 34,
+   "tilt_deg": -24,
+   "predicted_visible": 0.79,
+   "naive_visible": 0.01,
+   "distance_m": 2.85,
+   "preview": "out/real/lookahead/view2.jpg"
+  },
+  {
+   "id": "v3",
+   "reason": "unfilmed",
+   "region_centre_m": [
+    -0.17,
+    0.43,
+    0.77
+   ],
+   "stand_at_m": [
+    1.3,
+    -0.4
+   ],
+   "camera_height_m": 1.48,
+   "face_yaw_deg": 150,
+   "tilt_deg": -23,
+   "predicted_visible": 0.09,
+   "naive_visible": 0.0,
+   "distance_m": 1.83,
+   "preview": "out/real/lookahead/view3.jpg"
+  },
+  {
+   "id": "v4",
+   "reason": "unfilmed",
+   "region_centre_m": [
+    0.6,
+    0.39,
+    0.65
+   ],
+   "stand_at_m": [
+    0.8,
+    1.35
+   ],
+   "camera_height_m": 1.48,
+   "face_yaw_deg": -102,
+   "tilt_deg": -40,
+   "predicted_visible": 0.97,
+   "naive_visible": 0.86,
+   "distance_m": 1.28,
+   "preview": "out/real/lookahead/view4.jpg"
+  }
+ ],
+ "baseline_naive": {
+  "removed": [
+   {
+    "centre_m": [
+     -2.35,
+     -0.63,
+     0.27
+    ],
+    "size_m": [
+     0.74,
+     1.23,
+     0.7
+    ]
+   },
+   {
+    "centre_m": [
+     -2.09,
+     0.58,
+     0.53
+    ],
+    "size_m": [
+     0.53,
+     0.5,
+     0.56
+    ]
+   },
+   {
+    "centre_m": [
+     -1.92,
+     -0.87,
+     0.41
+    ],
+    "size_m": [
+     0.2,
+     0.23,
+     0.13
+    ]
+   },
+   {
+    "centre_m": [
+     -1.58,
+     0.73,
+     0.18
+    ],
+    "size_m": [
+     0.15,
+     0.17,
+     0.34
+    ]
+   },
+   {
+    "centre_m": [
+     -1.57,
+     -1.08,
+     0.22
+    ],
+    "size_m": [
+     0.12,
+     0.15,
+     0.36
+    ]
+   },
+   {
+    "centre_m": [
+     -1.26,
+     0.81,
+     0.86
+    ],
+    "size_m": [
+     0.75,
+     0.59,
+     1.33
+    ]
+   },
+   {
+    "centre_m": [
+     -1.21,
+     -0.74,
+     0.1
+    ],
+    "size_m": [
+     0.2,
+     0.23,
+     0.14
+    ]
+   },
+   {
+    "centre_m": [
+     -0.84,
+     0.62,
+     0.1
+    ],
+    "size_m": [
+     0.62,
+     1.02,
+     0.18
+    ]
+   },
+   {
+    "centre_m": [
+     -0.96,
+     0.72,
+     0.37
+    ],
+    "size_m": [
+     0.2,
+     0.07,
+     0.11
+    ]
+   },
+   {
+    "centre_m": [
+     -0.79,
+     -1.61,
+     0.83
+    ],
+    "size_m": [
+     0.32,
+     0.24,
+     0.16
+    ]
+   },
+   {
+    "centre_m": [
+     -0.22,
+     2.0,
+     2.19
+    ],
+    "size_m": [
+     0.99,
+     1.22,
+     0.79
+    ]
+   },
+   {
+    "centre_m": [
+     0.42,
+     -1.89,
+     0.58
+    ],
+    "size_m": [
+     2.06,
+     1.28,
+     1.16
+    ]
+   },
+   {
+    "centre_m": [
+     0.14,
+     -0.05,
+     0.24
+    ],
+    "size_m": [
+     1.66,
+     1.12,
+     0.58
+    ]
+   },
+   {
+    "centre_m": [
+     0.2,
+     2.11,
+     0.64
+    ],
+    "size_m": [
+     1.77,
+     1.18,
+     1.72
+    ]
+   },
+   {
+    "centre_m": [
+     -0.18,
+     -1.83,
+     0.16
+    ],
+    "size_m": [
+     0.11,
+     0.07,
+     0.18
+    ]
+   },
+   {
+    "centre_m": [
+     0.77,
+     0.32,
+     0.67
+    ],
+    "size_m": [
+     1.27,
+     0.85,
+     0.63
+    ]
+   },
+   {
+    "centre_m": [
+     1.17,
+     0.6,
+     0.11
+    ],
+    "size_m": [
+     1.13,
+     0.42,
+     0.2
+    ]
+   },
+   {
+    "centre_m": [
+     1.12,
+     -2.02,
+     1.26
+    ],
+    "size_m": [
+     0.42,
+     0.12,
+     0.21
+    ]
+   },
+   {
+    "centre_m": [
+     1.16,
+     -1.91,
+     2.39
+    ],
+    "size_m": [
+     0.22,
+     0.05,
+     0.29
+    ]
+   },
+   {
+    "centre_m": [
+     1.12,
+     1.38,
+     0.9
+    ],
+    "size_m": [
+     0.06,
+     0.12,
+     0.13
+    ]
+   },
+   {
+    "centre_m": [
+     1.45,
+     -1.79,
+     0.88
+    ],
+    "size_m": [
+     0.33,
+     0.33,
+     0.55
+    ]
+   },
+   {
+    "centre_m": [
+     2.16,
+     -1.04,
+     0.35
+    ],
+    "size_m": [
+     0.15,
+     0.16,
+     0.18
+    ]
+   },
+   {
+    "centre_m": [
+     2.33,
+     0.18,
+     0.54
+    ],
+    "size_m": [
+     0.32,
+     0.24,
+     0.42
+    ]
+   },
+   {
+    "centre_m": [
+     2.6,
+     -0.27,
+     2.32
+    ],
+    "size_m": [
+     0.58,
+     1.65,
+     0.76
+    ]
+   }
+  ],
+  "added": [
+   {
+    "centre_m": [
+     -2.56,
+     -0.7,
+     0.37
+    ],
+    "size_m": [
+     0.16,
+     0.11,
+     0.27
+    ]
+   },
+   {
+    "centre_m": [
+     -2.06,
+     1.14,
+     0.46
+    ],
+    "size_m": [
+     0.25,
+     0.09,
+     0.47
+    ]
+   },
+   {
+    "centre_m": [
+     -1.99,
+     0.22,
+     0.07
+    ],
+    "size_m": [
+     0.26,
+     0.17,
+     0.05
+    ]
+   },
+   {
+    "centre_m": [
+     -1.55,
+     0.66,
+     1.04
+    ],
+    "size_m": [
+     0.15,
+     0.1,
+     0.18
+    ]
+   },
+   {
+    "centre_m": [
+     -0.81,
+     1.01,
+     0.48
+    ],
+    "size_m": [
+     1.21,
+     1.1,
+     1.25
+    ]
+   },
+   {
+    "centre_m": [
+     -1.09,
+     0.91,
+     1.61
+    ],
+    "size_m": [
+     0.1,
+     0.11,
+     0.49
+    ]
+   },
+   {
+    "centre_m": [
+     -0.23,
+     -2.05,
+     1.03
+    ],
+    "size_m": [
+     0.82,
+     0.68,
+     0.9
+    ]
+   },
+   {
+    "centre_m": [
+     -0.4,
+     1.74,
+     1.0
+    ],
+    "size_m": [
+     0.48,
+     0.42,
+     1.42
+    ]
+   },
+   {
+    "centre_m": [
+     -0.55,
+     1.49,
+     1.99
+    ],
+    "size_m": [
+     0.07,
+     0.1,
+     0.27
+    ]
+   },
+   {
+    "centre_m": [
+     -0.19,
+     2.13,
+     2.11
+    ],
+    "size_m": [
+     0.45,
+     0.59,
+     0.66
+    ]
+   },
+   {
+    "centre_m": [
+     0.18,
+     -1.14,
+     0.27
+    ],
+    "size_m": [
+     1.01,
+     1.32,
+     0.57
+    ]
+   },
+   {
+    "centre_m": [
+     0.05,
+     1.59,
+     0.7
+    ],
+    "size_m": [
+     0.66,
+     0.57,
+     0.91
+    ]
+   },
+   {
+    "centre_m": [
+     -0.1,
+     1.02,
+     0.07
+    ],
+    "size_m": [
+     0.13,
+     0.3,
+     0.04
+    ]
+   },
+   {
+    "centre_m": [
+     0.08,
+     1.57,
+     0.12
+    ],
+    "size_m": [
+     0.31,
+     0.26,
+     0.1
+    ]
+   },
+   {
+    "centre_m": [
+     0.16,
+     2.48,
+     1.37
+    ],
+    "size_m": [
+     0.57,
+     0.57,
+     0.77
+    ]
+   },
+   {
+    "centre_m": [
+     0.82,
+     -1.87,
+     2.36
+    ],
+    "size_m": [
+     1.62,
+     0.5,
+     0.74
+    ]
+   },
+   {
+    "centre_m": [
+     0.41,
+     -2.02,
+     0.45
+    ],
+    "size_m": [
+     0.45,
+     0.26,
+     1.01
+    ]
+   },
+   {
+    "centre_m": [
+     0.56,
+     1.99,
+     0.8
+    ],
+    "size_m": [
+     0.54,
+     0.6,
+     0.2
+    ]
+   },
+   {
+    "centre_m": [
+     0.61,
+     0.2,
+     0.81
+    ],
+    "size_m": [
+     0.54,
+     0.4,
+     0.37
+    ]
+   },
+   {
+    "centre_m": [
+     1.28,
+     2.01,
+     1.68
+    ],
+    "size_m": [
+     0.73,
+     0.85,
+     0.73
+    ]
+   },
+   {
+    "centre_m": [
+     1.13,
+     2.09,
+     0.29
+    ],
+    "size_m": [
+     0.44,
+     0.29,
+     0.45
+    ]
+   },
+   {
+    "centre_m": [
+     1.16,
+     0.45,
+     0.05
+    ],
+    "size_m": [
+     0.19,
+     0.43,
+     0.04
+    ]
+   },
+   {
+    "centre_m": [
+     1.36,
+     1.51,
+     0.78
+    ],
+    "size_m": [
+     0.27,
+     0.3,
+     0.11
+    ]
+   },
+   {
+    "centre_m": [
+     1.58,
+     -0.5,
+     0.13
+    ],
+    "size_m": [
+     0.53,
+     0.47,
+     0.27
+    ]
+   },
+   {
+    "centre_m": [
+     1.76,
+     0.86,
+     0.19
+    ],
+    "size_m": [
+     0.15,
+     0.12,
+     0.3
+    ]
+   },
+   {
+    "centre_m": [
+     1.89,
+     0.86,
+     1.25
+    ],
+    "size_m": [
+     0.31,
+     0.25,
+     0.6
+    ]
+   }
+  ]
+ },
+ "diagnostics": {
+  "device": "cpu",
+  "poses_from": "colmap",
+  "views": {
+   "A": 28,
+   "B": 29
+  },
+  "depth_from": "session",
+  "metric_scale": {
+   "m_per_colmap_unit": 0.555745,
+   "scale_from": "metric depth",
+   "metric_depth": 0.555745,
+   "uncorrected": 0.469727,
+   "network_focal_short_by": 1.188
+  },
+  "session_A_depth": {
+   "fits": {
+    "affine": 23,
+    "scale": 5,
+    "none": 0
+   },
+   "anchored_pixels": 0.407,
+   "residual_vs_colmap_median": 0.0215,
+   "residual_vs_colmap_p90": 0.0308,
+   "colmap_points_per_frame": 635
+  },
+  "session_B_depth": {
+   "fits": {
+    "affine": 27,
+    "scale": 2,
+    "none": 0
+   },
+   "anchored_pixels": 0.453,
+   "residual_vs_colmap_median": 0.0195,
+   "residual_vs_colmap_p90": 0.027,
+   "colmap_points_per_frame": 603
+  },
+  "camera_height_m": {
+   "median": 1.484,
+   "p10": 1.391,
+   "p90": 1.552
+  },
+  "alignment_B_to_A_m": {
+   "p50": 0.0205,
+   "p90": 0.1446
+  },
+  "colmap": {
+   "work": "out/pair/work",
+   "to_levelled": [
+    [
+     0.02178998,
+     0.30222165,
+     0.46587503,
+     0.0
+    ],
+    [
+     -0.54956588,
+     -0.05519289,
+     0.06150901,
+     0.0
+    ],
+    [
+     0.07971707,
+     -0.463107,
+     0.29669744,
+     1.46902895
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "metric_scale_m_per_unit": 0.555745,
+   "scale_from": "metric depth",
+   "registered": {
+    "A": "138/140",
+    "B": "169/169"
+   }
+  },
+  "inputs": {
+   "before": "data/raw/A.mov",
+   "after": "data/raw/B.mov"
+  },
+  "noise_floor": {
+   "A_to_B_sigma": 0.0275,
+   "B_to_A_sigma": 0.0267
+  },
+  "smallest_detectable_change": {
+   "removals (judged by B)": [
+    {
+     "range_m": [
+      0.34,
+      1.46
+     ],
+     "sigma_pct": 2.87,
+     "min_detectable_cm": 12.6
+    },
+    {
+     "range_m": [
+      1.46,
+      1.8
+     ],
+     "sigma_pct": 1.98,
+     "min_detectable_cm": 10.7
+    },
+    {
+     "range_m": [
+      1.8,
+      2.14
+     ],
+     "sigma_pct": 1.91,
+     "min_detectable_cm": 12.2
+    },
+    {
+     "range_m": [
+      2.14,
+      2.52
+     ],
+     "sigma_pct": 2.64,
+     "min_detectable_cm": 19.9
+    },
+    {
+     "range_m": [
+      2.52,
+      2.92
+     ],
+     "sigma_pct": 3.43,
+     "min_detectable_cm": 30.1
+    },
+    {
+     "range_m": [
+      2.92,
+      3.5
+     ],
+     "sigma_pct": 3.78,
+     "min_detectable_cm": 39.7
+    }
+   ],
+   "additions (judged by A)": [
+    {
+     "range_m": [
+      0.44,
+      1.53
+     ],
+     "sigma_pct": 3.36,
+     "min_detectable_cm": 15.5
+    },
+    {
+     "range_m": [
+      1.53,
+      1.92
+     ],
+     "sigma_pct": 2.02,
+     "min_detectable_cm": 11.6
+    },
+    {
+     "range_m": [
+      1.92,
+      2.24
+     ],
+     "sigma_pct": 1.92,
+     "min_detectable_cm": 12.9
+    },
+    {
+     "range_m": [
+      2.24,
+      2.56
+     ],
+     "sigma_pct": 2.37,
+     "min_detectable_cm": 18.1
+    },
+    {
+     "range_m": [
+      2.56,
+      2.93
+     ],
+     "sigma_pct": 2.98,
+     "min_detectable_cm": 26.2
+    },
+    {
+     "range_m": [
+      2.93,
+      3.5
+     ],
+     "sigma_pct": 3.08,
+     "min_detectable_cm": 32.4
+    }
+   ]
+  },
+  "config": {
+   "voxel": 0.03,
+   "floor_cut": 0.04,
+   "min_views": 3,
+   "min_support": 3,
+   "free_share": 0.6,
+   "k_sigma": 3.0,
+   "tau_min": 0.03,
+   "min_blob_voxels": 25,
+   "min_blob_extent": 0.1,
+   "max_blob_extent": 2.5,
+   "conf_pct": 30.0,
+   "edge_px": 5,
+   "max_range": 3.5,
+   "noise_bins": 6,
+   "min_fit": 0.5,
+   "min_move": 0.15
+  },
+  "changes_by": {
+   "depth": 1,
+   "objects": 4
+  },
+  "object_naming": {
+   "label_source": "claude",
+   "prompt_version": "n1",
+   "vocabulary": [
+    {
+     "name": "bed",
+     "kind": "surface"
+    },
+    {
+     "name": "desk",
+     "kind": "surface"
+    },
+    {
+     "name": "office chair",
+     "kind": "object"
+    },
+    {
+     "name": "wardrobe",
+     "kind": "object"
+    },
+    {
+     "name": "door",
+     "kind": "object"
+    },
+    {
+     "name": "bedside table",
+     "kind": "surface"
+    },
+    {
+     "name": "laundry basket",
+     "kind": "object"
+    },
+    {
+     "name": "tv",
+     "kind": "object"
+    },
+    {
+     "name": "tv bench",
+     "kind": "surface"
+    },
+    {
+     "name": "monitor",
+     "kind": "object"
+    },
+    {
+     "name": "laptop",
+     "kind": "object"
+    },
+    {
+     "name": "keyboard",
+     "kind": "object"
+    },
+    {
+     "name": "mouse",
+     "kind": "object"
+    },
+    {
+     "name": "desk mat",
+     "kind": "object"
+    },
+    {
+     "name": "backpack",
+     "kind": "object"
+    },
+    {
+     "name": "water bottle pack",
+     "kind": "object"
+    },
+    {
+     "name": "trash can",
+     "kind": "object"
+    },
+    {
+     "name": "air purifier",
+     "kind": "object"
+    },
+    {
+     "name": "pillow",
+     "kind": "object"
+    },
+    {
+     "name": "book",
+     "kind": "object"
+    },
+    {
+     "name": "potted plant",
+     "kind": "object"
+    },
+    {
+     "name": "power strip",
+     "kind": "object"
+    },
+    {
+     "name": "radiator",
+     "kind": "object"
+    },
+    {
+     "name": "speaker",
+     "kind": "object"
+    },
+    {
+     "name": "cup",
+     "kind": "object"
+    },
+    {
+     "name": "light switch",
+     "kind": "object"
+    },
+    {
+     "name": "wall socket",
+     "kind": "object"
+    },
+    {
+     "name": "cushion",
+     "kind": "object"
+    },
+    {
+     "name": "spray bottle",
+     "kind": "object"
+    }
+   ],
+   "checked": 79,
+   "no_view": 1,
+   "kept": 50,
+   "dropped": 8,
+   "merged": 11,
+   "model": "claude-opus-5-5",
+   "calls": 0,
+   "cached": 80,
+   "refused": 0,
+   "failed": 0,
+   "input_tokens": 0,
+   "output_tokens": 0,
+   "cost_usd_est": 0.0
+  },
+  "claude_this_run": {
+   "model": "claude-opus-5-5",
+   "calls": 12,
+   "cached": 0,
+   "refused": 0,
+   "failed": 0,
+   "input_tokens": 29104,
+   "output_tokens": 559,
+   "cost_usd_est": 0.128
+  }
+ }
+}

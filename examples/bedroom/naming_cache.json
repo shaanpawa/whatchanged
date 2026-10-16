@@ -1,0 +1,901 @@
+{
+ "bcf2bae4d38dd4d71f998f973e8494800af6ae6b": {
+  "objects": [
+   {
+    "name": "bed",
+    "kind": "surface"
+   },
+   {
+    "name": "desk",
+    "kind": "surface"
+   },
+   {
+    "name": "office chair",
+    "kind": "object"
+   },
+   {
+    "name": "wardrobe",
+    "kind": "object"
+   },
+   {
+    "name": "door",
+    "kind": "object"
+   },
+   {
+    "name": "bedside table",
+    "kind": "surface"
+   },
+   {
+    "name": "laundry basket",
+    "kind": "object"
+   },
+   {
+    "name": "tv",
+    "kind": "object"
+   },
+   {
+    "name": "tv bench",
+    "kind": "surface"
+   },
+   {
+    "name": "monitor",
+    "kind": "object"
+   },
+   {
+    "name": "laptop",
+    "kind": "object"
+   },
+   {
+    "name": "keyboard",
+    "kind": "object"
+   },
+   {
+    "name": "mouse",
+    "kind": "object"
+   },
+   {
+    "name": "desk mat",
+    "kind": "object"
+   },
+   {
+    "name": "backpack",
+    "kind": "object"
+   },
+   {
+    "name": "water bottle pack",
+    "kind": "object"
+   },
+   {
+    "name": "trash can",
+    "kind": "object"
+   },
+   {
+    "name": "air purifier",
+    "kind": "object"
+   },
+   {
+    "name": "pillow",
+    "kind": "object"
+   },
+   {
+    "name": "book",
+    "kind": "object"
+   },
+   {
+    "name": "potted plant",
+    "kind": "object"
+   },
+   {
+    "name": "power strip",
+    "kind": "object"
+   },
+   {
+    "name": "radiator",
+    "kind": "object"
+   },
+   {
+    "name": "speaker",
+    "kind": "object"
+   },
+   {
+    "name": "cup",
+    "kind": "object"
+   },
+   {
+    "name": "light switch",
+    "kind": "object"
+   },
+   {
+    "name": "wall socket",
+    "kind": "object"
+   },
+   {
+    "name": "cushion",
+    "kind": "object"
+   },
+   {
+    "name": "spray bottle",
+    "kind": "object"
+   }
+  ]
+ },
+ "4715e424a470421aac8e14faadff360b84c6b855": {
+  "keep": true,
+  "name": "pillow",
+  "part_of": "",
+  "colour": "grey",
+  "fit": "good",
+  "reason": "grey pillow lying against the headboard on the bed, box encloses it reasonably"
+ },
+ "49042965fa051506b41eb31eab9c4b06bdd14802": {
+  "keep": true,
+  "name": "laptop",
+  "part_of": "",
+  "colour": "gray",
+  "fit": "good",
+  "reason": "Box encloses an open laptop on a stand; it hugs the screen and keyboard, though it is slightly offset from the base."
+ },
+ "db0a3b6969097a5ae25d04a40ec56ee4d1218d31": {
+  "keep": true,
+  "name": "laundry basket",
+  "part_of": "",
+  "colour": "grey",
+  "fit": "good",
+  "reason": "Striped fabric laundry basket full of clothes; box roughly encloses it."
+ },
+ "6f3e7890f0ffb9338d7c20a952314b18219e3980": {
+  "keep": true,
+  "name": "bedside table",
+  "part_of": "",
+  "colour": "beige",
+  "fit": "good",
+  "reason": "small wooden nightstand with rattan drawer and splayed legs, box encloses it fairly well"
+ },
+ "905bc59c7963d6b76ab3e6844cd47ba9742e0640": {
+  "keep": true,
+  "name": "pillow",
+  "part_of": "",
+  "colour": "gray",
+  "fit": "good",
+  "reason": "Grey pillow lying against the headboard on the bed; the box encloses it reasonably well."
+ },
+ "3d61cdc005846365514b41a23e98104bec5f9cab": {
+  "keep": true,
+  "name": "monitor",
+  "part_of": "",
+  "colour": "silver",
+  "fit": "good",
+  "reason": "Box encloses a small portable monitor standing on the desk behind the keyboard, not a laptop; wireframe roughly covers the screen."
+ },
+ "f7729c50d201ea84533350104cf1aa78f38d375f": {
+  "keep": true,
+  "name": "tv",
+  "part_of": "",
+  "colour": "black",
+  "fit": "good",
+  "reason": "Black flat-screen TV on a stand, sitting on a small wooden table; the box roughly encloses it, though the screen edges stick out slightly."
+ },
+ "0112e85288365710d7af96c4d0d584a7b385a5ea": {
+  "keep": true,
+  "name": "radiator",
+  "part_of": "",
+  "colour": "white",
+  "fit": "good",
+  "reason": "White column radiator under the window, mostly enclosed by the box; one end extends slightly past it."
+ },
+ "9820a56768dbfa5e12febf3015f7c0e556dc3db3": {
+  "keep": true,
+  "name": "desk",
+  "part_of": "",
+  "colour": "black",
+  "fit": "good",
+  "reason": "Box encloses the black desk with wood-edged top and legs; items on top are separate objects."
+ },
+ "6c18c0dadf51c30eb295a783117c5a38cc985b9b": {
+  "keep": false,
+  "name": "empty space",
+  "part_of": "",
+  "colour": "",
+  "fit": "too_big",
+  "reason": "Box sits mostly in empty floor space in front of the door; the black office chair is only at its edge."
+ },
+ "d573942ee90a36e2211d217ed34988ba4a5b3802": {
+  "keep": true,
+  "name": "potted plant",
+  "part_of": "",
+  "colour": "green",
+  "fit": "good",
+  "reason": "Box encloses a small green potted plant in a black pot on the desk; it roughly fits the foliage, though the pot base is slightly outside."
+ },
+ "bb7ca0e6d5049e24507634795e9b4a91d104d098": {
+  "keep": true,
+  "name": "tv bench",
+  "part_of": "",
+  "colour": "brown",
+  "fit": "too_big",
+  "reason": "Rustic wooden low table holding a TV; box is offset and taller than the table, taking in the lower TV and floor."
+ },
+ "2ea034d958cb7db305992c2374da7981efae4bae": {
+  "keep": true,
+  "name": "trash can",
+  "part_of": "",
+  "colour": "black",
+  "fit": "good",
+  "reason": "Black mesh wastebasket on floor beside wall, box encloses it reasonably"
+ },
+ "ccd2bd740b0b4f680ec160061dfa792c11ec6f67": {
+  "keep": true,
+  "name": "door",
+  "part_of": "",
+  "colour": "brown",
+  "fit": "too_small",
+  "reason": "Wooden door with handle; the box covers most of it, but the door extends above the box top and past its right side."
+ },
+ "5d30931a45a16bef26f3f0da099704c99f616dc4": {
+  "keep": true,
+  "name": "door",
+  "part_of": "",
+  "colour": "brown",
+  "fit": "good",
+  "reason": "Box covers the wooden interior door standing in its frame; the top edge sits slightly below the door top."
+ },
+ "0f0f1ccc1fa3c7e5e97bec1c24fb289fc1661791": {
+  "keep": true,
+  "name": "mouse",
+  "part_of": "",
+  "colour": "black",
+  "fit": "good",
+  "reason": "Black Logitech mouse on desk mat, box encloses it closely."
+ },
+ "367035f3050e682268524dbf74db25124eda88a3": {
+  "keep": true,
+  "name": "bedside table",
+  "part_of": "",
+  "colour": "beige",
+  "fit": "too_small",
+  "reason": "Box hugs the wooden bedside table's drawer body and top but omits its legs; air purifier sits on top."
+ },
+ "95d8c3782bc8db1ead1edf4d9c815de558524da1": {
+  "keep": true,
+  "name": "trash can",
+  "part_of": "",
+  "colour": "black",
+  "fit": "too_small",
+  "reason": "black mesh wastebasket; box covers it but appears shorter/offset than the full can height"
+ },
+ "bef97afbb8db4e7afc97566ed25428c1d855196a": {
+  "keep": true,
+  "name": "desk mat",
+  "part_of": "",
+  "colour": "black",
+  "fit": "too_big",
+  "reason": "Box spans the black desk mat on the desk top but extends well below the desk surface into empty space and reaches toward the keyboard and laptop stand."
+ },
+ "b0fb8903a11fc578b28cd45bc1186b3530808cbd": {
+  "keep": true,
+  "name": "wooden chair",
+  "part_of": "",
+  "colour": "brown",
+  "fit": "good",
+  "reason": "Box encloses a single wooden chair with dark green seat; fits reasonably closely."
+ },
+ "980007412fda447891a2472d2883c5ac4c24b846": {
+  "keep": true,
+  "name": "book",
+  "part_of": "",
+  "colour": "black",
+  "fit": "good",
+  "reason": "Single book with landscape cover standing on the headboard shelf; box hugs it."
+ },
+ "aa9fb2d288406643972bd39c39ffa5c1056bedb7": {
+  "keep": true,
+  "name": "book",
+  "part_of": "",
+  "colour": "black",
+  "fit": "good",
+  "reason": "Fourth Wing book standing upright on headboard shelf; box hugs it"
+ },
+ "1866864ffb1fd27c521162e9cdfaf40bdf30260e": {
+  "keep": true,
+  "name": "air purifier",
+  "part_of": "",
+  "colour": "white",
+  "fit": "good",
+  "reason": "White cylindrical air purifier with top fan grille under bedside table; box roughly encloses it."
+ },
+ "e457a956dd361c0f3b7dbb72ed6a316904264833": {
+  "keep": true,
+  "name": "radiator",
+  "part_of": "",
+  "colour": "white",
+  "fit": "good",
+  "reason": "White column radiator under window, box covers most of it"
+ },
+ "55d075a0645c103fc39cc1ef2c03db808843a240": {
+  "keep": true,
+  "name": "wall socket",
+  "part_of": "",
+  "colour": "white",
+  "fit": "good",
+  "reason": "UK-style single switched socket with three pin holes and a switch, tightly boxed; not a light switch"
+ },
+ "fb538fbaf66fdd769416e3489ff00ca057d7f62d": {
+  "keep": true,
+  "name": "potted plant",
+  "part_of": "",
+  "colour": "green",
+  "fit": "good",
+  "reason": "Small green plant in black pot on shelf above bed; box encloses it well."
+ },
+ "0508ad3d2035c9d93631e95dc702fe7bbcc20127": {
+  "keep": true,
+  "name": "speaker",
+  "part_of": "",
+  "colour": "orange",
+  "fit": "good",
+  "reason": "Orange cylindrical portable speaker (JBL-style) standing upright on desk corner; box hugs it well."
+ },
+ "d77d495ead36c9b8f7a1bbc6822e3a78739a6ab2": {
+  "keep": false,
+  "name": "bed",
+  "part_of": "",
+  "colour": "grey",
+  "fit": "too_big",
+  "reason": "Box covers the head end of the grey bed but extends well past it across empty floor to the far wall and laundry basket, so it is mostly empty space."
+ },
+ "fb3b61289828e7c0a328095401d4d3a5376279d7": {
+  "keep": true,
+  "name": "air purifier",
+  "part_of": "",
+  "colour": "white",
+  "fit": "good",
+  "reason": "White cylindrical air purifier with top fan grille on bedside table; box roughly encloses it."
+ },
+ "f940526bb0a04b2cd95c9fa92ef2cd077c69b812": {
+  "keep": true,
+  "name": "wall socket",
+  "part_of": "",
+  "colour": "white",
+  "fit": "good",
+  "reason": "White wall socket with a black plug/charger inserted; the box roughly hugs the socket plate."
+ },
+ "24ad31d7d0273906b76014074a83d05a87482b92": {
+  "keep": false,
+  "name": "empty space",
+  "part_of": "",
+  "colour": "",
+  "fit": "too_big",
+  "reason": "Box sits in the room corner between two radiators. It mostly contains empty air and floor. The chair and radiators sit at or beyond its edges rather than filling it."
+ },
+ "c1e2e3e62a63c33e1428ef44d0a003fc9db0d51f": {
+  "keep": true,
+  "name": "remote control",
+  "part_of": "",
+  "colour": "white",
+  "fit": "too_small",
+  "reason": "White slim remote lying on the bedside table's rattan shelf; it extends beyond the small box."
+ },
+ "c17ccea2e72f9bd4de0af1ff05b178a328288f25": {
+  "keep": true,
+  "name": "cup",
+  "part_of": "",
+  "colour": "white",
+  "fit": "good",
+  "reason": "Small white cylindrical cup with dark lid on the desk; box fits it reasonably."
+ },
+ "342500b24484b8a067f134cb132bcdd69060bb08": {
+  "keep": true,
+  "name": "floor lamp",
+  "part_of": "",
+  "colour": "black",
+  "fit": "too_small",
+  "reason": "Thin black pole floor lamp with round base; box is offset and the pole extends above its top."
+ },
+ "546b670c6fb2a918baf249ca82c5033ab4ea06da": {
+  "keep": true,
+  "name": "speaker",
+  "part_of": "",
+  "colour": "red",
+  "fit": "too_big",
+  "reason": "red cylindrical portable speaker on small table; box larger, includes empty space and tv edge"
+ },
+ "86fb9b8078cd59216fd0a3d6c8f55b8f53bb79c6": {
+  "keep": false,
+  "name": "wardrobe",
+  "part_of": "wardrobe",
+  "colour": "white",
+  "fit": "too_small",
+  "reason": "Box covers only the lower part of tall white built-in wardrobe doors; no refrigerator present."
+ },
+ "1506837207cb7be9f1017223326f8d3af9ee7c67": {
+  "keep": true,
+  "name": "speaker",
+  "part_of": "",
+  "colour": "black",
+  "fit": "good",
+  "reason": "Black box-shaped speaker sitting on the tv bench behind the TV, beside a red cylindrical speaker; the wireframe hugs it reasonably well."
+ },
+ "c81f4cf81d03d2f29e68636bdbb7f54cd2ec2e36": {
+  "keep": true,
+  "name": "backpack",
+  "part_of": "",
+  "colour": "black",
+  "fit": "too_small",
+  "reason": "Black backpack leaning against wall; box covers its upper portion, bag extends below and beyond."
+ },
+ "e182021b547dcd7b4db20b614ca511cdb506ebc4": {
+  "keep": true,
+  "name": "tv",
+  "part_of": "",
+  "colour": "black",
+  "fit": "too_small",
+  "reason": "Box sits on the TV standing on a small table, but covers only part of the TV, which extends well beyond it."
+ },
+ "e687fe6d9afdd7b1485bd85968a24a1b0110902b": {
+  "keep": true,
+  "name": "keyboard",
+  "part_of": "",
+  "colour": "grey",
+  "fit": "too_big",
+  "reason": "Box encloses the compact grey keyboard on the desk mat but extends well above it into empty space and slightly past its outline."
+ },
+ "cda17e8558556db57be289b56da4bd530280d414": {
+  "keep": true,
+  "name": "bedside table",
+  "part_of": "",
+  "colour": "beige",
+  "fit": "too_big",
+  "reason": "Light wood bedside table with rattan drawer beside the bed; box is offset, covering part of the table and the gap toward the bed."
+ },
+ "83963dcea7f0219ddfc5f2199e11de1a32504da8": {
+  "keep": true,
+  "name": "potted plant",
+  "part_of": "",
+  "colour": "green",
+  "fit": "too_big",
+  "reason": "small potted plant on headboard ledge; box extends sideways into empty space"
+ },
+ "c5446d192e9b7f913c559885dfc5e5ea0f673a72": {
+  "keep": true,
+  "name": "monitor",
+  "part_of": "",
+  "colour": "black",
+  "fit": "too_big",
+  "reason": "Box surrounds the curved black monitor but extends forward over the desk, taking in a lot of empty space."
+ },
+ "0a375507f80d4354e63d15ea74c692e5cfe2b001": {
+  "keep": true,
+  "name": "window blind",
+  "part_of": "",
+  "colour": "grey",
+  "fit": "good",
+  "reason": "Box encloses a grey roller blind pulled down over a tall window above the radiator."
+ },
+ "9e50770d90706311c7cd6bf4b2fa5c28d99014e1": {
+  "keep": false,
+  "name": "empty space",
+  "part_of": "",
+  "colour": "",
+  "fit": "too_big",
+  "reason": "Box floats in empty air beside the TV, in front of the wall and above the floor; the radiator sits off to the side and below, so it is barely inside the box."
+ },
+ "1aaaca2f79e8e38973c703dcdcbd59a9314563e1": {
+  "keep": true,
+  "name": "spray bottle",
+  "part_of": "",
+  "colour": "blue",
+  "fit": "good",
+  "reason": "Box encloses a clear spray bottle with blue liquid on the desk beside the laptop, not a cup."
+ },
+ "a4c83a27436ff00bf78be440056d9d72c2c1282c": {
+  "keep": false,
+  "name": "bed",
+  "part_of": "bed",
+  "colour": "grey",
+  "fit": "too_small",
+  "reason": "Box covers a corner section of the grey bed with duvet, not a desk; it is only part of the bed."
+ },
+ "57e8c64b41b450bb554eacb9699f9d3a359fb868": {
+  "keep": false,
+  "name": "headboard",
+  "part_of": "bed",
+  "colour": "navy",
+  "fit": "too_small",
+  "reason": "Box covers the upper slatted part of the navy bed headboard below the wooden top shelf, only a portion of the bed's headboard."
+ },
+ "a63c5bb2dbe96dfcfb5fbdf3235dc695a5dd4cf8": {
+  "keep": true,
+  "name": "wardrobe",
+  "part_of": "",
+  "colour": "white",
+  "fit": "good",
+  "reason": "Box encloses the tall white double-door wardrobe; the door label is wrong, and the box sits slightly above the floor."
+ },
+ "9bb2ca7ca23e0e37b460b898d005af7037186527": {
+  "keep": true,
+  "name": "wooden chair",
+  "part_of": "",
+  "colour": "brown",
+  "fit": "too_big",
+  "reason": "Wooden chair with dark seat; box extends far sideways into empty space and misses the lower legs."
+ },
+ "9cbfeabe1aa4f53a663874580a096c09441e1857": {
+  "keep": false,
+  "name": "bed",
+  "part_of": "bed",
+  "colour": "grey",
+  "fit": "too_small",
+  "reason": "Low floor-level box covers only the bed's lower base and nearby floor; the grey bed extends well beyond it."
+ },
+ "19aea85a5b654221dba0381b4b59f45126deec45": {
+  "keep": true,
+  "name": "wall socket",
+  "part_of": "",
+  "colour": "white",
+  "fit": "good",
+  "reason": "UK double socket plate with pin holes and switch, box hugs plate"
+ },
+ "25d726ead7cb71c67b67f6f462f27e43266d1806": {
+  "keep": false,
+  "name": "tv",
+  "part_of": "tv",
+  "colour": "black",
+  "fit": "too_small",
+  "reason": "Box sits on the tv bench but only covers one portion of a large black TV standing on it; the TV extends well beyond the box."
+ },
+ "3079ceb67be15c928f3ab6514d36f80df2d22151": {
+  "keep": true,
+  "name": "window blind",
+  "part_of": "",
+  "colour": "grey",
+  "fit": "good",
+  "reason": "Box encloses a tall window recess fully covered by a pulled-down grey roller blind."
+ },
+ "5b1fe6fa279aee08d94804fcdc07b0a230757f47": {
+  "keep": true,
+  "name": "backpack",
+  "part_of": "",
+  "colour": "black",
+  "fit": "too_small",
+  "reason": "Black backpack on the floor by the wall. The box covers its upper body but floats above the floor and misses the lower part and straps, and it clips the water bottle pack."
+ },
+ "1489399ad30b87073c789239c1e680cca4cb8a34": {
+  "keep": true,
+  "name": "water bottle pack",
+  "part_of": "",
+  "colour": "blue",
+  "fit": "good",
+  "reason": "6-pack of Highland Spring bottles in shrink wrap on the floor; the box closely encloses it."
+ },
+ "2390fc3840327bb526a63a5b7efed1455e31de29": {
+  "keep": true,
+  "name": "light switch",
+  "part_of": "",
+  "colour": "white",
+  "fit": "good",
+  "reason": "Small square switch plate on wall near door, box hugs it."
+ },
+ "0c274f6c1863de90aa4a48a1df230b1dd54f6ae7": {
+  "keep": true,
+  "name": "pillow",
+  "part_of": "",
+  "colour": "grey",
+  "fit": "good",
+  "reason": "Rounded grey pillow at the head of the bed by the headboard, next to the bedside table; the box hugs it reasonably well."
+ },
+ "9e3027f872221b3d855c2c4627a7c509407c0d97": {
+  "keep": false,
+  "name": "drawer handle",
+  "part_of": "bedside table",
+  "colour": "white",
+  "fit": "good",
+  "reason": "Box covers the white handle on the bedside table drawer, not a remote control."
+ },
+ "f99e076fd912af7e5d84edb2239e7337555c2fb3": {
+  "keep": true,
+  "name": "door handle",
+  "part_of": "door",
+  "colour": "silver",
+  "fit": "good",
+  "reason": "Lever door handle with escutcheon and lock on wooden door; box hugs it."
+ },
+ "cf389cb546407180352b3678d4e8506748dc668a": {
+  "keep": false,
+  "name": "cables",
+  "part_of": "",
+  "colour": "black",
+  "fit": "too_big",
+  "reason": "Box covers a tangle of cables, a USB hub, camera, bottle and laptop corner on the desk; no rug, several separate items."
+ },
+ "1e5b1c0b1524e3a5fb4c00a03374bfefddffaaae": {
+  "keep": false,
+  "name": "wooden chair",
+  "part_of": "wooden chair",
+  "colour": "brown",
+  "fit": "too_small",
+  "reason": "Box covers part of a wooden chair seat/stool top with a red speaker and black bag on it; mixed contents, not one object."
+ },
+ "9b8485883bf16c72867af82fdb55fbeb2abf9e0b": {
+  "keep": true,
+  "name": "door stopper",
+  "part_of": "",
+  "colour": "white",
+  "fit": "good",
+  "reason": "Small white wedge/stopper at the floor against the baseboard, not a wall socket."
+ },
+ "14b93b6ca39db1a6c1a184a1560f096f4cad63e9": {
+  "keep": true,
+  "name": "remote control",
+  "part_of": "",
+  "colour": "black",
+  "fit": "good",
+  "reason": "Black TV remote lying on the desk next to the desk mat; the box roughly covers it."
+ },
+ "6dbbbe6634c14ea24e9e3aaf7b091f4b4febba4b": {
+  "keep": false,
+  "name": "chair backrest",
+  "part_of": "office chair",
+  "colour": "black",
+  "fit": "too_small",
+  "reason": "Thin slab at 0.8 m cuts through the black office chair's backrest only; the chair extends well beyond it."
+ },
+ "bd4a03559b8b5dfe8a61fc229d0c2b3004793c98": {
+  "keep": false,
+  "name": "empty space",
+  "part_of": "",
+  "colour": "",
+  "fit": "too_big",
+  "reason": "Box floats in air above the TV edge and in front of the wall, holding no object; the TV it was fitted around is much larger and only partly inside."
+ },
+ "d3fbf899b60d537dccae677b23ce9db4211bbbc9": {
+  "keep": false,
+  "name": "window sill",
+  "part_of": "",
+  "colour": "",
+  "fit": "too_big",
+  "reason": "Box floats over window sill and lower part of blind above radiator; no television, mostly empty space"
+ },
+ "fa37efc727ff25b885c0bf822f79f7024e2f27b1": {
+  "keep": false,
+  "name": "empty space",
+  "part_of": "",
+  "colour": "",
+  "fit": "too_small",
+  "reason": "Box floats in empty air above the black mesh trash can that stands on the floor; it does not enclose the can."
+ },
+ "10804907d585bc8232460ffb276222834e9a0500": {
+  "keep": true,
+  "name": "wall socket",
+  "part_of": "",
+  "colour": "brown",
+  "fit": "good",
+  "reason": "Wall socket with plugged-in white plug and cable, just above bedside table."
+ },
+ "4c83347302453e07e5beee1b14e6c09f0004a27c": {
+  "keep": false,
+  "name": "bedside table",
+  "part_of": "",
+  "colour": "",
+  "fit": "too_big",
+  "reason": "Box spans the bedside table's lower area, catching part of the air purifier, cables and floor; no single object fills it."
+ },
+ "6f7544ac380b9d8681a7f79d7ce41c9249dac5ee": {
+  "keep": true,
+  "name": "tv bench",
+  "part_of": "",
+  "colour": "brown",
+  "fit": "good",
+  "reason": "Low rustic wooden bench with TV on it; box covers the bench roughly"
+ },
+ "9017b608805b8cbb2439b457565b4482f89b0e6c": {
+  "keep": true,
+  "name": "bedside table",
+  "part_of": "",
+  "colour": "beige",
+  "fit": "good",
+  "reason": "Box encloses the light wooden bedside table with drawer and legs, air purifier sits on top mostly outside."
+ },
+ "1822865c5f6e1e9a9f9748cd15ffadf244c874c5": {
+  "keep": true,
+  "name": "potted plant",
+  "part_of": "",
+  "colour": "green",
+  "fit": "good",
+  "reason": "small potted plant with black pot on bed headboard shelf; box roughly covers it"
+ },
+ "2a1a0c2f88b679407b25c36d81d5bc9f87b5b3d7": {
+  "keep": false,
+  "name": "empty space",
+  "part_of": "",
+  "colour": "",
+  "fit": "too_big",
+  "reason": "Box floats in the space under the bedside table, holding only floor and cables; no chair is there."
+ },
+ "37046954e24b9532a98913e1876cba032d18a505": {
+  "keep": true,
+  "name": "keyboard",
+  "part_of": "",
+  "colour": "grey",
+  "fit": "good",
+  "reason": "Compact dark grey keyboard on the desk mat; the box covers it closely, though slightly offset."
+ },
+ "82e56d7b4d3d9b107feb6d3ca789d354da8f4c90": {
+  "keep": true,
+  "name": "desk mat",
+  "part_of": "",
+  "colour": "black",
+  "fit": "too_small",
+  "reason": "Box sits on the black desk mat holding the keyboard and mouse; the mat extends further left under the laptop stand."
+ },
+ "4ba5e978c9b971a475d950966e206b7e9fb973c7": {
+  "keep": true,
+  "name": "wooden chair",
+  "part_of": "",
+  "colour": "brown",
+  "fit": "too_small",
+  "reason": "Dark wooden chair with black seat; box covers seat and lower backrest but misses the legs and top of the back."
+ },
+ "29700ad27d88260a340b63419012aa51402b2e59": {
+  "keep": false,
+  "name": "floor",
+  "part_of": "",
+  "colour": "",
+  "fit": "too_big",
+  "reason": "Box is offset from the bed. It takes in only one side of the bed plus a lot of empty floor beside it, reaching toward the laundry basket."
+ },
+ "d2fbe7beb419f2724967c068b29ff0741f55ca35": {
+  "keep": false,
+  "name": "window blind",
+  "part_of": "",
+  "colour": "grey",
+  "fit": "too_small",
+  "reason": "Box covers only the bottom strip of a grey roller blind and the window sill above the radiator; no television here, and the blind extends well beyond the box."
+ },
+ "f54517ebec68f80ba2ce5b41031dd5d5907eaaba": {
+  "object": true,
+  "there": "absent",
+  "name": "trash can"
+ },
+ "4d15dbbec3926e6014095072bf7bd8ebcffa5d6c": {
+  "object": true,
+  "there": "absent",
+  "name": "trash can"
+ },
+ "3abd22ccb0cb9144f4539bf3e369d2b2069861ea": {
+  "object": true,
+  "there": "absent",
+  "name": "bluetooth speaker"
+ },
+ "d510e5a73816186b90e2f3036381bac007c0957e": {
+  "object": true,
+  "there": "present",
+  "name": "window blind"
+ },
+ "bd4789720cd1f1cbdb0cb15fa16d108d7bffbfd5": {
+  "object": false,
+  "there": "present",
+  "name": "books"
+ },
+ "4f0a490464ade855d4c37a9ec6636a93c9d47f1a": {
+  "object": true,
+  "there": "absent",
+  "name": "air purifier"
+ },
+ "e974b24d3a5916db0fb8c6d74d4347828de31732": {
+  "object": true,
+  "there": "present",
+  "name": "spray bottle"
+ },
+ "e97fd3b3e130478d94fc3daf933155631481c3dc": {
+  "object": true,
+  "there": "absent",
+  "name": "air purifier"
+ },
+ "b79e7e852cce0a1b2a03fdfcaece4c1925d8ab86": {
+  "object": true,
+  "there": "absent",
+  "name": "wooden chair"
+ },
+ "3c658c70b10d8a5a5d0b2eec70fa531f6c5e1290": {
+  "object": true,
+  "there": "absent",
+  "name": "office chair"
+ },
+ "dd9026877a2e3772ea76755b71267db3ea654828": {
+  "keep": true,
+  "name": "speaker",
+  "part_of": "",
+  "colour": "red",
+  "fit": "too_big",
+  "reason": "Red cylindrical portable speaker on a small table, not a cup; the box is larger than the speaker and also takes in table-top space and part of the TV."
+ },
+ "314665ba9c50ad2f33e8050b9028c3867417ec7a": {
+  "keep": true,
+  "name": "air purifier",
+  "part_of": "",
+  "colour": "white",
+  "fit": "good",
+  "reason": "White cylindrical air purifier on floor under bedside table, box roughly encloses it"
+ },
+ "94345a3b91a8686cbec391509fb17d1cf28cdc0d": {
+  "keep": true,
+  "name": "office chair",
+  "part_of": "",
+  "colour": "black",
+  "fit": "good",
+  "reason": "Box encloses the black mesh office chair by the desk; only the headrest pokes slightly above the box."
+ },
+ "ea946d147b9a3a5929b039522f369b7d4b27641f": {
+  "keep": true,
+  "name": "cup",
+  "part_of": "",
+  "colour": "white",
+  "fit": "good",
+  "reason": "White cylindrical cup-like object with printed text and dark rim, sitting on a black item on the desk; the box hugs it."
+ },
+ "df40d553aa1dd57dd86312c1781f877afa52db0f": {
+  "object": true,
+  "there": "present",
+  "name": "speaker"
+ },
+ "e2182c68c9056adec2042ac718687d83e000cf95": {
+  "object": true,
+  "there": "absent",
+  "name": "wooden chair"
+ },
+ "e28430826100fe00f71424a39a66b85ade649861": {
+  "object": true,
+  "there": "absent",
+  "name": "trash can"
+ },
+ "1859594656fee13329f2f8ec877f08a15ae2c28a": {
+  "object": true,
+  "there": "absent",
+  "name": "air purifier"
+ },
+ "11841891727bf67b7f268be0e29bdbfaa8fc7c5a": {
+  "object": true,
+  "there": "absent",
+  "name": "bluetooth speaker"
+ },
+ "77f545702428d294fec764b0e6a1c93eb20e6e03": {
+  "object": true,
+  "there": "absent",
+  "name": "wooden chair"
+ },
+ "3407af24b0cf250eb12aef005548346ebbce915c": {
+  "object": true,
+  "there": "absent",
+  "name": "air purifier"
+ },
+ "d3225b67dfd8d8ab1cefcd06942dee8959a01324": {
+  "object": true,
+  "there": "absent",
+  "name": "trash can"
+ },
+ "6363cb4596583a21f624a31e4f75d80372f48374": {
+  "object": false,
+  "there": "present",
+  "name": "books"
+ },
+ "ff915bd2aeda6c091f92a9c648f2636891caec75": {
+  "object": true,
+  "there": "present",
+  "name": "window blind"
+ },
+ "3324ad680758627b79710551f70a50e0f4bdf50b": {
+  "object": true,
+  "there": "present",
+  "name": "desk mat"
+ },
+ "8f57489a5b103009cf8722295848b731a55be184": {
+  "object": true,
+  "there": "absent",
+  "name": "wooden chair"
+ },
+ "13f7b26142661c7c0edb13d53a0e3be3bda77cd0": {
+  "object": true,
+  "there": "present",
+  "name": "speaker"
+ }
+}

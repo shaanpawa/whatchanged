@@ -1,0 +1,83 @@
+{
+ "1db80253710144df98adb15369408a714ca58b64": {
+  "label": "office chair",
+  "colour": "black",
+  "on_before": "floor",
+  "on_after": "",
+  "same_object": null,
+  "visible": true,
+  "labeller": "claude"
+ },
+ "ebfe16929a1869d390c419216b573e78e4d9257e": {
+  "label": "speaker",
+  "colour": "red",
+  "on_before": "desk",
+  "on_after": "",
+  "same_object": null,
+  "visible": true,
+  "labeller": "claude"
+ },
+ "77ac0655a0b262c7b0e6152871cf887308daac15": {
+  "label": "wooden chair",
+  "colour": "brown",
+  "on_before": "floor",
+  "on_after": "",
+  "same_object": null,
+  "visible": true,
+  "labeller": "claude"
+ },
+ "559c2b880b5108d6616d6d2d22e5b9aa37e75e7f": {
+  "label": "office chair",
+  "colour": "black",
+  "on_before": "floor",
+  "on_after": "",
+  "same_object": null,
+  "visible": true,
+  "labeller": "claude"
+ },
+ "6bd3375cae22adc0227855024e23b0519fe9008d": {
+  "label": "trash can",
+  "colour": "black",
+  "on_before": "floor",
+  "on_after": "floor",
+  "same_object": true,
+  "visible": true,
+  "labeller": "claude"
+ },
+ "cd049e05c68b3ae80cb83fc02a62e2048c1570ba": {
+  "label": "air purifier",
+  "colour": "white",
+  "on_before": "floor",
+  "on_after": "bed",
+  "same_object": true,
+  "visible": true,
+  "labeller": "claude"
+ },
+ "3e40900ad92dcd597e73e2b11b831674a42b2c87": {
+  "label": "office chair",
+  "colour": "black",
+  "on_before": "floor",
+  "on_after": "",
+  "same_object": null,
+  "visible": true,
+  "labeller": "claude"
+ },
+ "95c5e2179e3cbc80e75ba2d4a83f426109326856": {
+  "label": "wooden chair",
+  "colour": "brown",
+  "on_before": "floor",
+  "on_after": "floor",
+  "same_object": true,
+  "visible": true,
+  "labeller": "claude"
+ },
+ "1fb01db43c51a9dd7afd661ff6193f45d89fcd9f": {
+  "label": "speaker",
+  "colour": "red",
+  "on_before": "desk",
+  "on_after": "",
+  "same_object": null,
+  "visible": true,
+  "labeller": "claude"
+ }
+}

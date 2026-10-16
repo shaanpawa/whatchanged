@@ -2,45 +2,199 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Room in 3D</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>What Changed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&display=swap">
+<script>
+  // Chromium can bend the backdrop through an SVG filter (the Play button's lens); Safari and Firefox keep the plain frost.
+  if (navigator.userAgentData?.brands?.some((b) => b.brand === "Chromium")) document.documentElement.classList.add("refract");
+</script>
 <style>
-  :root { --bg: #0b0b0c; --panel: rgba(18, 18, 20, 0.78); --line: rgba(255, 255, 255, 0.12); --text: #ececec; --dim: #9a9a9f; --accent: #f2c14e; }
-  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; overflow: hidden; }
-  canvas { display: block; width: 100vw; height: 100vh; touch-action: none; }
-  .panel { position: fixed; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-  #title { top: 16px; left: 16px; padding: 10px 14px; max-width: min(420px, calc(100vw - 64px)); }
-  #title h1 { margin: 0 0 2px; font-size: 15px; font-weight: 600; }
-  #title p { margin: 0; color: var(--dim); }
-  #bar { bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; padding: 6px; flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 32px); }
-  #bar .sep { width: 1px; background: var(--line); margin: 2px 4px; }
-  button { appearance: none; border: 0; border-radius: 7px; padding: 7px 12px; background: transparent; color: var(--text); font: inherit; cursor: pointer; }
-  button:hover { background: rgba(255, 255, 255, 0.08); }
-  button[aria-pressed="true"] { background: var(--text); color: #111; }
-  #help { top: 16px; right: 16px; padding: 10px 14px; color: var(--dim); max-width: 260px; }
-  #help b { color: var(--text); font-weight: 500; }
-  #progress { position: fixed; left: 0; bottom: 0; height: 2px; background: var(--accent); width: 0; transition: width 0.2s; }
-  #loading { position: fixed; inset: 0; display: grid; place-items: center; color: var(--dim); pointer-events: none; }
-  #changes { top: 96px; left: 16px; padding: 8px 10px; max-width: min(360px, calc(100vw - 64px)); max-height: 50vh; overflow: auto; display: none; }
-  #changes div { padding: 4px 2px; }
-  #changes i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; }
-  .tag { position: fixed; transform: translate(-50%, -100%); padding: 2px 6px; border-radius: 4px; font-size: 11px; white-space: nowrap; pointer-events: none; background: rgba(0, 0, 0, 0.55); color: #fff; }
-  .tag.change { font-weight: 600; font-size: 12px; }
-  @media (max-width: 640px) { #help { display: none; } #title { top: 12px; left: 12px; } }
+  /* Glass, after Apple's Liquid Glass: a translucent fill over a blurred, saturated and slightly darkened backdrop,
+     a bright rim along the top edge and a softer one at the bottom, a soft drop shadow. The darkening keeps white
+     text above 4.5:1 even over the room's white walls. */
+  :root {
+    color-scheme: dark;
+    --bg: #0b0b0c; --ink: #f6f7f9; --ink-2: rgba(246, 247, 249, 0.84);
+    --amber: #ffc857; --seg: rgba(255, 200, 87, 0.92);
+    --removed: #ff5a5a; --added: #4cd97b; --moved: #5aa9ff;
+    --glass-fill: rgba(20, 22, 27, 0.6);
+    --glass-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.025) 42%, rgba(255, 255, 255, 0.04));
+    --glass-filter: blur(22px) saturate(1.7) brightness(0.74);
+    --rim: inset 0 1px 0 rgba(255, 255, 255, 0.42), inset 0 -1px 0 rgba(255, 255, 255, 0.11), inset 0 0 0 1px rgba(255, 255, 255, 0.09);
+    --glow: inset 0 16px 22px -18px rgba(255, 255, 255, 0.3);
+    --drop: 0 14px 34px -12px rgba(0, 0, 0, 0.6), 0 2px 8px -2px rgba(0, 0, 0, 0.35);
+    --fill-1: rgba(255, 255, 255, 0.07); --fill-2: rgba(255, 255, 255, 0.13);
+    --r-panel: 22px; --r-row: 14px;
+    --ease: cubic-bezier(0.2, 0.8, 0.2, 1); --t: 200ms;
+    --font: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --dock-h: 60px;
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { :root { --glass-fill: rgba(20, 22, 27, 0.9); } }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden;
+               font: 14px/1.4 var(--font); -webkit-font-smoothing: antialiased; }
+  button { appearance: none; border: 0; border-radius: 999px; padding: 6px 12px; background: transparent; color: inherit; font: inherit; cursor: pointer;
+           transition: background-color var(--t) var(--ease), color var(--t) var(--ease), box-shadow var(--t) var(--ease), transform 150ms var(--ease); }
+  button:hover { background: var(--fill-1); }
+  button:active { transform: scale(0.97); }
+  :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .glass { background: var(--glass-sheen), var(--glass-fill); box-shadow: var(--rim), var(--glow), var(--drop); border-radius: var(--r-panel);
+           backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); }
+
+  /* The 3D view fills the window; on a tall (phone) screen it sits on top and the panels go underneath. */
+  #stage { position: fixed; inset: 0; overflow: hidden; }
+  #stage canvas { display: block; touch-action: none; }
+  #tags { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .tag { position: absolute; left: 0; top: 0; display: none; transform-origin: 50% 100%; padding: 0 7px; border-radius: 6px; font-size: 11px; font-weight: 600;
+         line-height: 18px; white-space: nowrap; color: #111214;
+         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.55); }
+  .tag.change { font-size: 12.5px; line-height: 22px; padding: 0 9px; border-radius: 8px; }
+  .tag.hot { outline: 2px solid #fff; outline-offset: 1px; }
+  #fade { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; }
+  #loading { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+  #loading div { display: flex; align-items: center; gap: 10px; padding: 10px 18px 10px 14px; border-radius: 999px; color: var(--ink-2); }
+  #loading i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.2); border-top-color: var(--amber); animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #stamp { position: absolute; left: 50%; top: 16px; transform: translate(-50%, -6px); padding: 7px 20px; border-radius: 999px; font-size: 16px; font-weight: 600;
+           opacity: 0; transition: opacity var(--t) var(--ease), transform var(--t) var(--ease); pointer-events: none; }
+  #stamp.on { opacity: 1; transform: translate(-50%, 0); }
+  #note { position: absolute; left: 50%; bottom: calc(100% + 10px); transform: translateX(-50%); width: max-content; max-width: min(560px, calc(100vw - 64px));
+          padding: 7px 16px; border-radius: 999px; font-size: 13px; text-align: center; pointer-events: none; }
+  #note:empty { display: none; }
+  #pip { position: absolute; right: 16px; bottom: calc(var(--dock-h) + 28px); width: min(260px, 24vw); margin: 0; padding: 6px; border-radius: 18px; display: none; }
+  #pip img { display: block; width: 100%; border-radius: 12px; }
+  #pip figcaption { color: var(--ink-2); font-size: 11.5px; padding: 5px 6px 1px; font-variant-numeric: tabular-nums; }
+
+  #side { position: fixed; top: 16px; left: 16px; width: min(352px, calc(100vw - 32px)); max-height: calc(100vh - var(--dock-h) - 48px);
+          display: flex; flex-direction: column; gap: 10px; }
+  #title { padding: 14px 18px 15px; flex: none; }
+  #title h1 { margin: 0 0 4px; font-size: 17px; font-weight: 650; letter-spacing: -0.01em; }
+  #summary { margin: 0; font-size: 14px; }
+  #how { margin: 6px 0 0; color: var(--ink-2); font-size: 12.5px; }
+  .list { padding: 6px; overflow: auto; min-height: 0; flex: 0 1 auto; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.25) transparent; }
+  .head, .list summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 6px 6px 12px; font-size: 13px; font-weight: 600; }
+  .head button, .list summary::after { padding: 4px 11px; border-radius: 999px; font-size: 12px; font-weight: 500; background: var(--fill-1);
+                                        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.14); }
+  .head button:hover { background: var(--fill-2); }
+  #objects[open] { max-height: 42vh; }
+  .list summary { cursor: pointer; list-style: none; border-radius: var(--r-row); }
+  .list summary::-webkit-details-marker { display: none; }
+  .list summary::after { content: "Show"; }
+  .list[open] summary::after { content: "Hide"; }
+  .list summary:hover::after { background: var(--fill-2); }
+  .row { display: flex; align-items: baseline; gap: 10px; width: 100%; text-align: left; padding: 8px 12px; border-radius: var(--r-row); }
+  .row:active { transform: none; }
+  .row[aria-current="true"] { background: var(--fill-2); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+  .row i { flex: none; width: 10px; height: 10px; border-radius: 3px; background: var(--c); transform: translateY(1px);
+           box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 22%, transparent), 0 0 10px -1px var(--c); }
+  .row .id { flex: none; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .row .n { margin-left: auto; color: var(--ink-2); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+  /* The dock: three pieces of glass floating over the room, the Play lens, the timeline and the switches. */
+  #dock { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); width: min(880px, calc(100vw - 32px)); box-sizing: border-box;
+          display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  #play { flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 116px; height: 48px; padding: 0 20px 0 16px; font-size: 15px; font-weight: 600;
+          background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.03) 55%, rgba(255, 255, 255, 0.07)), rgba(22, 24, 29, 0.5);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 rgba(255, 255, 255, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.14),
+                      inset 0 10px 14px -10px rgba(255, 255, 255, 0.45), var(--drop);
+          backdrop-filter: blur(10px) saturate(1.8) brightness(0.8); -webkit-backdrop-filter: blur(10px) saturate(1.8) brightness(0.8); }
+  .refract #play { backdrop-filter: url(#lens) blur(3px) saturate(1.8) brightness(0.8); }
+  #play svg { width: 18px; height: 18px; fill: currentColor; }
+  #play .pause, #play.on .go { display: none; }
+  #play.on .pause { display: inline; }
+  #play:hover { background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06) 55%, rgba(255, 255, 255, 0.1)), rgba(22, 24, 29, 0.5); }
+  #play.on { color: #1d1606; background: linear-gradient(180deg, rgba(255, 236, 190, 0.55), rgba(255, 200, 87, 0) 60%), rgba(255, 200, 87, 0.9);
+             box-shadow: inset 0 1px 0 rgba(255, 246, 222, 0.9), inset 0 -1px 0 rgba(120, 80, 0, 0.25), 0 0 0 1px rgba(255, 200, 87, 0.35),
+                         0 0 26px -2px rgba(255, 200, 87, 0.6), var(--drop); }
+  #bar { flex: 1 1 260px; min-width: 0; display: flex; align-items: center; gap: 14px; height: 48px; box-sizing: border-box; padding: 0 18px 0 14px; border-radius: 999px; }
+  #track { flex: 1 1 auto; position: relative; display: flex; align-items: center; min-width: 90px; height: 48px; }
+  #track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 6px; margin-top: -3px; border-radius: 3px;
+                   background: rgba(0, 0, 0, 0.4); box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(255, 255, 255, 0.12); }
+  #segs { position: absolute; left: 9px; right: 9px; top: 50%; height: 6px; margin-top: -3px; border-radius: 3px; pointer-events: none; }
+  #track input { appearance: none; -webkit-appearance: none; position: relative; z-index: 1; flex: 1; min-width: 0; height: 48px; margin: 0;
+                 background: transparent; cursor: pointer; border-radius: 999px; }
+  #track input:focus-visible { outline-offset: -8px; }
+  #track input::-webkit-slider-runnable-track { height: 6px; background: transparent; }
+  #track input::-moz-range-track { height: 6px; background: transparent; }
+  #track input::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -6px; border-radius: 50%; border: 0;
+    background: radial-gradient(circle at 50% 30%, #fff 0 35%, #e4e7ec 75%, #cdd2d9); box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.45); }
+  #track input::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; border: 0;
+    background: radial-gradient(circle at 50% 30%, #fff 0 35%, #e4e7ec 75%, #cdd2d9); box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.45); }
+  #clock { flex: none; min-width: 92px; text-align: right; color: var(--ink-2); font-size: 13px; font-variant-numeric: tabular-nums; }
+  #tools { flex: none; display: flex; align-items: center; gap: 4px; height: 48px; box-sizing: border-box; padding: 0 6px; border-radius: 999px; }
+  #tools:empty { display: none; }
+  /* Before | After: a segmented control whose bright thumb slides to the state shown (--i of --n). */
+  .seg { position: relative; display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 3px; margin-right: 4px; border-radius: 999px;
+         background: rgba(0, 0, 0, 0.28); box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 -1px 0 rgba(255, 255, 255, 0.08); }
+  .seg::before { content: ""; position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / var(--n, 2)); border-radius: 999px;
+                 background: linear-gradient(180deg, #fff, #e6e9ee); transform: translateX(calc(var(--i, 0) * 100%)); transition: transform 240ms var(--ease);
+                 box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1), 0 2px 7px rgba(0, 0, 0, 0.4); }
+  .seg button { position: relative; padding: 6px 15px; font-weight: 600; font-size: 13.5px; }
+  .seg button[aria-pressed="true"] { color: #111317; background: none; }
+  /* Objects, Video: small toggles with a light that is on when they are. */
+  .toggle { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px 7px 11px; font-size: 13.5px; font-weight: 500; }
+  .toggle::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.3); transition: background-color var(--t), box-shadow var(--t); }
+  .toggle[aria-pressed="true"]::before { background: var(--amber); box-shadow: 0 0 0 2px rgba(255, 200, 87, 0.22), 0 0 9px 1px rgba(255, 200, 87, 0.8); }
+
+  @media (max-aspect-ratio: 1/1) {
+    body { display: flex; flex-direction: column; height: 100dvh; background: radial-gradient(120% 60% at 50% 100%, #17191e, var(--bg)); }
+    #stage { position: relative; inset: auto; flex: none; height: min(75vw, 56dvh); }
+    #side { position: static; width: auto; max-height: none; flex: 1 1 auto; min-height: 0; overflow: auto; padding: 12px 12px 0; }
+    #dock { position: static; transform: none; width: auto; margin: 10px 12px max(12px, env(safe-area-inset-bottom)); gap: 8px; }
+    #play { height: 44px; min-width: 104px; padding: 0 16px 0 13px; }
+    #bar { flex-basis: 150px; height: 44px; gap: 10px; padding: 0 14px 0 10px; }
+    #track, #track input { height: 44px; }
+    #clock { min-width: 0; font-size: 12px; }
+    #tools { flex: 1 1 100%; justify-content: center; height: 44px; }
+    .list, #objects[open] { flex: none; max-height: none; overflow: visible; }  /* the column scrolls, not each list */
+    #note { position: static; transform: none; order: -1; flex-basis: 100%; width: auto; max-width: none; padding: 0 4px; border-radius: 0;
+            background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; color: var(--ink-2); font-size: 12px; }
+    #pip { right: 8px; bottom: 8px; width: 36%; padding: 4px; border-radius: 14px; }
+    #pip img { border-radius: 10px; }
+    #stamp { top: 10px; font-size: 14px; }
+    .glass, #play, .refract #play { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before { transition-duration: 0s !important; animation-duration: 0s !important; }
+    #loading i { animation: none; }
+  }
 </style>
 </head>
 <body>
-<div id="loading">Loading the room…</div>
-<div id="title" class="panel"><h1 id="name">Room in 3D</h1><p id="sub"></p></div>
-<div id="help" class="panel">
-  <div><b>Fly</b> drag to look, <b>W A S D</b> to move, <b>R F</b> up/down, <b>Shift</b> faster</div>
-  <div><b>Orbit</b> drag to turn, scroll to zoom, right-drag to pan</div>
-  <div><b>Tour</b> replays the walk from the video</div>
+<!-- The Play button's lens (Chromium only): the backdrop is pushed outwards near the rim, as a thick glass edge bends light. -->
+<svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
+  <filter id="lens" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+    <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3ClinearGradient id='r'%3E%3Cstop offset='0' stop-color='%23f00'/%3E%3Cstop offset='.24' stop-color='%23800000'/%3E%3Cstop offset='.76' stop-color='%23800000'/%3E%3Cstop offset='1' stop-color='%23000'/%3E%3C/linearGradient%3E%3ClinearGradient id='g' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%230f0'/%3E%3Cstop offset='.32' stop-color='%23008000'/%3E%3Cstop offset='.68' stop-color='%23008000'/%3E%3Cstop offset='1' stop-color='%23000'/%3E%3C/linearGradient%3E%3Crect width='100' height='100' fill='url(%23r)'/%3E%3Crect width='100' height='100' fill='url(%23g)' style='mix-blend-mode:screen'/%3E%3C/svg%3E"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="22" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+<div id="stage">
+  <div id="tags"></div>
+  <div id="fade"></div>
+  <div id="loading"><div class="glass"><i></i>Loading the room…</div></div>
+  <div id="stamp" class="glass"></div>
+  <figure id="pip" class="glass"><img alt="The phone video frame nearest this view"><figcaption></figcaption></figure>
 </div>
-<div id="changes" class="panel"></div>
-<div id="tags"></div>
-<div id="bar" class="panel"></div>
-<div id="progress"></div>
+<div id="side">
+  <div id="title" class="glass"><h1 id="name"></h1><p id="summary"></p><p id="how"></p></div>
+  <section id="changes" class="glass list" hidden></section>
+  <details id="objects" class="glass list" hidden><summary></summary><div></div></details>
+</div>
+<div id="dock">
+  <div id="note" class="glass"></div>
+  <button id="play" title="Walk the filmed path (Space)">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path class="go" d="M7.5 5.2v13.6c0 .9 1 1.46 1.76.98l10.7-6.8a1.16 1.16 0 0 0 0-1.96L9.26 4.22c-.77-.48-1.76.07-1.76.98z"/><g class="pause"><rect x="6" y="4.5" width="4.4" height="15" rx="1.5"/><rect x="13.6" y="4.5" width="4.4" height="15" rx="1.5"/></g></svg>
+    <span>Play</span>
+  </button>
+  <div id="bar" class="glass">
+    <div id="track"><input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Position along the walk"><div id="segs"></div></div>
+    <span id="clock"></span>
+  </div>
+  <div id="tools" class="glass"></div>
+</div>
 
 <script>const SCENE = /*SCENE*/null;</script>
 <script type="importmap">
@@ -52,221 +206,751 @@
 </script>
 <script type="module">
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { SparkRenderer, SplatMesh, SparkControls } from "@sparkjsdev/spark";
+import { LineSegments2 } from "three/addons/lines/LineSegments2.js";
+import { LineSegmentsGeometry } from "three/addons/lines/LineSegmentsGeometry.js";
+import { LineMaterial } from "three/addons/lines/LineMaterial.js";
+import { SparkRenderer, SplatMesh } from "@sparkjsdev/spark";
 
 const data = SCENE ?? await (await fetch("scene.json")).json();
 const names = Object.keys(data.splats);
 const LABEL = { A: "Before", B: "After", room: "Room" };
+const label = (n) => LABEL[n] ?? n;
+const params = new URLSearchParams(location.search);
+const m = data.meta;
+const { degToRad: rad, radToDeg: deg, clamp } = THREE.MathUtils;
+const $ = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
+
+// ---------------------------------------------------------------- the lens
+// The camera only ever stands where the phone stood, with the phone's lens, so every picture is one the splat
+// was trained to reproduce and stays sharp. A screen of another shape crops the lens's frame and never widens it;
+// the crop leaves some spare angle ("slack") that a before/after view may use to face a change.
+const TRAIN_FOV_Y = m.fov_y_deg ?? 60;
+const TRAIN_ASPECT = m.image_wh ? m.image_wh[0] / m.image_wh[1] : 16 / 9;
+const TRAIN_FOV_X = m.fov_x_deg ?? deg(2 * Math.atan(Math.tan(rad(TRAIN_FOV_Y) / 2) * TRAIN_ASPECT));
+const GATE = m.gate ?? { R_m: 0.10, theta_deg: 5 };
+const view = {};
+function fitView(w, h) {
+  view.aspect = w > 0 && h > 0 ? w / h : TRAIN_ASPECT;  // a hidden (0 x 0) page would otherwise get NaN for good
+  view.fovY = Math.min(TRAIN_FOV_Y, deg(2 * Math.atan(Math.tan(rad(TRAIN_FOV_X) / 2) / view.aspect)));
+  view.fovX = deg(2 * Math.atan(Math.tan(rad(view.fovY) / 2) * view.aspect));
+  view.slackH = Math.max(0, (TRAIN_FOV_X - view.fovX) / 2);
+  view.slackV = Math.max(0, (TRAIN_FOV_Y - view.fovY) / 2);
+}
+const stage = $("stage");
+fitView(stage.clientWidth, stage.clientHeight);
 
 const renderer = new THREE.WebGLRenderer({ antialias: false });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
-document.body.prepend(renderer.domElement);
+renderer.setSize(stage.clientWidth, stage.clientHeight);
+stage.prepend(renderer.domElement);
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0b0b0c);
-const camera = new THREE.PerspectiveCamera(data.meta.fov_y_deg ?? 60, innerWidth / innerHeight, 0.02, 200);
+const camera = new THREE.PerspectiveCamera(view.fovY, view.aspect, 0.02, 200);
 scene.add(new SparkRenderer({ renderer }));
 
 // Splats stay in COLMAP's frame; one shared similarity puts every one of them Y-up, floor at 0.
-const toViewer = new THREE.Matrix4().fromArray(data.matrix);
 const room = new THREE.Group();
 room.matrixAutoUpdate = false;
-room.matrix.copy(toViewer);
+room.matrix.fromArray(data.matrix);
 scene.add(room);
 const meshes = {};
-let loaded = 0;
 for (const n of names) {
-  const m = new SplatMesh({ url: data.splats[n] });
-  m.visible = n === names[names.length - 1];
-  meshes[n] = m;
-  room.add(m);
-  m.initialized.then(() => { if (++loaded === names.length) document.getElementById("loading").remove(); });
+  meshes[n] = new SplatMesh({ url: data.splats[n] });
+  room.add(meshes[n]);
 }
+const ready = Promise.all(names.map((n) => meshes[n].initialized)).then(() => $("loading").remove());
 
-// Camera path from the video, as position + quaternion per kept frame.
-const paths = {};
-for (const n of names) {
-  paths[n] = data.cameras[n].map((c) => {
+// ---------------------------------------------------------------- each video as a rail of filmed frames
+// Every state keeps its own frames. A rail is split into segments wherever registration left a hole (a time
+// gap, a jump or a sharp turn), so nothing ever interpolates across views the phone never had.
+const Y = new THREE.Vector3(0, 1, 0), X = new THREE.Vector3(1, 0, 0);
+const HOLE = { dt: 1.0, dp: 0.25, turn: 20 };
+const CAP = rad(2);  // steadying may turn a frame at most this far from its filmed orientation
+const forward = (q, out = new THREE.Vector3()) => out.set(0, 0, -1).applyQuaternion(q);
+const angleDeg = (a, b) => deg(Math.acos(clamp(a.dot(b), -1, 1)));
+
+function makeRail(n) {
+  const cams = data.cameras[n];
+  const p = cams.map((c) => new THREE.Vector3(...c.position));
+  const qRaw = cams.map((c) => {
     const r = c.rotation;
-    const m = new THREE.Matrix4().set(r[0][0], r[0][1], r[0][2], 0, r[1][0], r[1][1], r[1][2], 0, r[2][0], r[2][1], r[2][2], 0, 0, 0, 0, 1);
-    return { p: new THREE.Vector3(...c.position), q: new THREE.Quaternion().setFromRotationMatrix(m), t: c.t };
+    return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().set(
+      r[0][0], r[0][1], r[0][2], 0, r[1][0], r[1][1], r[1][2], 0, r[2][0], r[2][1], r[2][2], 0, 0, 0, 0, 1)).normalize();
   });
-}
-
-let current = names[names.length - 1];
-// Open a little way into the walk: the first frames are usually the doorway, filmed past its edge.
-const home = () => paths[current][Math.round(0.15 * (paths[current].length - 1))];
-camera.position.copy(home().p);
-camera.quaternion.copy(home().q);
-
-// Controls
-const fly = new SparkControls({ canvas: renderer.domElement });
-fly.fpsMovement.moveSpeed = 1.2;
-const orbit = new OrbitControls(camera, renderer.domElement);
-orbit.enableDamping = true;
-orbit.enabled = false;
-orbit.maxDistance = 4;               // splats from eye-level video fall apart far outside the walk
-orbit.minPolarAngle = 0.5;
-orbit.maxPolarAngle = 1.9;
-const centre = new THREE.Vector3();
-paths[current].forEach((c) => centre.add(c.p));
-centre.divideScalar(paths[current].length);
-centre.y *= 0.6;  // look at furniture height, not eye height
-
-let mode = "fly";
-let tour = null;
-function setMode(m) {
-  mode = m;
-  fly.fpsMovement.enable = fly.pointerControls.enable = m === "fly";
-  orbit.enabled = m === "orbit";
-  if (m === "orbit") { orbit.target.copy(centre); orbit.update(); }
-  if (m === "tour") startTour(); else tour = null;
-  document.querySelectorAll("[data-mode]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.mode === m));
-}
-
-// Tour: Catmull-Rom through the camera centres, slerp between lightly smoothed orientations.
-function startTour() {
-  const path = paths[current];
-  const curve = new THREE.CatmullRomCurve3(path.map((c) => c.p), false, "centripetal");
-  const qs = path.map((c, i) => {
-    const q = c.q.clone();
-    const a = path[Math.max(0, i - 1)].q, b = path[Math.min(path.length - 1, i + 1)].q;
-    return q.slerp(a.clone().slerp(b, 0.5), 0.4);
+  const f = qRaw.map((q) => forward(q));
+  const t = cams.map((c, i) => c.t ?? i / 4);
+  // Holes are judged against this video's own frame spacing: at 1 frame a second, keeping the sharpest frame
+  // of each second leaves up to 2 s (and a slow walk's step) between neighbours, which is not a hole.
+  const gaps = t.slice(1).map((x, i) => x - t[i]).filter((x) => x > 0).sort((a, b) => a - b);
+  const step = gaps.length ? gaps[gaps.length >> 1] : 0.25, k = Math.max(1, step / 0.5);
+  const hole = { dt: Math.max(HOLE.dt, 2.2 * step), dp: HOLE.dp * k, turn: HOLE.turn * k };
+  const segs = [], seg = new Int32Array(cams.length), q = qRaw.slice();
+  for (let i = 1, a = 0; i <= cams.length; i++) {
+    if (i < cams.length && t[i] - t[i - 1] <= hole.dt && p[i].distanceTo(p[i - 1]) <= hole.dp && angleDeg(f[i], f[i - 1]) <= hole.turn) continue;
+    segs.push({ a, b: i - 1 });
+    a = i;
+  }
+  segs.forEach((g, k) => {
+    for (let i = g.a; i <= g.b; i++) seg[i] = k;
+    g.curve = g.b > g.a ? new THREE.CatmullRomCurve3(p.slice(g.a, g.b + 1), false, "centripetal") : null;
+    // Steady the handheld shake: average with neighbours inside the segment, twice, kept within CAP of the filmed pose.
+    let sq = qRaw.slice(g.a, g.b + 1);
+    for (let pass = 0; pass < 2; pass++) {
+      sq = sq.map((qi, i) => qi.clone().slerp(sq[Math.max(0, i - 1)].clone().slerp(sq[Math.min(sq.length - 1, i + 1)], 0.5), 0.5));
+    }
+    sq.forEach((s, i) => { const raw = qRaw[g.a + i]; q[g.a + i] = (raw.angleTo(s) > CAP ? raw.clone().rotateTowards(s, CAP) : s).normalize(); });
   });
-  const t0 = path[0].t ?? 0, t1 = path[path.length - 1].t ?? path.length / 4;
-  tour = { curve, qs, n: path.length, dur: Math.max(8, t1 - t0) * 1.15, start: performance.now() };
+  return { n, cams, p, q, qRaw, qInv: qRaw.map((x) => x.clone().invert()), f, t, segs, seg, last: cams.length - 1 };
 }
-function stepTour(now) {
-  const u = Math.min(1, (now - tour.start) / 1000 / tour.dur);
-  const s = u * (tour.n - 1), i = Math.min(tour.n - 2, Math.floor(s));
-  camera.position.copy(tour.curve.getPoint(u));
-  camera.quaternion.copy(tour.qs[i]).slerp(tour.qs[i + 1], s - i);
-  document.getElementById("progress").style.width = `${u * 100}%`;
-  if (u >= 1) setMode("fly");
+const rails = Object.fromEntries(names.map((n) => [n, makeRail(n)]));
+let current = names[names.length - 1], rail = rails[current];
+
+const segAt = (r, s) => r.segs[r.seg[clamp(Math.floor(s), 0, r.last)]];
+const nextLong = (r, k) => r.segs.slice(k + 1).find((h) => h.b - h.a >= 2);  // Play skips one- and two-frame scraps
+function sToTime(r, s) {
+  const i = clamp(Math.floor(s), 0, r.last), j = Math.min(i + 1, r.last);
+  return r.t[i] + (r.t[j] - r.t[i]) * (s - i);
+}
+function timeToS(r, time) {
+  const t = r.t;
+  if (time <= t[0]) return 0;
+  for (let i = 0; i < r.last; i++) {
+    if (time > t[i + 1]) continue;
+    if (r.seg[i] !== r.seg[i + 1]) return time - t[i] < t[i + 1] - time ? i : i + 1;  // in a hole: the nearer filmed end
+    return i + (time - t[i]) / Math.max(1e-6, t[i + 1] - t[i]);
+  }
+  return r.last;
 }
 
-function show(n) {
+// The filmed pose at s: raw 0 = steadied orientation (while moving), 1 = exactly as filmed (when still).
+const pose = { p: new THREE.Vector3(), q: new THREE.Quaternion() }, qr = new THREE.Quaternion();
+function railPose(r, s, raw) {
+  const g = segAt(r, s);
+  s = clamp(s, g.a, g.b);
+  const i = Math.min(Math.floor(s), Math.max(g.a, g.b - 1)), j = Math.min(i + 1, g.b), w = s - i;
+  if (g.curve) pose.p.copy(g.curve.getPoint((s - g.a) / (g.b - g.a)));
+  else pose.p.copy(r.p[g.a]);
+  pose.q.copy(r.q[i]).slerp(r.q[j], w);
+  if (raw > 0) pose.q.slerp(qr.copy(r.qRaw[i]).slerp(r.qRaw[j], w), raw);
+  return pose;
+}
+
+// ---------------------------------------------------------------- where the two videos filmed the same view
+// cost = distance / R + (turn beyond the slack) / theta; cost <= 1 means the other video was filmed (nearly) here.
+const local = new THREE.Vector3();
+function beyond(r, i, f) {
+  local.copy(f).applyQuaternion(r.qInv[i]);
+  const h = Math.abs(deg(Math.atan2(local.x, -local.z))), v = Math.abs(deg(Math.atan2(local.y, Math.hypot(local.x, local.z))));
+  return Math.hypot(Math.max(0, h - view.slackH), Math.max(0, v - view.slackV));
+}
+const viewCost = (r, i, pos, f) => r.p[i].distanceTo(pos) / GATE.R_m + beyond(r, i, f) / GATE.theta_deg;
+function bestView(n, pos, f) {
+  const r = rails[n];
+  let best = { i: 0, cost: Infinity };
+  for (let i = 0; i <= r.last; i++) {
+    const d = r.p[i].distanceTo(pos) / GATE.R_m;
+    if (d >= best.cost) continue;
+    const cost = d + beyond(r, i, f) / GATE.theta_deg;
+    if (cost < best.cost) best = { i, cost };
+  }
+  best.d = r.p[best.i].distanceTo(pos);
+  best.angle = angleDeg(r.f[best.i], f);
+  return best;
+}
+const pairCost = (ra, i, rb, j) => viewCost(rb, j, ra.p[i], ra.f[i]);
+// For every frame of x, the closest frame of y.
+const pairCache = {};
+function sharedPairs(x, y) {
+  const key = `${x}>${y}@${view.slackH.toFixed(1)},${view.slackV.toFixed(1)}`;
+  return (pairCache[key] ??= rails[x].p.map((p, i) => bestView(y, p, rails[x].f[i])));
+}
+// The frame of x nearest to pos/f whose view y also filmed (or the closest the two videos ever come).
+function nearestShared(x, y, pos, f) {
+  const pairs = sharedPairs(x, y);
+  const ok = Math.max(1, Math.min(...pairs.map((p) => p.cost)) + 0.5);
+  let best = null;
+  pairs.forEach((p, i) => {
+    if (p.cost > ok) return;
+    const c = viewCost(rails[x], i, pos, f);
+    if (!best || c < best.c) best = { i, j: p.i, cost: p.cost, c };
+  });
+  return best;
+}
+const midPose = (x, i, y, j) => ({ p: rails[x].p[i].clone().lerp(rails[y].p[j], 0.5), q: rails[x].qRaw[i].clone().slerp(rails[y].qRaw[j], 0.5) });
+// Turn a pose towards C, but only as far as the slack: the view stays inside what the phones filmed.
+function aim(v, C) {
+  const d = C.clone().sub(v.p).applyQuaternion(v.q.clone().invert());
+  const h = clamp(Math.atan2(d.x, -d.z), -rad(view.slackH), rad(view.slackH)), up = clamp(Math.atan2(d.y, Math.hypot(d.x, d.z)), -rad(view.slackV), rad(view.slackV));
+  v.q.premultiply(new THREE.Quaternion().setFromAxisAngle(Y, -h)).multiply(new THREE.Quaternion().setFromAxisAngle(X, up));
+  return v;
+}
+// The frames of rail r that see point C inside the central `frac` of a fovX x fovY frame, `near`-`far` metres away.
+function seeing(r, C, [fovX, fovY, frac, near, far]) {
+  const tx = frac * Math.tan(rad(fovX) / 2), ty = frac * Math.tan(rad(fovY) / 2), out = [];
+  const v = new THREE.Vector3();
+  for (let i = 0; i <= r.last; i++) {
+    const d = v.copy(C).sub(r.p[i]).length();
+    if (d < near || d > far) continue;
+    v.applyQuaternion(r.qInv[i]);
+    if (v.z < 0 && Math.abs(v.x / -v.z) <= tx && Math.abs(v.y / -v.z) <= ty) out.push(i);
+  }
+  return out;
+}
+// The (frame of a, frame of b) pair that both see C, filmed closest to each other; among near-equal pairs, the
+// one about `want` metres from C with C most centred. First inside the view as shown, then inside the phone's frame.
+function pickPair(a, b, C, want = 1.6) {
+  const ra = rails[a], rb = rails[b], far = Math.max(3.5, want + 1.2);
+  const framing = (i) => 0.1 * Math.abs(ra.p[i].distanceTo(C) - want) + 0.005 * angleDeg(ra.f[i], C.clone().sub(ra.p[i]).normalize());
+  const tries = [[view.fovX, view.fovY, 0.7, 0.6, far], [TRAIN_FOV_X, TRAIN_FOV_Y, 0.7, 0.6, far], [TRAIN_FOV_X, TRAIN_FOV_Y, 1, 0.3, far + 1.5]];
+  for (const frame of tries) {
+    const sa = seeing(ra, C, frame), sb = a === b ? null : seeing(rb, C, frame);
+    let best = null;
+    for (const i of sa) {
+      const fi = framing(i);
+      for (const j of sb ?? [i]) {
+        const cost = (sb ? pairCost(ra, i, rb, j) : 0) + fi;
+        if (!best || cost < best.cost) best = { i, j, cost };
+      }
+    }
+    if (best) return { ...best, d: ra.p[best.i].distanceTo(rb.p[best.j]), angle: angleDeg(ra.f[best.i], rb.f[best.j]) };
+  }
+  return null;
+}
+const reach = (size) => clamp(0.9 + 1.1 * Math.max(...size), 1.3, 3.0);  // how far back to stand to see a box whole
+
+// ---------------------------------------------------------------- the camera: on the filmed path, always
+// state.s is the position along the shown state's path, in frame units. hold is a fixed pose filmed by both
+// videos, kept while Before and After swap so the room is the only thing that changes; w blends it in and out.
+const state = { s: Math.round(0.15 * rail.last), raw: 1, playing: false, hold: null, w: 0, wTo: 0, ride: null, cut: null };
+if (params.has("t")) state.s = timeToS(rail, Number(params.get("t")));
+
+function placeCamera() {
+  const { p, q } = railPose(rail, state.s, state.raw);
+  camera.position.copy(p);
+  camera.quaternion.copy(q);
+  if (state.hold) { camera.position.lerp(state.hold.p, state.w); camera.quaternion.slerp(state.hold.q, state.w); }
+}
+function hold(v, w) { state.hold = v; state.w = w; state.wTo = 1; }
+const here = () => ({ p: camera.position.clone(), q: camera.quaternion.clone() });
+
+// Every new move or input bumps seq; an older async step that finds seq moved on stops.
+let seq = 0, lastInput = -1e9;
+function interrupt() {
+  seq++;
+  state.ride?.done(false);
+  state.ride = null;
+}
+// The viewer took over: stop what was running and drift back onto the path.
+function userMove() {
+  interrupt();
+  setPlaying(false);
+  state.wTo = 0;
+  lastInput = performance.now();
+}
+// 400 ms after the last input, ease onto the nearest filmed frame, exactly as filmed.
+function settle(dt, now) {
+  if (state.playing || state.ride || state.cut || now - lastInput < 400) return;
+  const k = 1 - Math.exp(-dt / 0.3);
+  state.s += (Math.round(state.s) - state.s) * k;
+  state.raw += (1 - state.raw) * k;
+}
+
+// ---------------------------------------------------------------- moving between views
+// Within a filmed stretch the camera rides the path, so every picture on the way was filmed; anything further
+// fades through dark rather than fly through space the phone never saw.
+const fadeEl = $("fade");
+function cutTo(fn, ms = 600) {
+  if (state.cut && !state.cut.done) state.cut.fn();
+  return new Promise((done) => { state.cut = { start: performance.now(), ms, fn: () => { fn(); done(); }, done: false }; });
+}
+function runCut(now) {
+  const c = state.cut, u = (now - c.start) / c.ms;
+  if (u >= 0.5 && !c.done) { c.done = true; c.fn(); }
+  fadeEl.style.opacity = u >= 1 ? 0 : (1 - Math.abs(2 * u - 1)).toFixed(3);
+  if (u >= 1) state.cut = null;
+}
+function stepRide(now) {
+  const r = state.ride, u = Math.min(1, (now - r.start) / r.ms);
+  state.s = r.s0 + (r.s1 - r.s0) * u * u * (3 - 2 * u);
+  if (u >= 1) { state.ride = null; r.done(true); }
+}
+// To frame i of state n, ending on pose v if given; true if nothing interrupted it.
+async function travel(n, i, v = null) {
+  interrupt();
+  setPlaying(false);
+  const k = seq, r = rails[n], dt = Math.abs(sToTime(r, i) - sToTime(r, state.s));
+  if (n === current && segAt(r, i) === segAt(r, state.s) && dt <= 6) {
+    state.wTo = 0;
+    const ms = 1000 * clamp(0.4 + 0.2 * dt, 0.5, 1.6);
+    if (!(await new Promise((done) => { state.ride = { s0: state.s, s1: i, start: performance.now(), ms, done }; }))) return false;
+    if (v) { hold(v, 0); await sleep(400); }
+  } else {
+    await cutTo(() => {
+      if (n !== current) setState(n);
+      state.s = i;
+      state.raw = 1;
+      if (v) hold(v, 1);
+      else state.wTo = state.w = 0;
+    });
+  }
+  return k === seq;
+}
+
+// Play walks one filmed stretch in real time; at its end it fades to the next one rather than cross the hole.
+function playStep(dt) {
+  const r = rail, g = segAt(r, state.s);
+  state.s = clamp(timeToS(r, Math.min(sToTime(r, state.s) + dt, r.t[g.b])), g.a, g.b);
+  if (state.s < g.b) return;
+  const next = nextLong(r, r.seg[g.b]);
+  if (next) cutTo(() => { state.s = next.a; });
+  else setPlaying(false);
+}
+// Scroll, arrow keys and swipes move along the walk; past the end of a filmed stretch they fade to the next one.
+let hopAt = 0;
+function walk(ds) {
+  if (state.cut) return;
+  const r = rail, g = segAt(r, state.s), s = state.s + ds;
+  if (s >= g.a && s <= g.b) { state.s = s; return; }
+  const up = s > g.b, h = r.segs[r.seg[g.a] + (up ? 1 : -1)];
+  state.s = up ? g.b : g.a;
+  if (h && performance.now() > hopAt) { hopAt = performance.now() + 400; cutTo(() => { state.s = up ? h.a : h.b; }, 300); }
+}
+
+// ---------------------------------------------------------------- input
+stage.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  userMove();
+  const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+  walk(d * (e.deltaMode === 1 ? 0.33 : 0.01));  // pixels, or lines (Firefox)
+}, { passive: false });
+let swipe = null;  // a finger has no scroll wheel: a sideways swipe on the view walks instead
+stage.addEventListener("pointerdown", (e) => { if (e.pointerType === "touch") swipe = e.clientX; });
+stage.addEventListener("pointermove", (e) => {
+  if (swipe === null) return;
+  userMove();
+  walk(-0.05 * (e.clientX - swipe));
+  swipe = e.clientX;
+});
+for (const ev of ["pointerup", "pointercancel"]) stage.addEventListener(ev, () => { swipe = null; });
+
+const WALK = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }, held = {};
+addEventListener("keydown", (e) => {
+  if (e.code === "Space") { e.preventDefault(); if (!e.repeat) setPlaying(!state.playing); return; }
+  if (e.target.tagName === "INPUT") return;
+  if (e.code in WALK) { e.preventDefault(); held[e.code] = true; }
+  if (e.key === "o") toggleObjects();
+  if (e.key === "v") togglePip();
+  const i = Number(e.key) - 1;
+  if (names.length > 1 && names[i]) show(names[i]);
+});
+addEventListener("keyup", (e) => {
+  held[e.code] = false;
+  if (e.code === "Space") e.preventDefault();  // no click on a focused button
+});
+addEventListener("blur", () => { for (const k in held) held[k] = false; });
+function stepKeys(dt) {
+  const dir = Object.keys(WALK).reduce((a, k) => a + (held[k] ? WALK[k] : 0), 0);
+  if (!dir || !rail.last) return false;
+  userMove();
+  const i = clamp(Math.floor(state.s), 0, rail.last - 1);
+  walk((dir * 1.5 * dt) / Math.max(0.05, rail.t[i + 1] - rail.t[i]));  // 1.5x the filming pace
+  return true;
+}
+
+// ---------------------------------------------------------------- dock
+const play = $("play"), playLabel = play.querySelector("span"), scrub = $("scrub"), clock = $("clock"), noteEl = $("note"), stampEl = $("stamp"), tools = $("tools");
+function setPlaying(on) {
+  if (on) {
+    interrupt();
+    state.wTo = 0;
+    const g = segAt(rail, state.s);
+    if (state.s >= g.b - 1e-3 && !nextLong(rail, rail.seg[g.b])) state.s = (rail.segs.find((h) => h.b - h.a >= 2) ?? rail.segs[0]).a;
+  }
+  state.playing = on;
+  play.classList.toggle("on", on);
+  playLabel.textContent = on ? "Pause" : "Play";
+}
+play.onclick = () => setPlaying(!state.playing);
+scrub.addEventListener("input", () => {
+  userMove();
+  const r = rail, t0 = r.t[0];
+  state.s = timeToS(r, t0 + (scrub.value / 1000) * (r.t[r.last] - t0));
+});
+let noteTimer = 0, stampTimer = 0;
+function note(text, ms) {
+  noteEl.textContent = text;
+  clearTimeout(noteTimer);
+  noteTimer = setTimeout(() => { if (noteEl.textContent === text) noteEl.textContent = ""; }, ms);
+}
+function stamp(text) {
+  stampEl.textContent = text;
+  stampEl.classList.add("on");
+  clearTimeout(stampTimer);
+  stampTimer = setTimeout(() => stampEl.classList.remove("on"), 1100);
+}
+const button = (text, attrs, onclick, parent = tools) => {
+  const b = Object.assign(document.createElement("button"), { textContent: text, onclick });
+  Object.entries(attrs).forEach(([k, v]) => b.setAttribute(k, v));
+  parent.append(b);
+  return b;
+};
+// Before | After: the same spot in the other video.
+if (names.length > 1) {
+  const seg = Object.assign(document.createElement("div"), { className: "seg" });
+  seg.style.setProperty("--n", names.length);
+  tools.append(seg);
+  names.forEach((n, i) => button(label(n), { "data-state": n, title: `${label(n)} (${i + 1})` }, () => show(n), seg));
+}
+
+// The timeline: filmed stretches are marked under it; the gaps are registration holes.
+const segsEl = $("segs");
+function drawSegs() {
+  const r = rail, t0 = r.t[0], T = Math.max(1e-6, r.t[r.last] - t0), stops = [];
+  for (const g of r.segs) {
+    const a = ((r.t[g.a] - t0) / T) * 100, b = Math.max(a + 0.5, ((r.t[g.b] - t0) / T) * 100);
+    stops.push(`transparent ${a}%`, `var(--seg) ${a}%`, `var(--seg) ${b}%`, `transparent ${b}%`);
+  }
+  segsEl.style.background = `linear-gradient(90deg, ${stops.join(", ")})`;
+}
+
+// ---------------------------------------------------------------- Before / After
+// Swapping keeps the viewpoint, so the change is the only thing that moves. If the other video was filmed close
+// enough to here, swap in place; otherwise go to the nearest view filmed in both first.
+async function show(n) {
+  if (n === current || state.cut) return;
+  const f = forward(camera.quaternion), b = bestView(n, camera.position, f);
+  if (b.cost <= 1) { interrupt(); swap(n, b.i); return; }
+  const x = current, pr = nearestShared(x, n, camera.position, f), mid = midPose(x, pr.i, n, pr.j);
+  note(`${label(n)} was filmed ${Math.round(b.d * 100)} cm / ${Math.round(b.angle)}° from here: moved to the nearest view filmed in both`, 6000);
+  if (await travel(x, pr.i, mid)) swap(n, pr.j, mid);
+}
+// State n from the same viewpoint, anchored at its filmed frame j.
+function swap(n, j, v = here()) {
+  setState(n);
+  state.s = j;
+  hold(v, 1);
+}
+function setState(n, quiet = false) {
   current = n;
-  for (const k of names) { meshes[k].visible = k === n; boxGroups[k].visible = showBoxes && k === n; }
-  document.querySelectorAll("[data-splat]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.splat === n));
-  if (mode === "tour") startTour();
+  rail = rails[n];
+  for (const k of names) meshes[k].visible = k === current;
+  applyBoxes();
+  document.querySelectorAll("[data-state]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.state === n));
+  document.querySelector(".seg")?.style.setProperty("--i", names.indexOf(n));  // slides the switch's thumb
+  drawSegs();
+  listObjects();
+  lastFrame = -1;
+  if (!quiet && names.length > 1) stamp(label(n));
 }
 
-// Boxes from the detection run: faint labelled objects, coloured changes (already in viewer coordinates).
-const COLOUR = { removed: 0xff5a5a, added: 0x4cd97b, moved: 0x5aa9ff };
-const boxGroups = {};
-const tags = [];
-function wire(b, colour, { dashed = false, opacity = 1 } = {}) {
-  const geo = new THREE.EdgesGeometry(new THREE.BoxGeometry(...b.size));
-  const mat = dashed
-    ? new THREE.LineDashedMaterial({ color: colour, dashSize: 0.06, gapSize: 0.05, transparent: true, opacity, depthTest: false })
-    : new THREE.LineBasicMaterial({ color: colour, transparent: true, opacity, depthTest: false });
-  const line = new THREE.LineSegments(geo, mat);
+// ---------------------------------------------------------------- boxes: every object, and the changes
+// SpatialLM-style: a wireframe in the class's colour over a faintly tinted face, the label on top. Changes are
+// bolder and always shown: removed red (solid Before, dashed ghost After), added green (the reverse), moved blue
+// (old and new box with an arrow). Boxes the naming step rejected (verified: false) are not drawn.
+const CHANGE = { removed: "#ff5a5a", added: "#4cd97b", moved: "#5aa9ff" };
+// Ordered so classes met one after another (usually neighbours in the room) get far-apart hues; no pure
+// red, green or blue, which belong to the changes.
+const PALETTE = ["#f5b841", "#a78bfa", "#5eead4", "#f472b6", "#bef264", "#cbd5e1", "#e879f9", "#fde047", "#7dd3fc", "#fdba74",
+                 "#c4b5fd", "#d6c7a1", "#fda4af", "#67e8f9", "#c8a27a", "#fb923c"];
+const STYLE = { object: { width: 2.5, face: 0.13 }, solid: { width: 4, face: 0.2 }, ghost: { width: 2.5, face: 0.04, dashed: true } };
+const keep = (o) => o.verified !== false && o.keep !== false;
+const nameOf = (o) => o.name ?? o.label;
+const classColour = {};
+for (const n of names) for (const o of (data.objects?.[n] ?? []).filter(keep)) classColour[nameOf(o)] ??= PALETTE[Object.keys(classColour).length % PALETTE.length];
+
+const BOX = new THREE.BoxGeometry(1, 1, 1);
+const EDGES = [[0, 1], [2, 3], [4, 5], [6, 7], [0, 2], [1, 3], [4, 6], [5, 7], [0, 4], [1, 5], [2, 6], [3, 7]];
+const pulses = [];  // { key, mat, base }: line materials that pulse when their object or change is picked
+function lines(points, colour, width, dashed = false) {
+  const mat = new LineMaterial({ color: colour, linewidth: width, transparent: true, depthTest: false, depthWrite: false, dashed, dashSize: 0.05, gapSize: 0.035 });
+  const line = new LineSegments2(new LineSegmentsGeometry().setPositions(points), mat);
   if (dashed) line.computeLineDistances();
-  line.position.fromArray(b.centre);
-  line.rotation.y = THREE.MathUtils.degToRad(b.yaw_deg);
-  line.renderOrder = 10;
+  line.renderOrder = 11;
   return line;
 }
-function tag(text, b, cls, group) {
-  const el = Object.assign(document.createElement("div"), { className: `tag ${cls}`, textContent: text });
-  document.getElementById("tags").append(el);
-  tags.push({ el, group, at: new THREE.Vector3(b.centre[0], b.centre[1] + b.size[1] / 2, b.centre[2]) });
+function boxMesh(b, colour, { width, face, dashed = false }, key) {
+  const g = new THREE.Group(), [x, y, z] = b.size.map((v) => Math.max(v, 0.02) / 2);
+  const v = (i) => [i & 1 ? x : -x, i & 2 ? y : -y, i & 4 ? z : -z];
+  const edges = lines(EDGES.flatMap(([i, j]) => [...v(i), ...v(j)]), colour, width, dashed);
+  g.add(edges);
+  if (key) pulses.push({ key, mat: edges.material, base: width });
+  const tint = new THREE.Mesh(BOX, new THREE.MeshBasicMaterial({ color: colour, transparent: true, opacity: face, depthTest: false, depthWrite: false }));
+  tint.scale.set(2 * x, 2 * y, 2 * z);
+  tint.renderOrder = 10;
+  g.add(tint);
+  g.position.fromArray(b.centre);
+  g.rotation.y = rad(b.yaw_deg ?? 0);
+  return g;
 }
+function arrow(from, to, colour) {
+  const g = new THREE.Group(), dir = to.clone().sub(from), head = Math.min(0.14, 0.4 * dir.length());
+  dir.normalize();
+  g.add(lines([...from.toArray(), ...to.clone().addScaledVector(dir, -head).toArray()], colour, 3));
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(0.4 * head, head, 16), new THREE.MeshBasicMaterial({ color: colour, transparent: true, depthTest: false, depthWrite: false }));
+  cone.position.copy(to).addScaledVector(dir, -head / 2);
+  cone.quaternion.setFromUnitVectors(Y, dir);
+  cone.renderOrder = 12;
+  g.add(cone);
+  return g;
+}
+const tagsEl = $("tags"), tags = [];
+function tag(text, b, colour, group, key, change = false) {
+  const el = Object.assign(document.createElement("div"), { className: change ? "tag change" : "tag", textContent: text });
+  el.style.background = colour;
+  tagsEl.append(el);
+  tags.push({ el, group, key, change, at: new THREE.Vector3(b.centre[0], b.centre[1] + b.size[1] / 2, b.centre[2]) });
+}
+const V3 = (a) => new THREE.Vector3(...a);
+const groups = {}, objectsOf = {};
 for (const n of names) {
-  const g = new THREE.Group();
-  for (const o of data.objects?.[n] ?? []) { g.add(wire(o, 0xffffff, { opacity: 0.28 })); tag(o.label, o, "", g); }
   const after = n !== names[0] || names.length === 1;  // the first of a pair is "before"
+  const changes = new THREE.Group(), objects = new THREE.Group(), solidAt = [];
   for (const c of data.changes ?? []) {
-    const col = COLOUR[c.type];
+    const col = CHANGE[c.type] ?? "#ffffff", text = `${c.id} ${c.label} · ${c.type}`;
     if (c.type === "moved") {
-      g.add(wire(c.before, col, { dashed: after }));
-      g.add(wire(c.after, col, { dashed: !after }));
-      const from = new THREE.Vector3(...c.before.centre), to = new THREE.Vector3(...c.after.centre);
-      const dir = to.clone().sub(from);
-      const arrow = new THREE.ArrowHelper(dir.clone().normalize(), from, dir.length(), col, 0.12, 0.07);
-      arrow.traverse((o) => { if (o.material) { o.material.depthTest = false; o.renderOrder = 11; } });
-      g.add(arrow);
-      tag(`${c.id} ${c.label} (moved)`, after ? c.after : c.before, "change", g);
+      const [now, then] = after ? [c.after, c.before] : [c.before, c.after];
+      changes.add(boxMesh(now, col, STYLE.solid, c.id), boxMesh(then, col, STYLE.ghost), arrow(V3(c.before.centre), V3(c.after.centre), col));
+      tag(text, now, col, changes, c.id, true);
+      solidAt.push(now.centre);
     } else {
       const solid = (c.type === "removed") !== after;  // removed: solid before, ghost after; added: the reverse
-      g.add(wire(c, col, { dashed: !solid }));
-      tag(`${c.id} ${c.label} (${c.type})`, c, "change", g);
+      changes.add(boxMesh(c, col, solid ? STYLE.solid : STYLE.ghost, c.id));
+      tag(text, c, col, changes, c.id, true);
+      if (solid) solidAt.push(c.centre);
     }
   }
-  g.visible = false;
-  scene.add(g);
-  boxGroups[n] = g;
+  objectsOf[n] = [];
+  for (const o of (data.objects?.[n] ?? []).filter(keep)) {
+    if (solidAt.some((p) => V3(p).distanceTo(V3(o.centre)) < 0.25)) continue;  // the change box already shows it
+    // One shared object set: the same object has the same id (and key) in Before and After.
+    const key = o.id ? `obj:${o.id}` : `${n}:${objectsOf[n].length}`, col = classColour[nameOf(o)];
+    objects.add(boxMesh(o, col, STYLE.object, key));
+    tag(nameOf(o), o, col, objects, key);
+    objectsOf[n].push({ o, key, name: nameOf(o), colour: col });
+  }
+  scene.add(changes, objects);
+  groups[n] = { changes, objects };
 }
-const hasBoxes = names.some((n) => boxGroups[n].children.length);
-let showBoxes = hasBoxes;
-if (data.changes?.length) {
-  const list = document.getElementById("changes");
-  list.style.display = "block";
-  for (const c of data.changes) {
-    const row = document.createElement("div");
-    row.innerHTML = `<i style="background:#${COLOUR[c.type].toString(16).padStart(6, "0")}"></i>`;
-    row.append(`${c.id}  ${c.sentence}`);
-    list.append(row);
+function measureTags() {  // label sizes for the overlap test; again once the web font has loaded
+  for (const t of tags) { t.el.style.display = "block"; }
+  for (const t of tags) { t.w = t.el.offsetWidth; t.h = t.el.offsetHeight; t.el.style.display = "none"; }
+}
+measureTags();
+document.fonts?.ready.then(measureTags);
+
+const hasObjects = names.some((n) => objectsOf[n].length);
+let showObjects = hasObjects;
+function applyBoxes() {
+  for (const n of names) {
+    groups[n].changes.visible = n === current;
+    groups[n].objects.visible = n === current && showObjects;
   }
 }
-const v3 = new THREE.Vector3();
-function placeTags() {
+function toggleObjects() {
+  if (!hasObjects) return;
+  showObjects = !showObjects;
+  document.querySelector("[data-objects]").setAttribute("aria-pressed", showObjects);
+  applyBoxes();
+}
+if (hasObjects) button("Objects", { class: "toggle", "data-objects": "", "aria-pressed": showObjects, title: "Show the detected objects (O)" }, toggleObjects);
+
+// Labels sit at each box's top centre, a little smaller further away. Object labels only within 6 m (3.5 m left
+// most boxes of a corner view of a bedroom unnamed); nearer
+// labels win, and one that would overlap a label already placed (or a panel) is skipped. Change labels always show.
+let hot = { key: null, until: 0 };
+const v3 = new THREE.Vector3(), placed = [], panels = ["title", "changes", "objects", "pip", "note", "dock"].map($);
+const clash = (r) => placed.some((o) => r.x0 < o.x1 && r.x1 > o.x0 && r.y0 < o.y1 && r.y1 > o.y0);
+function placeTags(now) {
+  const W = stage.clientWidth, H = stage.clientHeight, shown = [], s0 = stage.getBoundingClientRect();
+  const blocked = panels.filter((el) => el.getClientRects().length).map((el) => {
+    const r = el.getBoundingClientRect();
+    return { x0: r.left - s0.left, x1: r.right - s0.left, y0: r.top - s0.top, y1: r.bottom - s0.top };
+  });
   for (const t of tags) {
-    const on = showBoxes && t.group.visible;
-    v3.copy(t.at).project(camera);
-    const inView = on && v3.z < 1 && Math.abs(v3.x) < 1.1 && Math.abs(v3.y) < 1.1;
-    t.el.style.display = inView ? "block" : "none";
-    if (inView) { t.el.style.left = `${(v3.x + 1) / 2 * innerWidth}px`; t.el.style.top = `${(1 - v3.y) / 2 * innerHeight - 4}px`; }
+    let on = t.group.visible;
+    if (on) {
+      const d = camera.position.distanceTo(t.at);
+      v3.copy(t.at).applyMatrix4(camera.matrixWorldInverse);
+      on = v3.z < -0.1 && (t.change || d < 6);
+      if (on) v3.copy(t.at).project(camera);
+      on &&= Math.abs(v3.x) < 1 && Math.abs(v3.y) < 1;
+      if (on) shown.push({ t, d, x: ((v3.x + 1) / 2) * W, y: ((1 - v3.y) / 2) * H - 3, hot: t.key === hot.key && now < hot.until });
+    }
+    if (!on) t.el.style.display = "none";
+  }
+  shown.sort((a, b) => b.t.change - a.t.change || b.hot - a.hot || a.d - b.d);
+  placed.length = 0;
+  let panelsIn = false;
+  for (const s of shown) {
+    const { t, d } = s, k = clamp(Math.pow(1.8 / d, 0.35), 0.8, 1.15), w = t.w * k + 4, h = t.h * k + 2;
+    const x = clamp(s.x, w / 2, Math.max(w / 2, W - w / 2));  // kept inside the view
+    let y = Math.max(s.y, h), r = { x0: x - w / 2, x1: x + w / 2, y0: y - h, y1: y };  // not cut off at the top
+    if (!t.change && !panelsIn) { placed.push(...blocked); panelsIn = true; }  // object labels also keep off the panels
+    for (let up = 0; t.change && up < 4 && clash(r); up++) { y -= h; r = { ...r, y0: y - h, y1: y }; }
+    if (!t.change && !s.hot && clash(r)) { t.el.style.display = "none"; continue; }
+    placed.push(r);
+    t.el.classList.toggle("hot", s.hot);
+    t.el.style.display = "block";
+    t.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -100%) scale(${k.toFixed(3)})`;
+  }
+}
+// The picked object or change pulses for a few seconds.
+function flash(key) { hot = { key, until: performance.now() + 3000 }; }
+function pulse(now) {
+  const on = now < hot.until, u = 0.5 + 0.5 * Math.sin(now / 120);
+  for (const p of pulses) p.mat.linewidth = on && p.key === hot.key ? p.base + 3 * u : p.base;
+}
+
+// ---------------------------------------------------------------- the lists: what changed, and every object
+const rows = {};
+function select(key) { Object.entries(rows).forEach(([k, r]) => r.setAttribute("aria-current", k === key)); }
+function row(parent, key, colour, parts, onclick) {
+  const b = Object.assign(document.createElement("button"), { className: "row", onclick });
+  b.innerHTML = `<i style="--c:${colour}"></i>`;
+  for (const [cls, text] of parts) b.append(Object.assign(document.createElement("span"), { className: cls, textContent: text }));
+  rows[key] = b;
+  parent.append(b);
+}
+const centreOf = (c) => (c.type === "moved" ? V3(c.before.centre).lerp(V3(c.after.centre), 0.5) : V3(c.centre));
+// A change, before and after, from the view both videos filmed closest to each other: go there, then blink
+// Before / After three times each, ending on After.
+async function goToChange(c) {
+  select(c.id);
+  const C = centreOf(c), [a, b] = names.length > 1 ? names : [names[0], names[0]];
+  const size = c.type === "moved" ? [...c.after.size, V3(c.before.centre).distanceTo(V3(c.after.centre))] : c.size;
+  const pair = pickPair(a, b, C, reach(size));
+  if (!pair) { note(`${c.id}: no filmed view of this spot in both videos`, 4000); return true; }
+  const mid = aim(midPose(a, pair.i, b, pair.j), C), n = current === b ? b : a;
+  if (!(await travel(n, n === a ? pair.i : pair.j, mid))) return false;
+  flash(c.id);
+  if (a === b) return true;
+  const apart = pair.d < 0.02 && pair.angle < 1 ? "from the same spot" : `${Math.round(pair.d * 100)} cm / ${Math.round(pair.angle)}° apart`;
+  note(`${c.id} ${c.label}: Before and After filmed ${apart}`, 4000);
+  const k = seq;
+  for (const [x, s] of [a, b, a, b, a, b].entries()) {
+    if (x) await sleep(1200);
+    if (k !== seq) return false;
+    if (s !== current) swap(s, s === a ? pair.i : pair.j, mid);
+  }
+  return true;
+}
+// The best filmed view of one object.
+async function goToObject(item) {
+  select(item.key);
+  const C = V3(item.o.centre), pair = pickPair(current, current, C, reach(item.o.size));
+  if (!pair) { note(`No filmed view shows this ${item.name} well`, 3000); return false; }
+  if (!showObjects) toggleObjects();
+  const ok = await travel(current, pair.i, aim({ p: rail.p[pair.i].clone(), q: rail.qRaw[pair.i].clone() }, C));
+  if (ok) flash(item.key);
+  return ok;
+}
+// Every change in turn, for recording the demo (?tour=changes). Any input stops it.
+async function tour() {
+  await ready;
+  for (const c of data.changes ?? []) {
+    const since = performance.now();
+    if (!(await goToChange(c))) return;
+    await sleep(800);
+    if (lastInput > since) return;
+  }
+  if (data.changes?.length) note("That was every change", 4000);
+}
+
+const changes = data.changes ?? [];
+if (changes.length) {
+  const list = $("changes"), head = Object.assign(document.createElement("div"), { className: "head", textContent: "What changed" });
+  list.hidden = false;
+  list.append(head);
+  if (changes.length > 1) button("Show all", { title: "Visit every change in turn" }, tour, head);
+  for (const c of changes) row(list, c.id, CHANGE[c.type] ?? "#fff", [["id", c.id], ["", c.sentence]], () => goToChange(c));
+}
+const objectsEl = $("objects"), objectRows = objectsEl.querySelector("div");
+function listObjects() {
+  const items = objectsOf[current] ?? [];
+  objectsEl.hidden = !items.length;
+  objectsEl.querySelector("summary").textContent = `Objects (${items.length})`;
+  objectRows.replaceChildren();
+  for (const k of Object.keys(rows)) if (k.includes(":")) delete rows[k];
+  const seen = {}, count = {};
+  for (const it of items) count[it.name] = (count[it.name] ?? 0) + 1;
+  for (const it of [...items].sort((a, b) => a.name.localeCompare(b.name))) {
+    seen[it.name] = (seen[it.name] ?? 0) + 1;
+    row(objectRows, it.key, it.colour, [["", it.name], ["n", count[it.name] > 1 ? `#${seen[it.name]}` : ""]], () => goToObject(it));
   }
 }
 
-// UI
-const bar = document.getElementById("bar");
-const button = (label, attrs, onclick) => {
-  const b = document.createElement("button");
-  b.textContent = label;
-  Object.entries(attrs).forEach(([k, v]) => b.setAttribute(k, v));
-  b.onclick = onclick;
-  bar.append(b);
-};
-for (const m of ["fly", "orbit", "tour"]) button(m[0].toUpperCase() + m.slice(1), { "data-mode": m }, () => setMode(m));
-if (names.length > 1) {
-  bar.append(Object.assign(document.createElement("div"), { className: "sep" }));
-  names.forEach((n, i) => button(`${LABEL[n] ?? n}  ${i + 1}`, { "data-splat": n }, () => show(n)));
+// ---------------------------------------------------------------- text
+const moveText = (d) => (d >= 1 ? `${d.toFixed(1)} m` : `${Math.round(d * 100)} cm`);
+const part = (c) => (c.type === "moved" ? `${c.label} moved ${moveText(V3(c.before.centre).distanceTo(V3(c.after.centre)))}` : `${c.label} ${c.type}`);
+const counts = names.map((n) => objectsOf[n].length);
+const nObjects = counts.every((k) => k === counts[0]) ? `${counts[0]} objects`
+  : names.map((n, i) => `${counts[i]} objects ${(LABEL[n] ?? n).toLowerCase()}`).join(", ");
+$("name").textContent = names.length > 1 ? "What changed in the room" : "The room in 3D";
+$("summary").textContent = changes.length
+  ? `${changes.length} change${changes.length > 1 ? "s" : ""}: ${changes.map(part).join(", ")}`
+  : names.length > 1 ? `No changes found${counts[0] || counts[1] ? ` · ${nObjects}` : ""}` : `${nObjects} found`;
+$("how").textContent = names.length > 1
+  ? "Both phone videos rebuilt as one shared 3D model. The camera follows the filmed path."
+  : "The phone video rebuilt as a 3D model. The camera follows the filmed path.";
+
+// ---------------------------------------------------------------- the real video, for comparison
+const pip = $("pip"), pipImg = pip.querySelector("img"), pipCap = pip.querySelector("figcaption");
+let pipOn = !!m.frames_dir && !matchMedia("(max-aspect-ratio: 1/1)").matches, lastFrame = -1;
+function togglePip() {
+  if (!m.frames_dir) return;
+  pipOn = !pipOn;
+  pip.style.display = pipOn ? "block" : "none";
+  lastFrame = -1;
+  document.querySelector("[data-pip]").setAttribute("aria-pressed", pipOn);
 }
-if (hasBoxes) button("Boxes", { "data-boxes": "", "aria-pressed": showBoxes }, (e) => {
-  showBoxes = !showBoxes;
-  e.currentTarget.setAttribute("aria-pressed", showBoxes);
-  show(current);
-});
-button("Reset view", {}, () => { setMode("fly"); camera.position.copy(home().p); camera.quaternion.copy(home().q); });
-addEventListener("keydown", (e) => {
-  const i = Number(e.key) - 1;
-  if (names[i]) show(names[i]);
-  if (e.key === "t") setMode(mode === "tour" ? "fly" : "tour");
-  if (e.key === "o") setMode(mode === "orbit" ? "fly" : "orbit");
-});
+if (m.frames_dir) button("Video", { class: "toggle", "data-pip": "", "aria-pressed": pipOn, title: "The phone video frame nearest this view (V)" }, togglePip);
+pip.style.display = pipOn ? "block" : "none";
 
-const m = data.meta;
-document.getElementById("name").textContent = names.length > 1 ? "Before and after, in 3D" : "The room, in 3D";
-const splats = names.map((n) => m[`tidy_${n}`]?.after).filter(Boolean).reduce((a, b) => a + b, 0);
-document.getElementById("sub").textContent =
-  `${splats.toLocaleString()} Gaussian splats trained on ${names.map((n) => m.registered[n]).join(" + ")} frames of phone video. ` +
-  `For viewing only: changes are detected on the measured geometry.`;
-
-setMode("fly");
-show(current);
-addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+// ---------------------------------------------------------------- loop
+setState(current, true);
+const dock = $("dock");
+new ResizeObserver(() => document.documentElement.style.setProperty("--dock-h", `${dock.offsetHeight}px`)).observe(dock);
+new ResizeObserver(() => {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  fitView(w, h);
+  camera.fov = view.fovY;
+  camera.aspect = view.aspect;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}).observe(stage);
+let lastNow = performance.now();
 renderer.setAnimationLoop((now) => {
-  if (mode === "fly") fly.update(camera);
-  else if (mode === "orbit") orbit.update();
-  else if (tour) stepTour(now);
+  const dt = Math.min(0.1, (now - lastNow) / 1000);
+  lastNow = now;
+  if (state.cut) runCut(now);
+  const keyed = stepKeys(dt);
+  if (state.ride) stepRide(now);
+  else if (state.playing && !state.cut) playStep(dt);
+  if (state.playing || state.ride || keyed) state.raw *= Math.exp(-dt / 0.3);  // steadied orientation while moving
+  if (state.playing) state.wTo = 0;
+  settle(dt, now);
+  state.w += (state.wTo - state.w) * (1 - Math.exp(-dt / 0.15));
+  if (!state.wTo && state.w < 1e-3) { state.w = 0; state.hold = null; }
+  placeCamera();
+  const r = rail, t0 = r.t[0], time = sToTime(r, state.s), f = clamp(Math.round(state.s), 0, r.last);
+  scrub.value = Math.round(((time - t0) / Math.max(1e-6, r.t[r.last] - t0)) * 1000);
+  clock.textContent = `${(time - t0).toFixed(1)} / ${(r.t[r.last] - t0).toFixed(1)} s`;
+  if (pipOn && f !== lastFrame) {
+    pipImg.src = `${m.frames_dir}/${r.cams[f].name}`;
+    pipCap.textContent = `${names.length > 1 ? `${label(current)} video` : "Phone video"}, nearest frame (${r.t[f].toFixed(1)} s)`;
+    lastFrame = f;
+  }
+  pulse(now);
   renderer.render(scene, camera);
-  placeTags();
+  placeTags(now);
 });
-window.viewer = { camera, meshes, setMode, show, data };
+if (params.has("play")) setPlaying(true);
+if (params.get("tour") === "changes") tour();
+window.viewer = {
+  camera, meshes, state, rails, view, data, tags, get current() { return current; },
+  setPlaying, show, goToChange, goToObject, objectsOf, tour, bestView, sharedPairs, ready,
+};
 </script>
 </body>
 </html>

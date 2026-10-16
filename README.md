@@ -67,6 +67,19 @@ turn every moved object into a ghost. With `--detections` the viewer also draws 
 boxes and the changes (red removed, green added, blue moved with a ghost and an arrow), each with
 its sentence.
 
+For the boxes to sit on the right things, run the detection on the same cameras as the splats:
+
+```bash
+uv run whatchanged run before.mov after.mov --out out/pair-run --poses colmap
+uv run whatchanged room before.mov after.mov --out out/pair --detections out/pair-run
+```
+
+The room then trains on the detection run's COLMAP model (or, the other way round,
+`run --poses colmap --colmap-from out/pair` reuses the room's), so the boxes need no fitting at
+all. Given a run on other copies of the footage (a self-split, a trimmed clip), the viewer fits
+the two camera paths instead, finding each clip's start from the phone's turns, and leaves the
+boxes out if fewer than 60% of the cameras agree to 15 cm.
+
 The splats are for looking at the room. Change detection runs on the measured geometry below, not
 on the splats: a splat is only as good as the views it was trained on, and what changed is
 exactly where the two videos' views differ.
@@ -89,6 +102,14 @@ exactly where the two videos' views differ.
    used for change testing comes from separate before-only and after-only passes, aligned to that
    frame, so the network never sees both versions of a changed spot at once. The floor is fitted
    and becomes z = 0. A static-alignment check reports how well walls from the two videos agree.
+   With `--poses colmap` the cameras and intrinsics come instead from the COLMAP model the splats
+   use (both videos in one bundle adjustment), and MapAnything only supplies depth. Each frame's
+   depth is fitted to the COLMAP points it saw (scale and offset, then a local correction around
+   the points), and depth with no COLMAP point nearby is left out, so a plain white wall becomes
+   *can't tell* rather than a guess. The metric scale is MapAnything's depth over COLMAP's,
+   corrected for the network's own focal-length guess. On the trial room that guess was 2.3×
+   too short: uncorrected, the phone sat at 0.72 m; corrected, at 1.39 m, with the bed top
+   at 0.53 m and the desk at 0.70 m.
 3. **Did the other video see this spot?** Space is cut into 3 cm voxels. For every voxel seen in
    one video, each camera of the other video that can see it compares its own depth there:
    further away means *free* (it saw through where the thing was), about the same means *seen*,
@@ -119,6 +140,9 @@ exactly where the two videos' views differ.
   obstacle is **not** called removed, and a moved box is *moved* with the right distance.
 - The real recordings are scored against an answer key written before the first run, including
   an untouched repeat recording that must report nothing.
+- Trial room, untouched, split into two overlapping clips (`--poses colmap`): 0 changes (the plain
+  point difference reports 40). Static surfaces agree to 0.8 cm median. The noise floor is 1.0–5.3%
+  of distance (with MapAnything's own poses: 2.5–7.8%).
 
 ## Limitations
 

@@ -1,6 +1,7 @@
 """whatchanged: two phone videos in, a 3D change report out.
 
   whatchanged run BEFORE.mp4 AFTER.mp4 --out out/room     full pipeline
+  ... --poses colmap                                      cameras from COLMAP, shared with `whatchanged room`
   whatchanged check BEFORE.mp4 AFTER.mp4                  footage warnings, no 3D
   whatchanged report out/room                             rebuild everything after 3D from the cache
   whatchanged demo                                        the bundled example, no model download
@@ -96,18 +97,28 @@ def _detect_and_report(out: Path, labels: str, cfg: ch.Config, objects: bool = T
 
 
 def cmd_run(a) -> None:
-    from .recon import reconstruct
+    from .frames import Frame
+    from .recon import reconstruct, reconstruct_colmap
 
     out = Path(a.out)
     (out / "cache").mkdir(parents=True, exist_ok=True)
     for w in check_pair(a.before, a.after):
         log(f"warning: {w}")
     if a.force or not (out / "cache" / "A.npz").exists():
-        log(f"Frames: {a.frames} sharp keyframes per video")
-        fa = extract_keyframes(a.before, out / "frames", "A", n=a.frames)
-        fb = extract_keyframes(a.after, out / "frames", "B", n=a.frames)
-        save_manifest(fa + fb, out / "frames.json")
-        A, B, diag = reconstruct(fa, fb, device=a.device, log=log)
+        if a.poses == "colmap":
+            work = None
+            if a.colmap_from:
+                work = Path(a.colmap_from)
+                work = work / "work" if (work / "work" / "frames.json").exists() else work
+            A, B, diag, keys = reconstruct_colmap([a.before, a.after], out, n_frames=a.frames, device=a.device,
+                                                  work=work, log=log)
+            save_manifest([Frame(**k) for k in keys], out / "frames.json")
+        else:
+            log(f"Frames: {a.frames} sharp keyframes per video")
+            fa = extract_keyframes(a.before, out / "frames", "A", n=a.frames)
+            fb = extract_keyframes(a.after, out / "frames", "B", n=a.frames)
+            save_manifest(fa + fb, out / "frames.json")
+            A, B, diag = reconstruct(fa, fb, device=a.device, log=log)
         (out / "objects.json").unlink(missing_ok=True)
         A.save(out / "cache" / "A.npz")
         B.save(out / "cache" / "B.npz")
@@ -143,6 +154,9 @@ def cmd_relevel(a) -> None:
     A = Session.load("A", out / "cache" / "A.npz")
     B = Session.load("B", out / "cache" / "B.npz")
     diag = json.loads((out / "cache" / "diag.json").read_text())
+    if diag.get("poses_from") == "colmap":
+        sys.exit("This run's cameras come from COLMAP and are levelled with the splat viewer; "
+                 "redo it with `whatchanged run ... --poses colmap --force` instead.")
     level_and_align(A, B, diag, log)
     A.save(out / "cache" / "A.npz")
     B.save(out / "cache" / "B.npz")
@@ -250,6 +264,10 @@ def main(argv=None) -> None:
     r.add_argument("--out", default="out/run")
     r.add_argument("--frames", type=int, default=32, help="keyframes per video")
     r.add_argument("--device", default="auto", help="auto, cpu, cuda or mps")
+    r.add_argument("--poses", default="mapanything", choices=["mapanything", "colmap"],
+                   help="where the cameras come from; colmap shares them with `whatchanged room`, so boxes land on the splats")
+    r.add_argument("--colmap-from", dest="colmap_from",
+                   help="with --poses colmap: reuse this `whatchanged room BEFORE AFTER` output instead of running COLMAP")
     r.add_argument("--force", action="store_true")
     tuning(r)
     r.set_defaults(fn=cmd_run)
@@ -289,7 +307,8 @@ def main(argv=None) -> None:
     rm.add_argument("--iters", type=int, default=30000, help="splat training steps (30000: about 12 min on an M4 Pro)")
     rm.add_argument("--sh", type=int, default=3, help="spherical-harmonic degree kept in the .spz (0-3)")
     rm.add_argument("--camera-height", dest="camera_height", type=float, default=1.4, help="median filming height in metres (sets the scale)")
-    rm.add_argument("--detections", help="a `whatchanged run` folder on the same videos: metric scale, plus its object and change boxes")
+    rm.add_argument("--detections", help="a `whatchanged run` folder on the same videos: metric scale, plus its object and change boxes "
+                    "(a --poses colmap run on BEFORE AFTER also lends its COLMAP model)")
     rm.add_argument("--force", action="store_true", help="redo frames, poses and training")
     rm.set_defaults(fn=cmd_room)
 

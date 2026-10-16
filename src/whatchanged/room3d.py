@@ -6,7 +6,9 @@
 All videos are posed together in ONE COLMAP model, so every splat lives in the same frame and a
 before/after pair lines up exactly. Each video still gets its own splat: training one splat on
 both would turn every moved object into a ghost. The splats are for looking at the room; change
-detection runs on the MapAnything geometry (recon.py, changes.py), not on these.
+detection runs on the depth geometry (recon.py, changes.py), not on these. With
+`whatchanged run --poses colmap` that geometry uses this same COLMAP model, so its boxes need no
+fitting at all to land on the splats.
 """
 
 from __future__ import annotations
@@ -401,15 +403,79 @@ def viewer_frame(cams_c2w: np.ndarray, pts: np.ndarray, camera_height: float = 1
 
 # ---------------------------------------------------------------- tie-in with a detection run
 
-def _run_sessions(run: Path, names: list[str], n: str) -> list:
-    """Detection sessions filmed with video n: all of them for a single (self-split) video, else the same name."""
+def _run_sessions(run: Path, names: list[str], n: str, offsets: dict[str, float] | None = None) -> list:
+    """Detection sessions filmed with video n: all of them for a single (self-split) video, else the same name.
+
+    `offsets` (seconds, from clip_offsets) move each session's clock onto the room video's.
+    """
     from .recon import Session
     want = ["A", "B"] if names == ["room"] else [n]
-    return [Session.load(s, run / "cache" / f"{s}.npz") for s in want if (run / "cache" / f"{s}.npz").exists()]
+    out = [Session.load(s, run / "cache" / f"{s}.npz") for s in want if (run / "cache" / f"{s}.npz").exists()]
+    for S in out:
+        S.times = S.times + (offsets or {}).get(S.name, 0.0)
+    return out
+
+
+def run_colmap_work(run: Path) -> Path | None:
+    """The COLMAP work folder a `whatchanged run --poses colmap` took its cameras from."""
+    p = run / "cache" / "diag.json"
+    c = json.loads(p.read_text()).get("colmap") if p.exists() else None
+    return Path(c["work"]) if c and (Path(c["work"]) / "dense" / "sparse" / "0").exists() else None
+
+
+def shared_alignment(run: Path, dense: Path, M: np.ndarray, log=print) -> dict | None:
+    """Exact transform from the detection run's frame to the viewer's when both came from this COLMAP model.
+
+    The run stored COLMAP world -> its levelled world (L); the viewer is COLMAP world -> viewer (M).
+    detection_boxes feeds run points as (x, z, -y), hence the axis swap W.
+    """
+    work = run_colmap_work(run)
+    if work is None or (work / "dense").resolve() != dense.resolve():
+        return None
+    L = np.array(json.loads((run / "cache" / "diag.json").read_text())["colmap"]["to_levelled"])
+    W = np.eye(4)
+    W[:3, :3] = [[1, 0, 0], [0, 0, 1], [0, -1, 0]]
+    T = M @ np.linalg.inv(L) @ np.linalg.inv(W)
+    log("  boxes: the detection run uses this COLMAP model, so its boxes need no fitting")
+    return {"matrix": T, "yaw_deg": float(np.degrees(np.arctan2(T[0, 2], T[0, 0]))), "shared_model": True}
+
+
+def clip_offsets(run: Path, names: list[str], frames: dict, imgs: dict[int, dict], log=print,
+                 search_s: float = 5.0) -> dict[str, float]:
+    """Seconds to add to each detection session's clock so it reads the room video's clock.
+
+    A self-split, or any trimmed copy of the room video, starts at a different moment. The phone's
+    turning gives the offset away: at the right one, every keyframe's orientation differs from the
+    room camera's at the same moment by one and the same rotation. Scale-free, so it can run first.
+    """
+    rot = {im["name"]: cam_to_world(im)[:3, :3] for im in imgs.values()}
+    out = {}
+    cos5 = 1 + 2 * np.cos(np.radians(5))                 # trace of a 5-degree rotation
+    for n in names:
+        mine = sorted((f["t"], f["name"]) for f in frames[n] if f["name"] in rot)
+        ts, Rs = np.array([t for t, _ in mine]), np.stack([rot[k] for _, k in mine])
+        for S in _run_sessions(run, names, n):
+            score = {}
+            for dt in sorted(np.round(np.arange(-search_s, search_s + 1e-9, 1 / 30), 4), key=abs):
+                j = np.clip(np.searchsorted(ts, S.times + dt), 1, len(ts) - 1)
+                j = np.where(np.abs(ts[j - 1] - S.times - dt) < np.abs(ts[j] - S.times - dt), j - 1, j)
+                ok = np.abs(ts[j] - S.times - dt) < 0.15
+                if ok.sum() < 4:
+                    continue
+                Q = Rs[j[ok]] @ S.poses[ok, :3, :3].transpose(0, 2, 1)     # detection frame -> COLMAP, per keyframe
+                agree = (np.einsum("kab,mab->km", Q, Q) > cos5).sum(1).max()
+                score[float(dt)] = int(agree)
+            best = max(score, key=lambda k: score[k]) if score else 0.0
+            if score.get(0.0, 0) >= 0.9 * score.get(best, 0):
+                best = 0.0
+            out[S.name] = best
+            if best:
+                log(f"  boxes: session {S.name}'s clip starts {best:+.2f} s off the room video (from the camera turns)")
+    return out
 
 
 def metric_scale(run: Path, names: list[str], frames: dict, imgs: dict[int, dict], xyz: np.ndarray,
-                 seen: list[np.ndarray], log=print) -> float | None:
+                 seen: list[np.ndarray], log=print, offsets: dict[str, float] | None = None) -> float | None:
     """Metres per COLMAP unit from MapAnything's metric depth, independent of either pipeline's poses.
 
     Where a detection keyframe and a COLMAP frame are the same video frame, every COLMAP point that
@@ -424,7 +490,7 @@ def metric_scale(run: Path, names: list[str], frames: dict, imgs: dict[int, dict
     for n in names:
         mine = sorted((tname[im["name"]], iid) for iid, im in imgs.items() if im["name"] in tname and im["name"].startswith(n + "/"))
         ts = np.array([t for t, _ in mine])
-        for S in _run_sessions(run, names, n):
+        for S in _run_sessions(run, names, n, offsets):
             for i, t in enumerate(S.times):
                 j = int(np.argmin(np.abs(ts - t)))
                 if abs(ts[j] - t) > 0.05 or len(obs.get(mine[j][1], [])) < 20:
@@ -451,7 +517,7 @@ def metric_scale(run: Path, names: list[str], frames: dict, imgs: dict[int, dict
 
 
 def detection_alignment(run: Path, names: list[str], frames: dict, imgs: dict[int, dict], M: np.ndarray,
-                        log=print) -> dict | None:
+                        log=print, offsets: dict[str, float] | None = None) -> dict | None:
     """Yaw + shift taking the detection run's levelled frame into the viewer frame.
 
     Both frames are already level, floor at 0 and metric, so only a turn about the vertical and a
@@ -463,7 +529,7 @@ def detection_alignment(run: Path, names: list[str], frames: dict, imgs: dict[in
     for n in names:
         mine = sorted((f["t"], by_name[f["name"]]) for f in frames[n] if f["name"] in by_name)
         ts, cs = np.array([t for t, _ in mine]), np.array([c for _, c in mine])
-        for S in _run_sessions(run, names, n):
+        for S in _run_sessions(run, names, n, offsets):
             for t, P in zip(S.times, S.poses):
                 j = int(np.searchsorted(ts, t))
                 if not (0 < j < len(ts)) or ts[j] - ts[j - 1] > 0.6:
@@ -563,7 +629,17 @@ def build(videos: list[str], out: Path, fps: float = 4.0, max_side: int = 1600, 
     work = out / "work"
     names = ["A", "B", "C", "D"][: len(videos)] if len(videos) > 1 else ["room"]
     frames_json = work / "frames.json"
-    if force or not frames_json.exists():
+    run = Path(detections) if detections else None
+    shared = run_colmap_work(run) if run else None
+    if shared and names == ["A", "B"] and not frames_json.exists():
+        # The detection run already posed these videos: train the splats on its model, so both share poses.
+        work.mkdir(parents=True, exist_ok=True)
+        shutil.copy(shared / "frames.json", frames_json)
+        for d in ("images", "dense"):
+            (work / d).symlink_to((shared / d).resolve(), target_is_directory=True)
+        log(f"Poses: reusing the detection run's COLMAP model ({shared})")
+    linked = (work / "dense").is_symlink()
+    if (force and not linked) or not frames_json.exists():
         shutil.rmtree(work / "images", ignore_errors=True)
         log(f"Frames: sharpest per {1 / fps:.2f}s window, longest side {max_side}px")
         frames = {n: extract_frames(v, work / "images" / n, n, fps=fps, max_side=max_side, log=log) for n, v in zip(names, videos)}
@@ -571,17 +647,28 @@ def build(videos: list[str], out: Path, fps: float = 4.0, max_side: int = 1600, 
         (work / "dense").exists() and shutil.rmtree(work / "dense")
     frames = json.loads(frames_json.read_text())
     dense = work / "dense"
-    if force or not (dense / "sparse" / "0" / "images.bin").exists():
+    if (force and not linked) or not (dense / "sparse" / "0" / "images.bin").exists():
         log("Poses: COLMAP (SIFT, sequential + loop pairs, global mapper)")
         dense = run_colmap(work, [[f["name"] for f in frames[n]] for n in names], log=log)
     imgs = read_images(dense / "sparse" / "0" / "images.bin")
     xyz, rgb, seen = read_points(dense / "sparse" / "0" / "points3D.bin")
     c2w = np.stack([cam_to_world(im) for im in imgs.values()])
-    run = Path(detections) if detections else None
-    scale = metric_scale(run, names, frames, imgs, xyz, seen, log=log) if run else None
+    same_model = bool(shared and (shared / "dense").resolve() == dense.resolve())
+    offsets, scale = None, None
+    if same_model:
+        scale = json.loads((run / "cache" / "diag.json").read_text())["colmap"]["metric_scale_m_per_unit"]
+    elif run:
+        offsets = clip_offsets(run, names, frames, imgs, log=log)
+        scale = metric_scale(run, names, frames, imgs, xyz, seen, log=log, offsets=offsets)
     frame = viewer_frame(c2w, xyz, camera_height, scale)
     log(f"Viewer frame: scale from {frame['scale_from']}, median camera height {frame['median_camera_height_m']} m")
-    align = detection_alignment(run, names, frames, imgs, frame["matrix"], log=log) if run else None
+    align = None
+    if same_model:
+        align = shared_alignment(run, dense, frame["matrix"], log=log)
+    elif run:
+        align = detection_alignment(run, names, frames, imgs, frame["matrix"], log=log, offsets=offsets)
+        if align and offsets:
+            align["clip_offsets_s"] = offsets
 
     cam0 = next(iter(read_cameras(dense / "sparse" / "0" / "cameras.bin").values()))
     fov_y = float(np.degrees(2 * np.arctan(cam0["height"] / 2 / cam0["params"][1])))

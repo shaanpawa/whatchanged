@@ -2,7 +2,9 @@
 
 Geometry decides what changed, where, and by how much. A vision model only names the
 object and the fixed thing it sits on. Sentences are filled from measured facts, so the
-words, the 3D boxes and the numbers cannot disagree.
+words, the 3D boxes and the numbers cannot disagree. When Claude has already named the 3D
+object box at a change's spot (naming.py), the labeller is told that name, so the change and
+the box say "radiator" alike.
 
 Labellers, in order of preference:
   claude  - Claude (Opus 5.5) via the Anthropic SDK, when ANTHROPIC_API_KEY is set
@@ -175,6 +177,7 @@ def _claude(images: list[Image.Image], kind: str, extra: str) -> dict | None:
         content.append({"type": "image", "source": {"type": "base64", "media_type": "image/jpeg",
                                                     "data": base64.standard_b64encode(buf.getvalue()).decode()}})
     content.append({"type": "text", "text": GEMINI_PROMPT.format(kind=kind, extra=extra)})
+    from .naming import USAGE
     client = anthropic.Anthropic()
     resp = client.beta.messages.create(
         model=CLAUDE_MODEL, max_tokens=16000,
@@ -182,6 +185,7 @@ def _claude(images: list[Image.Image], kind: str, extra: str) -> dict | None:
         output_config={"effort": "medium", "format": {"type": "json_schema", "schema": LABEL_SCHEMA}},
         messages=[{"role": "user", "content": content}],
     )
+    USAGE.usage(resp.usage)
     if resp.stop_reason in ("refusal", "max_tokens"):
         return None
     text = next((b.text for b in resp.content if b.type == "text"), None)
@@ -238,7 +242,11 @@ def label(images: list[Image.Image], kind: str, labeller: str, cache: Cache, ext
     if key in cache.data:
         return cache.data[key]
     if labeller == "claude":
-        ans = _claude(images, kind, extra)
+        try:
+            ans = _claude(images, kind, extra)
+        except Exception as e:  # noqa: BLE001  (a failed call, e.g. overloaded, must not lose the whole run)
+            print(f"warning: Claude change label failed ({type(e).__name__}); using SigLIP for this one", flush=True)
+            return {**_siglip(images, kind), "labeller": "siglip"}   # not cached, so a rerun asks Claude again
         if ans is None:                      # declined: fall back to the offline labeller
             labeller = "siglip"
             ans = _siglip(images, kind)
@@ -256,7 +264,7 @@ def label(images: list[Image.Image], kind: str, labeller: str, cache: Cache, ext
 
 def _pick(ans: dict, box_name: str | None, labeller: str) -> str:
     """Gemini's name wins; otherwise a 3D box's name (seen from several views) beats one SigLIP crop."""
-    if labeller in ("claude", "gemini") and ans.get("label"):
+    if ans.get("labeller", labeller) in ("claude", "gemini") and ans.get("label"):   # not a SigLIP stand-in
         return ans["label"]
     return box_name or ans.get("label", "object")
 
@@ -314,10 +322,11 @@ def check_sentence(c: dict) -> list[str]:
 
 # ---------------------------------------------------------------- assemble
 
-def _boxes_context(pts: np.ndarray, bottom: float, boxes) -> tuple[str | None, str, str]:
-    """(name from the object box containing these points, what it rests on, what it is next to)."""
+def _boxes_context(pts: np.ndarray, bottom: float, boxes) -> tuple[str | None, str, str, str]:
+    """(name from the object box containing these points, what it rests on, what it is next to,
+    that name again if Claude checked it, else "")."""
     if not boxes:
-        return None, "", ""
+        return None, "", "", ""
     from .objects3d import label_for_points, support_and_near
     name, _ = label_for_points(pts, boxes)
     own = None
@@ -325,7 +334,15 @@ def _boxes_context(pts: np.ndarray, bottom: float, boxes) -> tuple[str | None, s
         from .objects3d import _inside_share
         own = max(boxes, key=lambda b: _inside_share(pts, b, pad=0.05))
     on, near = support_and_near(pts.mean(0), bottom, boxes, exclude=own)
-    return name, on, near
+    checked = own.label if own is not None and own.label_source == "claude" else ""
+    return name, on, near, checked
+
+
+def _hint(checked: str, labeller: str) -> str:
+    """Tell a vision labeller what Claude called the object box here, so the change and the box share a name."""
+    if not checked or labeller not in ("claude", "gemini"):
+        return ""
+    return f' A 3D object box at this spot was named "{checked}" from several other views; use that name if it is the same object.'
 
 
 def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str = "auto", log=print,
@@ -357,8 +374,8 @@ def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str 
             continue
         n += 1
         before, after, j, k = pair_views(b, A, B)
-        ans = label([before, after], "removed", labeller, cache)
-        bname, on, near = _boxes_context(b.voxels, b.bottom, boxes.get("A"))
+        bname, on, near, checked = _boxes_context(b.voxels, b.bottom, boxes.get("A"))
+        ans = label([before, after], "removed", labeller, cache, extra=_hint(checked, labeller))
         c = {"id": f"c{n:02d}", "type": "removed", **facts(b), "label": _pick(ans, bname, labeller), "colour": ans.get("colour", ""),
              "on_before": on or ans.get("on_before", ""), "on_after": "", "near_before": near, "near_after": "",
              "evidence": {"free_views": b.views, "free_share": round(b.score, 2), "noise_margin": round(b.margin, 1)},
@@ -371,8 +388,8 @@ def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str 
             continue
         n += 1
         after, before, k, j = pair_views(b, B, A)
-        ans = label([before, after], "added", labeller, cache)
-        bname, on, near = _boxes_context(b.voxels, b.bottom, boxes.get("B"))
+        bname, on, near, checked = _boxes_context(b.voxels, b.bottom, boxes.get("B"))
+        ans = label([before, after], "added", labeller, cache, extra=_hint(checked, labeller))
         c = {"id": f"c{n:02d}", "type": "added", **facts(b), "label": _pick(ans, bname, labeller), "colour": ans.get("colour", ""),
              "on_before": "", "on_after": on or ans.get("on_after", ""), "near_before": "", "near_after": near,
              "evidence": {"free_views": b.views, "free_share": round(b.score, 2), "noise_margin": round(b.margin, 1)},
@@ -385,10 +402,10 @@ def describe(result: dict, A: Session, B: Session, out_dir: Path, labeller: str 
         n += 1
         before, _, j, _ = pair_views(r, A, B)
         after, _, k, _ = pair_views(a, B, A)
+        nb, onb, nearb, cb = _boxes_context(r.voxels, r.bottom, boxes.get("A"))
+        na, ona, neara, ca = _boxes_context(a.voxels, a.bottom, boxes.get("B"))
         ans = label([before, after], "moved", labeller, cache,
-                    extra=" Image 1 shows the object at its old place, image 2 at its new place.")
-        nb, onb, nearb = _boxes_context(r.voxels, r.bottom, boxes.get("A"))
-        na, ona, neara = _boxes_context(a.voxels, a.bottom, boxes.get("B"))
+                    extra=" Image 1 shows the object at its old place, image 2 at its new place." + _hint(cb or ca, labeller))
         c = {"id": f"c{n:02d}", "type": "moved", **facts(a), "label": _pick(ans, nb or na, labeller), "colour": ans.get("colour", ""),
              "on_before": onb or ans.get("on_before", ""), "on_after": ona or ans.get("on_after", ""),
              "near_before": nearb, "near_after": neara,

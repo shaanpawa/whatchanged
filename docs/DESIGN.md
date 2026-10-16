@@ -116,7 +116,8 @@ A detector miss looks exactly like a removal, so each candidate goes to Claude w
 the other video's view of the same spot, the same wireframe drawn in both. Is it one real object, and is it
 still there? Only "absent" is kept. On the real pair it proposed 11 candidates; Claude kept 7 (both ends of
 three moves, and the speaker's old place) and turned down 4: a window blind, books, a desk mat and a black
-box behind the TV that was there in both videos. Each change's evidence says which witness found it.
+box behind the TV that was there in both videos. The colour search below adds a twelfth, which Claude also
+confirmed. Each change's evidence says which witness found it.
 
 **Turned in place.** The office chair was turned around where it stood. The vote saw the space its back had
 filled go empty and called it removed, but the detector still finds the chair in that spot in both videos. A

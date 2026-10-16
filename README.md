@@ -93,7 +93,8 @@ fast first pass, the untouched repeat, calibration, the real pair, the viewer, t
 See [scripts/README.md](scripts/README.md).
 
 **Claude is optional.** Put `ANTHROPIC_API_KEY=...` in a git-ignored `.env`. Without it no API is called:
-boxes keep OWLv2's labels and changes are named by SigLIP 2 on the CPU.
+boxes keep OWLv2's labels, changes are named by SigLIP 2 on the CPU, and the detector's changes are kept
+without Claude's second look (so expect a few more false ones).
 
 **Without a Mac or COLMAP:** `whatchanged run before.mp4 after.mp4` (MapAnything's own poses) runs on Linux,
 CPU or CUDA. Or fork the repo, open *Actions → run on your own videos*, paste two video links and download
@@ -165,9 +166,9 @@ flowchart TB
 5. **Second witness.** The vote is only as good as the depth (on a first pass over the real pair, a subtly
    wrong camera model raised its noise floor to 16 to 39% and it found nothing; the run now warns when that
    happens). So the object detector also votes: for each box, how often each video's frames that should show
-   it have a detection of it. Found steadily in one video
-   and in at most 20% of at least 3 frames of the other: gone there. Claude then looks at both views of the
-   spot and keeps only what is really absent. Same-name pairs are moves.
+   it have a detection of it. Found steadily in one video and in at most 20% of at least 3 frames of the
+   other: gone there. Claude then looks at both views of the spot and keeps only what is really absent.
+   Same-name pairs are moves.
 6. **Objects.** OWLv2 finds objects in up to 40 keyframes per video, with the room's own nouns added to its
    queries. Detections from both videos are fused into **one** set of 3D boxes, so Before and After show the
    same static objects and differ only where a change is.
@@ -193,7 +194,7 @@ All in one levelled metric frame: metres, z up, floor at z = 0, yaw about +z.
 | `scene_graph_{before,after}.json` | Objects with *on* and *near* relations | JSON, frame `map` |
 | `objects_{A,B}.txt` | The object layout | SpatialLM `Bbox(class,x,y,z,angle_z,scale_x,scale_y,scale_z)` |
 | `objects.json` | One object set for both videos: state (both, before only, after only, moved), who saw it, Claude's verdict | JSON |
-| `changes.json` | Every change: type, name, sentence, 3D box, evidence (free views, share, noise margin), video timestamps, *can't tell* regions, smallest detectable change | JSON |
+| `changes.json` | Every change: type, name, sentence, 3D box, evidence (which witness, views, share, noise margin), video timestamps, *can't tell* regions, smallest detectable change | JSON |
 | `scene.rrd` | Both scans, every camera, the boxes and the changes | [Rerun](https://rerun.io) |
 | `A.spz`, `B.spz`, `scene.json` | A Gaussian splat per video in the shared frame, and the camera path | SPZ, for a simulator or the viewer |
 
@@ -215,9 +216,10 @@ the same result. On the real pair: about 120 calls, about $1.45. Without a key, 
 
 ## Evaluation
 
-- **Unit tests (89, on every push, about 15 s, no models or keys).** A synthetic room rendered by ray casting checks the
-  brief's traps: a viewpoint change alone reports nothing, a removed box is *removed*, a box hidden behind a
-  new obstacle is **not** called removed, a moved and turned box is *moved* with its distance and turn.
+- **Unit tests (89, on every push, about 15 s, no models or keys).** A synthetic room rendered by ray
+  casting checks the brief's traps: a viewpoint change alone reports nothing, a removed box is *removed*, a
+  box hidden behind a new obstacle is **not** called removed, a moved and turned box is *moved* with its
+  distance and turn.
   Also: COLMAP guards, the shared object set, the detector-based change test and Claude's check of it, Claude
   naming with a fake client (refusals, bad key, merges), the scorecard, and the video's pose interpolation.
 - **Untouched repeat.** The protocol films a second pass with nothing moved (A2), which must report nothing;

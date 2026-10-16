@@ -43,8 +43,10 @@ def _evidence(c: dict) -> str:
     ev = c["evidence"]
     other = "B" if c["type"] == "removed" else "A"
     if ev.get("by") == "objects":
-        return (f"video {other if c['type'] != 'moved' else 'A and B'} showed the spot in {ev['free_views']} frames "
-                f"· detector found it in {1 - ev['free_share']:.0%} of them")
+        found = "none" if ev["free_share"] >= 0.999 else f"{1 - ev['free_share']:.0%}"
+        where = (f"video {other} showed its spot in {ev['free_views']} frames" if c["type"] != "moved"
+                 else f"each video showed the other's spot in at least {ev['free_views']} frames")
+        return f"{where}; the object detector found it in {found} of them"
     return (f"{other if c['type'] != 'moved' else 'B'} saw it free in {ev['free_views']} views · free share {ev['free_share']:.0%} · "
             f"{ev['noise_margin']:.1f}× past the noise tolerance")
 
